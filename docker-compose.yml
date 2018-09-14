@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  server:
+    build: ./server
+    container_name: server
+    environment:
+      - TZ=America/Montreal
+    ports:
+      - "80:80"
+      - "3306:3306"
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: backend
+    # env_file:
+    #   - ./backend/.env
+    environment:
+      - TZ=America/Montreal
+    ports:
+      - "3000:3000"
+    restart: always
+    volumes:
+      - ./backend/app:/usr/src/app
+
+  database:
+    build: ./database
+    container_name: database
+    env_file:
+      - ./database/.env
+    environment:
+      - TZ=America/Montreal
+    restart: always
+    environment:
+      MYSQL_DATABASE: library
+      MYSQL_USER: user
+    volumes:
+      - mysql:/var/lib/mysql/
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: frontend
+  #   environment:
+  #     - TZ=America/Montreal
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend/src:/usr/src/app/src
+  #     - ./frontend/public:/usr/src/app/public
+
+volumes:
+  mysql:
