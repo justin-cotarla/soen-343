@@ -38,16 +38,16 @@ services:
     volumes:
       - mysql:/var/lib/mysql/
 
-  # frontend:
-  #   build: ./frontend
-  #   container_name: frontend
-  #   environment:
-  #     - TZ=America/Montreal
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend/src:/usr/src/app/src
-  #     - ./frontend/public:/usr/src/app/public
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    environment:
+      - TZ=America/Montreal
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend/src:/usr/src/app/src
+      - ./frontend/public:/usr/src/app/public
 
 volumes:
   mysql:
