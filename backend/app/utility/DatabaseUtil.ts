@@ -1,5 +1,10 @@
 import * as mysql from 'mysql';
 
+declare interface QueryResponse {
+    rows: any[];
+    fields?: mysql.FieldInfo[];
+}
+
 class DatabaseUtil {
     pool: mysql.Pool;
 
@@ -29,12 +34,12 @@ class DatabaseUtil {
         });
     }
 
-    async sendQuery(queryString: string, values?: string[]) {
+    async sendQuery(queryString: string, values?: string[]): Promise<QueryResponse> {
         const query = mysql.format(queryString, values);
 
         const connection = await this.getConnection();
 
-        return new Promise((resolve, reject) => {
+        return new Promise<QueryResponse>((resolve, reject) => {
             connection.query(values !== undefined ? query : queryString, (err, rows, fields) => {
                 connection.end();
                 if (err) {
