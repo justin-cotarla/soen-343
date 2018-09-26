@@ -1,23 +1,22 @@
 import React, { Component } from 'react';
 import User from './User';
 import '../styles/UserList.css';
+import { Card } from 'semantic-ui-react';
 
 class UserList extends Component {
     render() {
         const userList = this.props.users.map((user) => 
-            <li>
-                <User 
-                    firstName={user.firstName} 
-                    lastName={user.lastName}
-                    email={user.email}
-                    address={user.address}
-                />
-            </li>
+            <User 
+                firstName={user.firstName} 
+                lastName={user.lastName}
+                email={user.email}
+                address={user.address}
+            />
         );
         return (
-            <ul className="userlist-list">
+            <Card.Group className="userlist-list centered">
                 {userList}
-            </ul>
+            </Card.Group>
         );
     }
 }

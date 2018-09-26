@@ -6,3 +6,8 @@
     font-family: sans-serif;
     text-align: center;
 }
+
+.view-users-list-container {
+    text-align: center;
+    width: 100%;
+}

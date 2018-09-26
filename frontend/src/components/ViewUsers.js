@@ -12,7 +12,9 @@ class ViewUsers extends Component {
         return (
             <div className="view-users-container">
                 <h1 className="view-users-title">Logged in Users</h1>
-                <UserList users={userList}/>
+                <div className="view-users-list-container">
+                    <UserList users={userList}/>
+                </div>
             </div>
         );
     }
