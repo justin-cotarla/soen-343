@@ -1,39 +1,84 @@
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import DatabaseUtil from './DatabaseUtil';
+
+interface AccountResponse {
+    id: any;
+    email: any;
+    name: any;
+}
 
 const SALT_ROUNDS = 10;
 
-const register = async (client: any): Promise<any> => {
-    const userQuery = '';
-    const registerQuery = '';
+const register = async (client: any, password: string): Promise<AccountResponse> => {
+    const userQuery = 'SELECT ID FROM ACCOUNT WHERE EMAIL=?;';
+    const registerQuery = `
+        INSERT INTO ACCOUNT
+        (EMAIL, FIRST_NAME, LAST_NAME, ADDRESS, PHONE_NUMBER, HASH, ADMIN)
+        VALUES
+        (?, ?, ?, ?, ?, ?, ?);
+        `;
 
+    const adminAccount = 0; // client instanceof Administrator ? 1 : 0;
     // Check if user exists
-    // let result = await databaseUtil.sendQuery(userQuery);
+    try {
+        let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
+        if (result.rows.length !== 0) {
+            throw new Error('User already exists.');
+        }
 
-    const hash = await bcrypt.hash(client.password, SALT_ROUNDS);
-    // result = await databaseUtil.sendQuery(registerQuery);
+        const hash = await bcrypt.hash(password, SALT_ROUNDS);
+        result = await DatabaseUtil.sendQuery(registerQuery, [
+            client.email,
+            client.firstName,
+            client.lastName,
+            client.address,
+            client.phoneNumber,
+            hash,
+            adminAccount,
+        ]);
 
-    // return newly created client
-    return {
-        name: '',
-    };
+        // return newly created client???
+        return {
+            id: result.rows.insertId,
+            email: client.email,
+            name: `${client.firstName} ${client.lastName}`,
+        };
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
 };
 
-const authenticate = async (email: string, password: string): Promise<any> => {
-    const query = '';
+const authenticate = async (email: string, password: string): Promise<AccountResponse> => {
+    const query = `SELECT
+        ID, EMAIL, FIRST_NAME, LAST_NAME, HASH
+        FROM ACCOUNT
+        WHERE EMAIL=?;`;
 
     // Check if user exists
-    // const result = await databaseUtil.sendQuery(query);
+    try {
+        const result = await DatabaseUtil.sendQuery(query, [email]);
+        if (result.rows.length === 0) {
+            throw new Error('User does not exist.');
+        }
 
-    const match = true; // await bcrypt.compare(password, result.rows[0].HASH);
-    if (match) {
-        // return the authenticated user
-        return {
+        const match = await bcrypt.compare(password, result.rows[0].HASH);
 
-        };
+        if (match) {
+            // return the authenticated user
+            return {
+                id: result.rows[0].ID,
+                email: result.rows[0].EMAIL,
+                name: `${result.rows[0].FIRST_NAME} ${result.rows[0].LAST_NAME}`,
+            };
+        }
+        // otherwise, return authentication error
+        throw new Error('Authentication error.');
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
-    // otherwise, return authentication error
-
 };
 
 const generateToken = (payload: any): Promise<string> => {
