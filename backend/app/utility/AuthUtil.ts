@@ -2,15 +2,18 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import DatabaseUtil from './DatabaseUtil';
 
-interface AccountResponse {
-    id: any;
-    email: any;
-    name: any;
+// TEMPORARY: REMOVE AFTER MAKING CLASSES FOR CLIENT AND ADMIN
+interface Client {
+    firstName: string;
+    lastName: string;
+    phone: number;
+    email: string;
+    address: string;
 }
 
 const SALT_ROUNDS = 10;
 
-const register = async (client: any, password: string): Promise<AccountResponse> => {
+const register = async (client: Client, password: string): Promise<Client> => {
     const userQuery = 'SELECT ID FROM ACCOUNT WHERE EMAIL=?;';
     const registerQuery = `
         INSERT INTO ACCOUNT
@@ -19,7 +22,7 @@ const register = async (client: any, password: string): Promise<AccountResponse>
         (?, ?, ?, ?, ?, ?, ?);
         `;
 
-    const adminAccount = 0; // client instanceof Administrator ? 1 : 0;
+    const adminAccount = '0'; // client instanceof Administrator ? 1 : 0;
     // Check if user exists
     try {
         let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
@@ -33,26 +36,21 @@ const register = async (client: any, password: string): Promise<AccountResponse>
             client.firstName,
             client.lastName,
             client.address,
-            client.phoneNumber,
+            client.phone.toString(),
             hash,
             adminAccount,
         ]);
+        return client;
 
-        // return newly created client???
-        return {
-            id: result.rows.insertId,
-            email: client.email,
-            name: `${client.firstName} ${client.lastName}`,
-        };
     } catch (err) {
         console.log(err);
         throw err;
     }
 };
 
-const authenticate = async (email: string, password: string): Promise<AccountResponse> => {
+const authenticate = async (email: string, password: string): Promise<Client> => {
     const query = `SELECT
-        ID, EMAIL, FIRST_NAME, LAST_NAME, HASH
+        EMAIL, FIRST_NAME, LAST_NAME, PHONE_NUMBER, ADDRESS
         FROM ACCOUNT
         WHERE EMAIL=?;`;
 
@@ -68,9 +66,11 @@ const authenticate = async (email: string, password: string): Promise<AccountRes
         if (match) {
             // return the authenticated user
             return {
-                id: result.rows[0].ID,
                 email: result.rows[0].EMAIL,
-                name: `${result.rows[0].FIRST_NAME} ${result.rows[0].LAST_NAME}`,
+                firstName: result.rows[0].FIRST_NAME,
+                lastName: result.rows[0].LAST_NAME,
+                address: result.rows[0].ADDRESS,
+                phone: result.rows[0].PHONE_NUMBER,
             };
         }
         // otherwise, return authentication error
