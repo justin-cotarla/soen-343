@@ -2,10 +2,14 @@ import express = require('express');
 
 import config from './config';
 import DatabaseUtil from './utility/DatabaseUtil';
+import { router as AccountRouter } from './routes/AccountRoutes';
 
 const { SERVER_PORT } = config;
 
 const app = express();
+
+app.use(express.json());
+app.use(AccountRouter);
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
