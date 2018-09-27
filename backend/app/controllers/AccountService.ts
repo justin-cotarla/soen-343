@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { authenticate, generateToken, register } from '../utility/AuthUtil';
 import { Client } from '../models/Client';
 import { Administrator } from '../models/Administrator';
+import DatabaseUtil from '../utility/DatabaseUtil';
 
 class AccountService {
 
@@ -47,6 +48,10 @@ class AccountService {
         }
     }
 
+    async getLoggedInUsers(request: Request, response: Response) {
+        const users = await DatabaseUtil.sendQuery('SELECT * FROM ACCOUNT WHERE LOGGED_IN=0');
+        return response.send(users);
+    }
 }
 
 export default new AccountService();
