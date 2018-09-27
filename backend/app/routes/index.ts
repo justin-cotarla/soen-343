@@ -3,6 +3,6 @@ import { router as AccountRouter } from './AccountRoutes';
 
 const router = express.Router();
 
-router.use('/account', AccountRouter);
+router.use('/accounts', AccountRouter);
 
 export { router };
