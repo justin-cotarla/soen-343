@@ -18,7 +18,7 @@ const register = async (client: Client, password: string): Promise<Client> => {
     const isAdminAccount = client instanceof Administrator ? '1' : '0';
 
     let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
-    if (!result.rows.length) {
+    if (result.rows.length !== 0) {
         throw new Error('User already exists');
     }
 
@@ -45,7 +45,7 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
     if (!result.rows.length) {
         throw new Error('User does not exist');
     }
-    if (result.rows[0].LOGGED_IN === '1') {
+    if (result.rows[0].LOGGED_IN === 1) {
         throw new Error('User already logged in');
     }
 
@@ -58,7 +58,7 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
     const setLoggedInQuery = 'UPDATE ACCOUNT SET LOGGED_IN=? WHERE ID=?;';
     await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', result.rows[0].ID]);
 
-    if (result.rows[0].ADMIN === '1') {
+    if (result.rows[0].ADMIN === 1) {
         return new Administrator(
             result.rows[0].FIRST_NAME,
             result.rows[0].LAST_NAME,
@@ -92,8 +92,8 @@ const generateToken = (payload: any): Promise<string> => {
     });
 };
 
-const validateToken = (token: string): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
+const validateToken = (token: string): Promise<any> => {
+    return new Promise<any>((resolve, reject) => {
         jwt.verify(
             token,
             process.env.JWT_KEY,
@@ -102,7 +102,7 @@ const validateToken = (token: string): Promise<string> => {
                     console.log(err);
                     reject(err);
                 }
-                resolve(decoded.toString());
+                resolve(decoded);
             });
     });
 };

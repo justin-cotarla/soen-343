@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { authenticate, generateToken, register } from '../utility/AuthUtil';
+import { authenticate, generateToken, register, validateToken } from '../utility/AuthUtil';
 import { Client } from '../models/Client';
 import { Administrator } from '../models/Administrator';
 
@@ -25,6 +25,19 @@ class AccountService {
     }
 
     async createAccount(request: Request, response: Response) {
+        if (!request.get('Authorization')) {
+            return response.status(401).end();
+        }
+        const callerToken = request.get('Authorization').split(' ')[1];
+        try {
+            const decoded = await validateToken(callerToken);
+            if (!decoded.isAdmin) {
+                return response.status(401).end();
+            }
+        } catch (err) {
+            return response.status(403).end();
+        }
+
         const { firstName, lastName, address, phone, email, password, isAdmin } = request.body;
 
         if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
