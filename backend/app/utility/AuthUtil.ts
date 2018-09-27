@@ -37,7 +37,7 @@ const register = async (client: Client, password: string): Promise<Client> => {
 
 const authenticate = async (email: string, password: string): Promise<Client> => {
     const query = `SELECT
-        EMAIL, FIRST_NAME, LAST_NAME, PHONE_NUMBER, ADDRESS, HASH, ADMIN
+        *
         FROM ACCOUNT
         WHERE EMAIL=?;`;
 
@@ -45,12 +45,18 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
     if (!result.rows.length) {
         throw new Error('User does not exist');
     }
+    if (result.rows[0].LOGGED_IN === '1') {
+        throw new Error('User already logged in');
+    }
 
     const match = await bcrypt.compare(password, result.rows[0].HASH);
 
     if (!match) {
         throw new Error('Incorrect email or password');
     }
+
+    const setLoggedInQuery = 'UPDATE ACCOUNT SET LOGGED_IN=? WHERE ID=?;';
+    await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', result.rows[0].ID]);
 
     if (result.rows[0].ADMIN === '1') {
         return new Administrator(
