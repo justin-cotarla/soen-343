@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdminNavbar renders correctly 1`] = `
+<Container>
+  <Menu
+    fixed="top"
+    fluid={true}
+    inverted={true}
+  >
+    <MenuItem
+      active={false}
+      name="overview"
+      style={
+        Object {
+          "height": "50px",
+          "padding": "0 1em",
+        }
+      }
+    >
+      <Icon
+        as="i"
+        name="home"
+      />
+      Overview
+    </MenuItem>
+    <MenuItem
+      active={false}
+      name="register"
+      style={
+        Object {
+          "height": "50px",
+          "padding": "0 1em",
+        }
+      }
+    >
+      <Icon
+        as="i"
+        name="user plus"
+      />
+      Register a client
+    </MenuItem>
+    <MenuItem
+      active={false}
+      name="users"
+      style={
+        Object {
+          "height": "50px",
+          "padding": "0 1em",
+        }
+      }
+    >
+      <Icon
+        as="i"
+        name="users"
+      />
+      Active clients
+    </MenuItem>
+  </Menu>
+</Container>
+`;

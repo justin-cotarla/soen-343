@@ -5,12 +5,7 @@ import AdminNavbar from "../components/AdminNavbar";
 import RegisterForm from "../components/RegisterForm";
 
 class AdminDashboard extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            activeTab: 'register',
-        }
-    }
+    state = { activeTab: 'register' };
 
     handleTabClick =  (e, { name }) => this.setState({ activeTab: name });
 
@@ -20,7 +15,7 @@ class AdminDashboard extends React.Component {
             <div>
                 <Grid style={{ height: "100%" }}>
                     <Grid.Column width={16}>
-                        <AdminNavbar vertical={false} active={activeTab} handleItemClick={this.handleTabClick}/> 
+                        <AdminNavbar vertical={false} active={activeTab} handleTabClick={this.handleTabClick}/> 
                     </Grid.Column>
                     <Grid.Column only="tablet mobile" computer={16}>
                         { activeTab === 'register' && <RegisterForm/> }

@@ -2,40 +2,37 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
 import axios from 'axios';
 class LoginForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            fname: '',
-            lname: '',
-            address: '',
-            phone: '',
-            email: '',
-            password: '',
-            admin: false,
-            submitting: false,
-            success: false,
-        }
-    }
+    state = {
+        fname: '',
+        lname: '',
+        address: '',
+        phone: '',
+        email: '',
+        password: '',
+        admin: false,
+        submitting: false,
+        success: false,
+    };
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleCheckbox = () =>  this.setState((state) => ({ admin: !state.admin }));
 
-    handleSubmit = async () => {
+    handleSubmit = () => {
         this.setState({ submitting: true });
         // TODO: make request to endpoint for user creation
     };
 
     initializeForm = () => this.setState({
         fname: '',
-            lname: '',
-            address: '',
-            phone: '',
-            email: '',
-            password: '',
-            admin: false,
-            submitting: false,
-            success: false,
+        lname: '',
+        address: '',
+        phone: '',
+        email: '',
+        password: '',
+        admin: false,
+        submitting: false,
+        success: false,
     });
 
     render() {
@@ -54,7 +51,7 @@ class LoginForm extends React.Component {
                         <Header as='h2' color='teal' textAlign='left'>
                         Register a Client
                         </Header>
-                        <Form size='big' success={success}>
+                        <Form size='big' success={success} onSubmit={this.handleSubmit}>
                             <Segment stacked>
                                 <Form.Input 
                                     name ="fname" 
@@ -115,8 +112,7 @@ class LoginForm extends React.Component {
                                     loading={submitting} 
                                     color='teal' 
                                     size='large' 
-                                    onClick={this.handleSubmit} 
-                                    disabled={!fname || !lname || !address || !email || !phone || !password || submitting}
+                                    type="submit"
                                     fluid>
                                         Register
                                 </Button>
