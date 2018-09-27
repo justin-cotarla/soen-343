@@ -29,7 +29,7 @@ class AccountService {
 
         try {
             const authUser = await authenticate(email, password);
-            const token = await generateToken(authUser);
+            const token = await generateToken({ authUser });
             response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
@@ -38,7 +38,7 @@ class AccountService {
     }
 
     async createAccount(request: Request, response: Response) {
-        if (request.body == {}) {
+        if (!Object.keys(request.body).length) {
             response.status(400).send('No information');
             return;
         }
@@ -51,15 +51,14 @@ class AccountService {
         }
 
         let client : Client;
-        if (isAdmin){
+        if (isAdmin) {
             client = new Administrator(firstName, lastName, phone, email, address);
-        }
-        else{
+        } else {
             client = new Client(firstName, lastName, phone, email, address);
         }
         try {
             const registerUser = await register(client, password);
-            const token = await generateToken(registerUser);
+            const token = await generateToken({ registerUser });
             response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
