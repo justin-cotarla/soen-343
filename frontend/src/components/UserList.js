@@ -1,21 +1,36 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import User from './User';
 import '../styles/UserList.css';
 import { Card } from 'semantic-ui-react';
 
 class UserList extends Component {
-    render() {
-        const users = [{'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'}]
+    constructor() {
+        super();
+        this.state = { 
+            users: [] 
+        };
+      }
 
+    componentDidMount() {
+        axios.get(`http://localhost/api/accounts/getloggedinusers`, {
+            headers: {"Access-Control-Allow-Origin": "*"},
+            responseType:'json',
+            crossorigin:true
+        })
+          .then(response => {
+            this.setState({ users: response.data.rows });
+          })
+    }
+
+    render() {
+        const users = this.state.users;
         const userList = users.map((user) => 
             <User 
-                firstName={user.firstName} 
-                lastName={user.lastName}
-                email={user.email}
-                address={user.address}
+                firstName={user.FIRST_NAME} 
+                lastName={user.LAST_NAME}
+                email={user.EMAIL}
+                address={user.ADDRESS}
             />
         );
         return (
