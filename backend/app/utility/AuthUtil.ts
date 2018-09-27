@@ -15,30 +15,24 @@ const register = async (client: Client, password: string): Promise<Client> => {
         (?, ?, ?, ?, ?, ?, ?);
         `;
 
-    const adminAccount = client instanceof Administrator ? '1' : '0';
+    const isAdminAccount = client instanceof Administrator ? '1' : '0';
 
-    try {
-        let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
-        if (result.rows.length !== 0) {
-            throw new Error('User already exists');
-        }
-
-        const hash = await bcrypt.hash(password, SALT_ROUNDS);
-        result = await DatabaseUtil.sendQuery(registerQuery, [
-            client.email,
-            client.firstName,
-            client.lastName,
-            client.address,
-            client.phone.toString(),
-            hash,
-            adminAccount,
-        ]);
-        return client;
-
-    } catch (err) {
-        console.log(err);
-        throw err;
+    let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
+    if (!result.rows.length) {
+        throw new Error('User already exists');
     }
+
+    const hash = await bcrypt.hash(password, SALT_ROUNDS);
+    result = await DatabaseUtil.sendQuery(registerQuery, [
+        client.email,
+        client.firstName,
+        client.lastName,
+        client.address,
+        client.phone.toString(),
+        hash,
+        isAdminAccount,
+    ]);
+    return client;
 };
 
 const authenticate = async (email: string, password: string): Promise<Client> => {
@@ -47,38 +41,33 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
         FROM ACCOUNT
         WHERE EMAIL=?;`;
 
-    try {
-        const result = await DatabaseUtil.sendQuery(query, [email]);
-        if (result.rows.length === 0) {
-            throw new Error('User does not exist');
-        }
-
-        const match = await bcrypt.compare(password, result.rows[0].HASH);
-
-        if (match) {
-            if (result.rows[0].ADMIN === '1') {
-                return new Administrator(
-                    result.rows[0].FIRST_NAME,
-                    result.rows[0].LAST_NAME,
-                    result.rows[0].PHONE_NUMBER,
-                    result.rows[0].EMAIL,
-                    result.rows[0].ADDRESS,
-                );
-            }
-            return new Client(
-                result.rows[0].FIRST_NAME,
-                result.rows[0].LAST_NAME,
-                result.rows[0].PHONE_NUMBER,
-                result.rows[0].EMAIL,
-                result.rows[0].ADDRESS,
-            );
-        }
-
-        throw new Error('Incorrect email or password');
-    } catch (err) {
-        console.log(err);
-        throw err;
+    const result = await DatabaseUtil.sendQuery(query, [email]);
+    if (!result.rows.length) {
+        throw new Error('User does not exist');
     }
+
+    const match = await bcrypt.compare(password, result.rows[0].HASH);
+
+    if (!match) {
+        throw new Error('Incorrect email or password');
+    }
+
+    if (result.rows[0].ADMIN === '1') {
+        return new Administrator(
+            result.rows[0].FIRST_NAME,
+            result.rows[0].LAST_NAME,
+            result.rows[0].PHONE_NUMBER,
+            result.rows[0].EMAIL,
+            result.rows[0].ADDRESS,
+        );
+    }
+    return new Client(
+        result.rows[0].FIRST_NAME,
+        result.rows[0].LAST_NAME,
+        result.rows[0].PHONE_NUMBER,
+        result.rows[0].EMAIL,
+        result.rows[0].ADDRESS,
+    );
 };
 
 const generateToken = (payload: any): Promise<string> => {

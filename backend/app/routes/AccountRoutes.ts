@@ -1,9 +1,9 @@
 import express from 'express';
 import AccountService from '../controllers/AccountService';
 
-const router = express.Router();
+const accountRouter = express.Router();
 
-router.post('/login', AccountService.login);
-router.post('/register', AccountService.createAccount);
+accountRouter.post('/', AccountService.createAccount);
+accountRouter.post('/login', AccountService.login);
 
-export { router };
+export { accountRouter };
