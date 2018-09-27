@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import { authenticate, generateToken } from '../utility/AuthUtil';
+import { authenticate, generateToken, register } from '../utility/AuthUtil';
+import { Client } from '../models/Client';
+import { Administrator } from '../models/Administrator';
 
 class AccountService {
 
@@ -28,6 +30,36 @@ class AccountService {
         try {
             const authUser = await authenticate(email, password);
             const token = await generateToken(authUser);
+            response.status(200).json({ token });
+        } catch (err) {
+            console.log(`error: ${err}`);
+            response.status(400).send('Unknown Error');
+        }
+    }
+
+    async createAccount(request: Request, response: Response) {
+        if (request.body == {}) {
+            response.status(400).send('No information');
+            return;
+        }
+
+        const { firstName, lastName, address, phone, email, password, isAdmin } = request.body;
+
+        if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
+            response.status(400).send('Missing information');
+            return;
+        }
+
+        let client : Client;
+        if (isAdmin){
+            client = new Administrator(firstName, lastName, phone, email, address);
+        }
+        else{
+            client = new Client(firstName, lastName, phone, email, address);
+        }
+        try {
+            const registerUser = await register(client, password);
+            const token = await generateToken(registerUser);
             response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
