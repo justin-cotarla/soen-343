@@ -13,7 +13,7 @@ class UserList extends Component {
       }
 
     componentDidMount() {
-        axios.get(`http://localhost/api/accounts/getloggedinusers`, {
+        axios.get(`http://localhost/api/accounts/users?active=true`, {
             headers: {"Access-Control-Allow-Origin": "*"},
             responseType:'json',
             crossorigin:true
