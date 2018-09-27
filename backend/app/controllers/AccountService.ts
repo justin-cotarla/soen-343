@@ -49,8 +49,16 @@ class AccountService {
     }
 
     async getLoggedInUsers(request: Request, response: Response) {
-        const users = await DatabaseUtil.sendQuery('SELECT * FROM ACCOUNT WHERE LOGGED_IN=0');
-        return response.send(users);
+        try {
+            const data = await DatabaseUtil.sendQuery('SELECT * FROM ACCOUNT WHERE LOGGED_IN=1');
+            const users = data.rows.map((user) => 
+                new Client(user.FIRST_NAME, user.LAST_NAME, user.PHONE_NUMBER, user.EMAIL, user.ADDRESS)
+            );
+            return response.status(200).json(users); 
+        } catch (err) {
+            console.log(`error: ${err}`);
+            return response.status(400).end();
+        }
     }
 }
 

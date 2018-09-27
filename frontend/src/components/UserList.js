@@ -19,7 +19,7 @@ class UserList extends Component {
             crossorigin:true
         })
           .then(response => {
-            this.setState({ users: response.data.rows });
+            this.setState({ users: response.data });
           })
     }
 
@@ -27,10 +27,10 @@ class UserList extends Component {
         const users = this.state.users;
         const userList = users.map((user) => 
             <User 
-                firstName={user.FIRST_NAME} 
-                lastName={user.LAST_NAME}
-                email={user.EMAIL}
-                address={user.ADDRESS}
+                firstName={user.firstName} 
+                lastName={user.lastName}
+                email={user.email}
+                address={user.address}
             />
         );
         return (
