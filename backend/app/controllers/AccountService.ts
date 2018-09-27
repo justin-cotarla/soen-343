@@ -51,7 +51,7 @@ class AccountService {
     async getUsers(request: Request, response: Response) {
         const active = request.query.active || false;
         try {
-            const query = active ? 'SELECT * FROM ACCOUNT WHERE LOGGED_IN=1' : 'SELECT * FROM ACCOUNT';
+            const query = active=='true' ? 'SELECT * FROM ACCOUNT WHERE LOGGED_IN=1' : 'SELECT * FROM ACCOUNT';
             const data = await DatabaseUtil.sendQuery(query);
             const users = data.rows.map((user) => 
                 new Client(user.FIRST_NAME, user.LAST_NAME, user.PHONE_NUMBER, user.EMAIL, user.ADDRESS)
