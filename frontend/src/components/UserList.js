@@ -5,12 +5,7 @@ import { Card } from 'semantic-ui-react';
 
 class UserList extends Component {
     render() {
-        const users = [{'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'},
-        {'lastName':'Bys', 'firstName':'Zach', 'address':'4 Coronation', 'email':'zbys@gmail.com'}]
-
-        const userList = users.map((user) => 
+        const userList = this.props.users.map((user) => 
             <User 
                 firstName={user.firstName} 
                 lastName={user.lastName}
