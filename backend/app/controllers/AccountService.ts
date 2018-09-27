@@ -31,7 +31,7 @@ class AccountService {
             response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
-            response.status(400);
+            response.status(400).send('Unknown Error');
         }
     }
 

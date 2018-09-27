@@ -23,11 +23,11 @@ const register = async (client: Client, password: string): Promise<Client> => {
         `;
 
     const adminAccount = '0'; // client instanceof Administrator ? 1 : 0;
-    // Check if user exists
+
     try {
         let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
         if (result.rows.length !== 0) {
-            throw new Error('User already exists.');
+            throw new Error('User already exists');
         }
 
         const hash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -50,21 +50,19 @@ const register = async (client: Client, password: string): Promise<Client> => {
 
 const authenticate = async (email: string, password: string): Promise<Client> => {
     const query = `SELECT
-        EMAIL, FIRST_NAME, LAST_NAME, PHONE_NUMBER, ADDRESS
+        EMAIL, FIRST_NAME, LAST_NAME, PHONE_NUMBER, ADDRESS, HASH, ADMIN
         FROM ACCOUNT
         WHERE EMAIL=?;`;
 
-    // Check if user exists
     try {
         const result = await DatabaseUtil.sendQuery(query, [email]);
         if (result.rows.length === 0) {
-            throw new Error('User does not exist.');
+            throw new Error('User does not exist');
         }
 
         const match = await bcrypt.compare(password, result.rows[0].HASH);
 
         if (match) {
-            // return the authenticated user
             return {
                 email: result.rows[0].EMAIL,
                 firstName: result.rows[0].FIRST_NAME,
@@ -73,8 +71,8 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
                 phone: result.rows[0].PHONE_NUMBER,
             };
         }
-        // otherwise, return authentication error
-        throw new Error('Authentication error.');
+
+        throw new Error('Incorrect email or password');
     } catch (err) {
         console.log(err);
         throw err;
