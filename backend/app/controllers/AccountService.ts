@@ -18,23 +18,19 @@ class AccountService {
         const email = credentials[0];
         const password = credentials[1];
 
-        if (!email) {
-            response.status(400).send('Missing Email');
-            return;
-        }
-        if (!password) {
-            response.status(400).send('Missing Password');
+        if (!email || !password) {
+            response.status(400).send('Incomplete form');
             return;
         }
 
         try {
             const authUser = await authenticate(email, password);
             let isAdmin = false;
-            if (authUser instanceof Administrator){
+            if (authUser instanceof Administrator) {
                 isAdmin = true;
             }
             const token = await generateToken({ authUser, isAdmin });
-            response.status(200).json({ token });
+            return response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
             response.status(400).send('Unknown Error');
@@ -42,11 +38,6 @@ class AccountService {
     }
 
     async createAccount(request: Request, response: Response) {
-        if (!Object.keys(request.body).length) {
-            response.status(400).send('No information');
-            return;
-        }
-
         const { firstName, lastName, address, phone, email, password, isAdmin } = request.body;
 
         if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
