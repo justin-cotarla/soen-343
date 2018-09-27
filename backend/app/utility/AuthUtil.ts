@@ -1,15 +1,8 @@
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import DatabaseUtil from './DatabaseUtil';
-
-// TEMPORARY: REMOVE AFTER MAKING CLASSES FOR CLIENT AND ADMIN
-interface Client {
-    firstName: string;
-    lastName: string;
-    phone: number;
-    email: string;
-    address: string;
-}
+import { Client } from '../models/Client';
+import { Administrator } from '../models/Administrator';
 
 const SALT_ROUNDS = 10;
 
@@ -22,7 +15,7 @@ const register = async (client: Client, password: string): Promise<Client> => {
         (?, ?, ?, ?, ?, ?, ?);
         `;
 
-    const adminAccount = '0'; // client instanceof Administrator ? 1 : 0;
+    const adminAccount = client instanceof Administrator ? '1' : '0';
 
     try {
         let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
@@ -63,13 +56,22 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
         const match = await bcrypt.compare(password, result.rows[0].HASH);
 
         if (match) {
-            return {
-                email: result.rows[0].EMAIL,
-                firstName: result.rows[0].FIRST_NAME,
-                lastName: result.rows[0].LAST_NAME,
-                address: result.rows[0].ADDRESS,
-                phone: result.rows[0].PHONE_NUMBER,
-            };
+            if (result.rows[0].ADMIN === '1') {
+                return new Administrator(
+                    result.rows[0].FIRST_NAME,
+                    result.rows[0].LAST_NAME,
+                    result.rows[0].PHONE_NUMBER,
+                    result.rows[0].EMAIL,
+                    result.rows[0].ADDRESS,
+                );
+            }
+            return new Client(
+                result.rows[0].FIRST_NAME,
+                result.rows[0].LAST_NAME,
+                result.rows[0].PHONE_NUMBER,
+                result.rows[0].EMAIL,
+                result.rows[0].ADDRESS,
+            );
         }
 
         throw new Error('Incorrect email or password');
