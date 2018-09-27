@@ -18,7 +18,7 @@ const register = async (client: Client, password: string): Promise<Client> => {
     const isAdminAccount = client instanceof Administrator ? '1' : '0';
 
     let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
-    if (result.rows.length !== 0) {
+    if (result.rows.length) {
         throw new Error('User already exists');
     }
 
@@ -45,34 +45,36 @@ const authenticate = async (email: string, password: string): Promise<Client> =>
     if (!result.rows.length) {
         throw new Error('User does not exist');
     }
-    if (result.rows[0].LOGGED_IN === 1) {
+
+    const user = result.rows[0];
+    if (user.LOGGED_IN === 1) {
         throw new Error('User already logged in');
     }
 
-    const match = await bcrypt.compare(password, result.rows[0].HASH);
+    const match = await bcrypt.compare(password, user.HASH);
 
     if (!match) {
         throw new Error('Incorrect email or password');
     }
 
     const setLoggedInQuery = 'UPDATE ACCOUNT SET LOGGED_IN=? WHERE ID=?;';
-    await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', result.rows[0].ID]);
+    await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', user.ID]);
 
-    if (result.rows[0].ADMIN === 1) {
+    if (user.ADMIN === 1) {
         return new Administrator(
-            result.rows[0].FIRST_NAME,
-            result.rows[0].LAST_NAME,
-            result.rows[0].PHONE_NUMBER,
-            result.rows[0].EMAIL,
-            result.rows[0].ADDRESS,
+            user.FIRST_NAME,
+            user.LAST_NAME,
+            user.PHONE_NUMBER,
+            user.EMAIL,
+            user.ADDRESS,
         );
     }
     return new Client(
-        result.rows[0].FIRST_NAME,
-        result.rows[0].LAST_NAME,
-        result.rows[0].PHONE_NUMBER,
-        result.rows[0].EMAIL,
-        result.rows[0].ADDRESS,
+        user.FIRST_NAME,
+        user.LAST_NAME,
+        user.PHONE_NUMBER,
+        user.EMAIL,
+        user.ADDRESS,
     );
 };
 
