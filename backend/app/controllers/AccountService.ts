@@ -29,7 +29,11 @@ class AccountService {
 
         try {
             const authUser = await authenticate(email, password);
-            const token = await generateToken({ authUser });
+            let isAdmin = false;
+            if (authUser instanceof Administrator){
+                isAdmin = true;
+            }
+            const token = await generateToken({ authUser, isAdmin });
             response.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
