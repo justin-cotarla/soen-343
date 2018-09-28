@@ -6,7 +6,7 @@ class Administrator extends Client {
         lastName: string,
         phone: number,
         email: string,
-        address:string) {
+        address: string) {
         super(firstName, lastName, phone, email, address);
     }
 }

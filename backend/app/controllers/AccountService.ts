@@ -6,30 +6,41 @@ import DatabaseUtil from '../utility/DatabaseUtil';
 
 class AccountService {
 
-    async login(request: Request, response: Response) {
-
-        const { email, password } = request.body;
+    async login(req: Request, res: Response) {
+        const { email, password } = req.body;
 
         if (!email || !password) {
-            return response.status(401).end();
+            return res.status(401).end();
         }
 
         try {
             const authUser = await authenticate(email, password);
             const isAdmin = (authUser instanceof Administrator);
             const token = await generateToken({ authUser, isAdmin });
-            return response.status(200).json({ token });
+            return res.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
-            return response.status(400).end();
+            return res.status(400).end();
         }
     }
 
-    async createAccount(request: Request, response: Response) {
-        const { firstName, lastName, address, phone, email, password, isAdmin } = request.body;
+    async createAccount(req: Request, res: Response) {
+        if (!req.user || !(req.user instanceof Administrator)) {
+            return res.status(403).end();
+        }
+
+        const {
+            firstName,
+            lastName,
+            address,
+            phone,
+            email,
+            password,
+            isAdmin,
+        } = req.body;
 
         if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
-            return response.status(400).end();
+            return res.status(400).end();
         }
 
         let client : Client;
@@ -38,28 +49,42 @@ class AccountService {
         } else {
             client = new Client(firstName, lastName, phone, email, address);
         }
+
         try {
-            const registerUser = await register(client, password);
-            const token = await generateToken({ registerUser });
-            return response.status(200).json({ token });
+            const registeredUser = await register(client, password);
+            return res.status(200).json({ registeredUser });
         } catch (err) {
             console.log(`error: ${err}`);
-            return response.status(400).end();
+            return res.status(400).end();
         }
     }
 
-    async getUsers(request: Request, response: Response) {
-        const active = request.query.active || false;
+    async getUsers(req: Request, res: Response) {
+        if (!req.user || !(req.user instanceof Administrator)) {
+            return res.status(403).end();
+        }
+
         try {
-            const query = active=='true' ? 'SELECT * FROM ACCOUNT WHERE LOGGED_IN=1' : 'SELECT * FROM ACCOUNT';
+            const query = `
+                SELECT
+                *
+                FROM ACCOUNT
+                WHERE ${req.query.active ? 'LOGGED_IN=1' : 'TRUE'}
+            `;
+
             const data = await DatabaseUtil.sendQuery(query);
-            const users = data.rows.map((user) => 
-                new Client(user.FIRST_NAME, user.LAST_NAME, user.PHONE_NUMBER, user.EMAIL, user.ADDRESS)
-            );
-            return response.status(200).json(users); 
+            const users = data.rows.map(user =>
+                new Client(
+                    user.FIRST_NAME,
+                    user.LAST_NAME,
+                    user.PHONE_NUMBER,
+                    user.EMAIL,
+                    user.ADDRESS,
+                ));
+            return res.status(200).json(users);
         } catch (err) {
             console.log(`error: ${err}`);
-            return response.status(400).end();
+            return res.status(400).end();
         }
     }
 }
