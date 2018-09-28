@@ -14,8 +14,8 @@ services:
   backend:
     build: ./backend
     container_name: backend
-    # env_file:
-    #   - ./backend/.env
+    env_file:
+      - ./backend/.env
     environment:
       - TZ=America/Montreal
     ports:
@@ -33,7 +33,7 @@ services:
       - TZ=America/Montreal
     restart: always
     environment:
-      MYSQL_DATABASE: library
+      MYSQL_DATABASE: library_db
       MYSQL_USER: user
     volumes:
       - mysql:/var/lib/mysql/
