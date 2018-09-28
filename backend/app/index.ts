@@ -4,11 +4,14 @@ import config from './config';
 import DatabaseUtil from './utility/DatabaseUtil';
 import { router } from './routes';
 
+import { injectUser } from './utility/AuthUtil';
+
 const { SERVER_PORT } = config;
 
 const app = express();
 
 app.use(express.json());
+app.use(injectUser);
 app.use(router);
 
 app.get('/', (req, res) => res.send('Hello World!'));

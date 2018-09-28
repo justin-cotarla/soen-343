@@ -6,9 +6,8 @@ import { Administrator } from '../models/Administrator';
 class AccountService {
 
     async login(request: Request, response: Response) {
-
         const { email, password } = request.body;
-
+        
         if (!email || !password) {
             return response.status(401).end();
         }
@@ -25,20 +24,21 @@ class AccountService {
     }
 
     async createAccount(request: Request, response: Response) {
-        if (!request.get('Authorization')) {
+        const { user } = request;
+
+        if (!(user instanceof Administrator)) {
             return response.status(401).end();
         }
-        const callerToken = request.get('Authorization').split(' ')[1];
-        try {
-            const decoded = await validateToken(callerToken);
-            if (!decoded.isAdmin) {
-                return response.status(401).end();
-            }
-        } catch (err) {
-            return response.status(403).end();
-        }
 
-        const { firstName, lastName, address, phone, email, password, isAdmin } = request.body;
+        const { 
+            firstName, 
+            lastName, 
+            address, 
+            phone, 
+            email, 
+            password, 
+            isAdmin 
+        } = request.body;
 
         if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
             return response.status(400).end();
@@ -50,16 +50,15 @@ class AccountService {
         } else {
             client = new Client(firstName, lastName, phone, email, address);
         }
+
         try {
-            const registerUser = await register(client, password);
-            const token = await generateToken({ registerUser });
-            return response.status(200).json({ token });
+            const registeredUser = await register(client, password);
+            return response.status(200).json({ registeredUser });
         } catch (err) {
             console.log(`error: ${err}`);
             return response.status(400).end();
         }
     }
-
 }
 
 export default new AccountService();

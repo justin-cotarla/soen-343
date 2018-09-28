@@ -1,8 +1,18 @@
+import { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import DatabaseUtil from './DatabaseUtil';
 import { Client } from '../models/Client';
 import { Administrator } from '../models/Administrator';
+import { request } from 'https';
+
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: Client
+        }
+    }
+}
 
 const SALT_ROUNDS = 10;
 
@@ -109,9 +119,43 @@ const validateToken = (token: string): Promise<any> => {
     });
 };
 
+const injectUser = (req: Request, res: Response, next: NextFunction) => {
+    const header: string = req.get('Authorization');
+
+    if (header) {
+        try {
+            const token = header.split(' ')[1];
+            const { authUser, isAdmin }: any = jwt.verify(token, process.env.JWT_KEY);
+
+            if (isAdmin) {
+                req.user = new Administrator(
+                    authUser.firstName,
+                    authUser.lastName,
+                    authUser.phone,
+                    authUser.email,
+                    authUser.address,
+                );
+            } else {
+                req.user = new Client(
+                    authUser.firstName,
+                    authUser.lastName,
+                    authUser.phone,
+                    authUser.email,
+                    authUser.address,
+                );             
+            }
+        } catch (err) {
+
+        }
+    }
+
+    next();
+};
+
 export {
     register,
     authenticate,
     generateToken,
     validateToken,
+    injectUser,
 };
