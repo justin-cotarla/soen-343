@@ -1,0 +1,8 @@
+.user-table {
+    border-collapse: collapse;
+}
+
+.user-table td {
+    border: solid black;
+    padding: 3px;
+}
