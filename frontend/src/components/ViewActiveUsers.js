@@ -11,7 +11,7 @@ class ViewActiveUsers extends Component {
       }
 
     componentDidMount() {
-        axios.get(`http://localhost/api/accounts/users?active=true`, {
+        axios.get(`http://localhost/api/accounts?active=true`, {
             headers: {"Access-Control-Allow-Origin": "*"},
             responseType:'json',
             crossorigin:true
