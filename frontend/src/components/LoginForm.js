@@ -10,6 +10,7 @@ class LoginForm extends React.Component {
         submitting: false, 
         redirect: false,
         error: false, 
+        errorMessage: 'Username and password do not match',
     }
     
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
@@ -23,15 +24,23 @@ class LoginForm extends React.Component {
             localStorage.setItem('Authorization', token);
             this.setState({ redirect: true });
         } catch(error){
-            this.setState({ 
-                error: true, 
-                submitting: false, 
-            });
+            if(error.response.status === 444) {
+                this.setState({
+                    error: true, 
+                    errorMessage: 'User already logged in',
+                    submitting: false, 
+                });
+            } else {
+                this.setState({ 
+                    error: true, 
+                    submitting: false, 
+                });
+            }
         }
     }
     
     render() {
-        const { email, password, submitting, redirect, error } = this.state
+        const { email, password, submitting, redirect, error, errorMessage } = this.state
         
         if (redirect === true){
             return <Redirect to="/" />
@@ -77,7 +86,7 @@ class LoginForm extends React.Component {
                                 <Message 
                                     error  
                                     header="Login failed" 
-                                    content="Username and password do not match."
+                                    content={errorMessage}
                                     style={{ textAlign: 'left' }} />
                                 <Button 
                                     color='teal' 
