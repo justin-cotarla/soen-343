@@ -16,13 +16,18 @@ declare global {
 const SALT_ROUNDS = 10;
 
 const register = async (client: Client, password: string): Promise<Client> => {
-    const userQuery = 'SELECT ID FROM ACCOUNT WHERE EMAIL=?;';
+    const userQuery = `
+        SELECT
+        ID
+        FROM ACCOUNT
+        WHERE EMAIL=?;
+    `;
     const registerQuery = `
         INSERT INTO ACCOUNT
         (EMAIL, FIRST_NAME, LAST_NAME, ADDRESS, PHONE_NUMBER, HASH, ADMIN)
         VALUES
         (?, ?, ?, ?, ?, ?, ?);
-        `;
+    `;
 
     const isAdminAccount = client instanceof Administrator ? '1' : '0';
 
@@ -45,10 +50,12 @@ const register = async (client: Client, password: string): Promise<Client> => {
 };
 
 const authenticate = async (email: string, password: string): Promise<Client> => {
-    const query = `SELECT
+    const query = `
+        SELECT
         *
         FROM ACCOUNT
-        WHERE EMAIL=?;`;
+        WHERE EMAIL=?;
+    `;
 
     const result = await DatabaseUtil.sendQuery(query, [email]);
     if (!result.rows.length) {
@@ -145,6 +152,7 @@ const injectUser = async (req: Request, res: Response, next: NextFunction) => {
             }
         } catch (err) {
             console.log(err);
+            return res.status(401).end();
         }
     }
 
