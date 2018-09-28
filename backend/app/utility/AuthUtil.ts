@@ -131,23 +131,23 @@ const injectUser = async (req: Request, res: Response, next: NextFunction) => {
     if (header) {
         try {
             const token = header.split(' ')[1];
-            const { authUser, isAdmin }: any = await validateToken(token);
+            const { profile, isAdmin }: any = await validateToken(token);
 
             if (isAdmin) {
                 req.user = new Administrator(
-                    authUser.firstName,
-                    authUser.lastName,
-                    authUser.phone,
-                    authUser.email,
-                    authUser.address,
+                    profile.firstName,
+                    profile.lastName,
+                    profile.phone,
+                    profile.email,
+                    profile.address,
                 );
             } else {
                 req.user = new Client(
-                    authUser.firstName,
-                    authUser.lastName,
-                    authUser.phone,
-                    authUser.email,
-                    authUser.address,
+                    profile.firstName,
+                    profile.lastName,
+                    profile.phone,
+                    profile.email,
+                    profile.address,
                 );
             }
         } catch (err) {
