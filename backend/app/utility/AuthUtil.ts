@@ -4,12 +4,11 @@ import * as jwt from 'jsonwebtoken';
 import DatabaseUtil from './DatabaseUtil';
 import { Client } from '../models/Client';
 import { Administrator } from '../models/Administrator';
-import { request } from 'https';
 
 declare global {
     namespace Express {
         export interface Request {
-            user?: Client
+            user?: Client;
         }
     }
 }
@@ -119,13 +118,13 @@ const validateToken = (token: string): Promise<any> => {
     });
 };
 
-const injectUser = (req: Request, res: Response, next: NextFunction) => {
+const injectUser = async (req: Request, res: Response, next: NextFunction) => {
     const header: string = req.get('Authorization');
 
     if (header) {
         try {
             const token = header.split(' ')[1];
-            const { authUser, isAdmin }: any = jwt.verify(token, process.env.JWT_KEY);
+            const { authUser, isAdmin }: any = await validateToken(token);
 
             if (isAdmin) {
                 req.user = new Administrator(
@@ -142,10 +141,10 @@ const injectUser = (req: Request, res: Response, next: NextFunction) => {
                     authUser.phone,
                     authUser.email,
                     authUser.address,
-                );             
+                );
             }
         } catch (err) {
-
+            console.log(err);
         }
     }
 
