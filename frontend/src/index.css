@@ -1,5 +1,20 @@
+html, body, #app {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+}
+
+.enter-new-user {
+  margin: 1em auto !important;
+  width: fit-content;
+  opacity: 0.5;
+}
+
+.enter-new-user:hover {
+  cursor: pointer;
+  opacity: 0.75;
 }

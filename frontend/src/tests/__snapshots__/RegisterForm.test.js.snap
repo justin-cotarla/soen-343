@@ -1,0 +1,148 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RegisterForm renders correctly 1`] = `
+<div
+  className="login-form"
+>
+  <style>
+    
+                    body &gt; div,
+                    body &gt; div &gt; div,
+                    body &gt; div &gt; div &gt; div.login-form {
+                        height: 100%;
+                    }
+                    
+  </style>
+  <Grid
+    textAlign="center"
+  >
+    <GridColumn
+      style={
+        Object {
+          "maxWidth": "600px",
+          "width": "80%",
+        }
+      }
+    >
+      <Header
+        as="h2"
+        color="teal"
+        textAlign="left"
+      >
+        Register a Client
+      </Header>
+      <Form
+        as="form"
+        onSubmit={[Function]}
+        size="big"
+        success={false}
+      >
+        <Segment
+          stacked={true}
+        >
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="user outline"
+            iconPosition="left"
+            name="fname"
+            onChange={[Function]}
+            placeholder="First Name"
+            required={true}
+            value=""
+          />
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="user outline"
+            iconPosition="left"
+            name="lname"
+            onChange={[Function]}
+            placeholder="Last Name"
+            required={true}
+            value=""
+          />
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="home"
+            iconPosition="left"
+            name="address"
+            onChange={[Function]}
+            placeholder="Address"
+            required={true}
+            value=""
+          />
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="phone"
+            iconPosition="left"
+            name="phone"
+            onChange={[Function]}
+            placeholder="Phone Number"
+            required={true}
+            value=""
+          />
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="mail"
+            iconPosition="left"
+            name="email"
+            onChange={[Function]}
+            placeholder="E-mail address"
+            required={true}
+            value=""
+          />
+          <FormInput
+            as={[Function]}
+            control={[Function]}
+            fluid={true}
+            icon="lock"
+            iconPosition="left"
+            name="password"
+            onChange={[Function]}
+            placeholder="Password"
+            required={true}
+            type="password"
+            value=""
+          />
+          <FormField
+            checked={false}
+            control={[Function]}
+            label={
+              Object {
+                "children": "This is an administrator account",
+              }
+            }
+            name="admin"
+            onChange={[Function]}
+          />
+          <Button
+            as="button"
+            color="teal"
+            fluid={true}
+            loading={false}
+            role="button"
+            size="large"
+            type="submit"
+          >
+            Register
+          </Button>
+        </Segment>
+        <Message
+          content="An  account was created for  "
+          header="Registration complete!"
+          success={true}
+        />
+      </Form>
+    </GridColumn>
+  </Grid>
+</div>
+`;
