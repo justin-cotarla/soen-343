@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import { AdminRoute } from './util/AuthUtil';
+
 import AdminDashboard from './pages/AdminDashboard';
+import LoginPage from './pages/LoginPage';
+
+import { AdminRoute } from './util/AuthUtil';
 
 class App extends Component {
     render() {
@@ -9,7 +12,8 @@ class App extends Component {
             <BrowserRouter>
                 <Switch>
                     <Route exact path="/" render={() => <h1>SOEN 343</h1>}/>
-                    <AdminRoute path="/admin" component={AdminDashboard}/>
+                    <Route exact path="/login" component={LoginPage}/>
+                    <AdminRoute path="/admin" component={AdminDashboard}/>             
                 </Switch>
             </BrowserRouter>
         );

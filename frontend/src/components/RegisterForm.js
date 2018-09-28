@@ -1,31 +1,46 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
-import axios from 'axios';
+import { register } from '../util/ApiUtil';
 class LoginForm extends React.Component {
     state = {
-        fname: '',
-        lname: '',
+        firstName: '',
+        lastName: '',
         address: '',
         phone: '',
         email: '',
         password: '',
-        admin: false,
+        isAdmin: false,
         submitting: false,
         success: false,
+        error: false,
+        errorMessage: 'The account could not be created',
     };
 
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
-    handleCheckbox = () =>  this.setState((state) => ({ admin: !state.admin }));
+    handleCheckbox = () =>  this.setState((state) => ({ isAdmin: !state.isAdmin }));
 
-    handleSubmit = () => {
+    handleSubmit = async () => {
         this.setState({ submitting: true });
-        // TODO: make request to endpoint for user creation
+
+        const { firstName, lastName, email, address, phone, password, isAdmin } = this.state;
+        try {
+            await register(firstName, lastName, email, address, phone, password, isAdmin);
+            this.setState({ 
+                submitting: false, 
+                success: true,
+            });
+        } catch (err) {
+            this.setState({
+                submitting: false,
+                error: true,
+            });
+        }
     };
 
     initializeForm = () => this.setState({
-        fname: '',
-        lname: '',
+        firstName: '',
+        lastName: '',
         address: '',
         phone: '',
         email: '',
@@ -33,10 +48,23 @@ class LoginForm extends React.Component {
         admin: false,
         submitting: false,
         success: false,
+        errorMessage: 'The account could not be created',
     });
 
     render() {
-        const { fname, lname, address, email, phone, password, admin, submitting, success } = this.state;
+        const { 
+            firstName, 
+            lastName, 
+            address, 
+            email, 
+            phone, 
+            password, 
+            isAdmin, 
+            submitting, 
+            success, 
+            error, 
+            errorMessage,
+        } = this.state;
         return (
             <div className='login-form' >
                 <style>{`
@@ -51,22 +79,22 @@ class LoginForm extends React.Component {
                         <Header as='h2' color='teal' textAlign='left'>
                         Register a Client
                         </Header>
-                        <Form size='big' success={success} onSubmit={this.handleSubmit}>
+                        <Form size='big' success={success} onSubmit={this.handleSubmit} error={error}>
                             <Segment stacked>
                                 <Form.Input 
-                                    name ="fname" 
+                                    name ="firstName" 
                                     fluid icon='user outline' 
                                     iconPosition='left' 
                                     placeholder='First Name'
-                                    value={fname}
+                                    value={firstName}
                                     onChange={this.handleChange} 
                                     required/>
                                 <Form.Input 
-                                    name ="lname" 
+                                    name ="lastName" 
                                     fluid icon='user outline' 
                                     iconPosition='left' 
                                     placeholder='Last Name' 
-                                    value={lname}
+                                    value={lastName}
                                     onChange={this.handleChange} 
                                     required/>
                                 <Form.Input 
@@ -103,11 +131,16 @@ class LoginForm extends React.Component {
                                     onChange={this.handleChange} 
                                     required/>
                                 <Form.Field
-                                    name="admin" 
+                                    name="isAdmin" 
                                     control={Checkbox} 
                                     label={{ children: 'This is an administrator account' }} 
-                                    checked={admin}
+                                    checked={isAdmin}
                                     onChange={this.handleCheckbox} />
+                                <Message 
+                                    error  
+                                    header="Registration failed" 
+                                    content={errorMessage}
+                                    style={{ textAlign: 'left' }} />
                                 <Button 
                                     loading={submitting} 
                                     color='teal' 
@@ -120,7 +153,7 @@ class LoginForm extends React.Component {
                             <Message 
                                 success
                                 header='Registration complete!' 
-                                content={`An ${admin ? 'administrative' : ''} account was created for ${fname} ${lname}`} />
+                                content={`An ${isAdmin ? 'administrative' : ''} account was created for ${firstName} ${lastName}`} />
                         </Form>
                         { 
                             success && 

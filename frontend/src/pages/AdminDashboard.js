@@ -3,6 +3,7 @@ import { Grid } from "semantic-ui-react"
 
 import AdminNavbar from "../components/AdminNavbar";
 import RegisterForm from "../components/RegisterForm";
+import ViewActiveUsers from "../components/ViewActiveUsers";
 
 class AdminDashboard extends React.Component {
     state = { activeTab: 'register' };
@@ -17,8 +18,11 @@ class AdminDashboard extends React.Component {
                     <Grid.Column width={16}>
                         <AdminNavbar vertical={false} active={activeTab} handleTabClick={this.handleTabClick}/> 
                     </Grid.Column>
-                    <Grid.Column only="tablet mobile" computer={16}>
+                    <Grid.Column  computer={16}>
                         { activeTab === 'register' && <RegisterForm/> }
+                    </Grid.Column>
+                    <Grid.Column computer={12} style={{ margin: 'auto' }}>
+                        { activeTab === 'users' && <ViewActiveUsers/> }
                     </Grid.Column>
                 </Grid>
             </div>
