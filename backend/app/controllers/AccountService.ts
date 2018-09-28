@@ -20,6 +20,9 @@ class AccountService {
             return res.status(200).json({ token });
         } catch (err) {
             console.log(`error: ${err}`);
+            if (err.message === 'User already logged in') {
+                return res.status(444).end();
+            }
             return res.status(400).end();
         }
     }
