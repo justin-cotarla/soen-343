@@ -16,15 +16,15 @@ abstract class CatalogItem {
         this.copies = [];
     }
 
-    public get(id: number): InventoryItem {
+    public getInventoryItem(id: number): InventoryItem {
         return this.copies.find(i => i.id === id);
     }
 
-    public add(item: InventoryItem) {
+    public addInventoryItem(item: InventoryItem) {
         this.copies.push(item);
     }
 
-    public remove(id: number): boolean {
+    public removeInventoryItem(id: number): boolean {
         const index = this.copies.findIndex(i => i.id === id);
         if (index === -1) {
             return false;
