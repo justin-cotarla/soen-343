@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { authenticate, generateToken, register } from '../utility/AuthUtil';
-import { Client } from '../models/Client';
-import { Administrator } from '../models/Administrator';
+import { Administrator, Client } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class AccountService {
