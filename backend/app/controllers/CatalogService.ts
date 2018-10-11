@@ -6,23 +6,23 @@ import DatabaseUtil from '../utility/DatabaseUtil';
 class CatalogService {
     private catalogItems: CatalogItem[];
 
-    public viewCatalogItems() {
+    async viewCatalogItems(req: Request, res: Response) {
 
     }
 
-    public updateCatalog(record: CatalogItem) {
+    async updateCatalog(req: Request, res: Response) {
 
     }
 
-    public createCatalogItem(record: CatalogItem, quantity: number) {
+    async createCatalogItem(req: Request, res: Response) {
 
     }
 
-    public addInventoryItem(record: InventoryItem) {
+    async addInventoryItem(req: Request, res: Response) {
 
     }
 
-    public deleteCatalogItem(id: number) {
+    async deleteCatalogItem(req: Request, res: Response) {
 
     }
 }
