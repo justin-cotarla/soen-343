@@ -27,4 +27,4 @@ class Music extends CatalogItem {
         this.asin = asin;
     }
 }
-export { Music };
+export { Music, MusicType };
