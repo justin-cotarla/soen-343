@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { CatalogItem } from '../models/CatalogItem';
-import { InventoryItem } from '../models/InventoryItem';
+import { CatalogItem, InventoryItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class CatalogService {
