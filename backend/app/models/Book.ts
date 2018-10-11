@@ -4,6 +4,7 @@ enum BookFormat {
     HardCover = 'HardCover',
     PaperBack = 'PaperBack',
 }
+
 class Book extends CatalogItem {
     public isbn10: number;
     public isbn13: number;
@@ -31,3 +32,5 @@ class Book extends CatalogItem {
         this.pages = pages;
     }
 }
+
+export { Book };
