@@ -5,6 +5,6 @@ const accountRouter = express.Router();
 
 accountRouter.post('/', AccountService.createAccount);
 accountRouter.post('/login', AccountService.login);
-accountRouter.get('/', AccountService.getUsers);
+accountRouter.get('/', AccountService.getActiveUsers);
 
 export { accountRouter };
