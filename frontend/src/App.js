@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
+import Testpage from './pages/Testpage';
 
 import { AdminRoute } from './util/AuthUtil';
 
@@ -11,6 +12,7 @@ class App extends Component {
         return (
             <BrowserRouter>
                 <Switch>
+                    <Route exact path="/test" component={Testpage}/>
                     <Route exact path="/" render={() => <h1>SOEN 343</h1>}/>
                     <Route exact path="/login" component={LoginPage}/>
                     <AdminRoute path="/admin" component={AdminDashboard}/>             
