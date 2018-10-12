@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken } from './AuthUtil';
+import { puts } from 'util';
 
 const api = axios.create({
     baseURL: `http://${process.env.REACT_APP_IP}/api/`,
@@ -26,6 +27,21 @@ export const register = async (firstName, lastName, email, address, phone, passw
             isAdmin,
         }, 
         headers: { 
+            'Authorization': `Bearer ${getToken()}` 
+        },
+    });
+}
+
+export const createCatalogItem = async (type, spec, quantity) => {
+    return await api({
+        method: 'put',
+        url: '/catalog',
+        data: {
+            type,
+            spec,
+            quantity,
+        },
+        headers: {
             'Authorization': `Bearer ${getToken()}` 
         },
     });
