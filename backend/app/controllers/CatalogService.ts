@@ -167,12 +167,15 @@ class CatalogService {
 
     deleteCatalogItem = async (req: Request, res: Response) =>
     {
-        if(typeof req.params.id === 'undefined'){return res.status(401).end();}
-
         // Must be an admin to delete catalog items
         if (!req.user && !(req.user instanceof Administrator)) {
             return res.status(403).end();
         }
+
+        if(!req.params.id){
+            return res.status(401).end();
+        }
+
 
         this.catalogItems.forEach((value, key) => {
             if(req.params.id === key.id){
@@ -188,11 +191,13 @@ class CatalogService {
 
     deleteInventoryItem = async (req: Request, res: Response) =>
     {
-        if(typeof req.params.id === 'undefined'){return res.status(401).end();}
-
         // Must be an admin to delete inventory items
         if (!req.user && !(req.user instanceof Administrator)) {
             return res.status(403).end();
+        }
+
+        if(!req.params.id){
+            return res.status(401).end();
         }
 
         const inventoryList = this.catalogItems.get(req.params.id);
