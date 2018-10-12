@@ -15,16 +15,14 @@ class CatalogItem extends Component {
 
     render() {
         return (
-            <div className="catalog-spec">
-                <Card>
-                    <Card.Header textAlign="center">{this.props.item.title}</Card.Header>
-                    <Card.Content>
-                            <Grid columns="2">
-                                {this.catalogItem}
-                            </Grid>
-                    </Card.Content>
-                </Card>
-            </div>
+            <Card>
+                <Card.Header textAlign="center">{this.props.item.title}</Card.Header>
+                <Card.Content>
+                        <Grid columns="2">
+                            {this.catalogItem}
+                        </Grid>
+                </Card.Content>
+            </Card>
         );
     }
 }
