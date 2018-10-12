@@ -13,7 +13,7 @@ class Music extends CatalogItem {
     public asin: string;
 
     constructor (
-        id: number,
+        id: string,
         title: string,
         date: string,
         type: MusicType,
