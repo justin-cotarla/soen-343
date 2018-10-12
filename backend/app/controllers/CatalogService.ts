@@ -10,119 +10,18 @@ class CatalogService {
     private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
 
     viewCatalogItems = async (req: Request, res: Response) => {
-        // TO DO: Modify and implement db fetching according to the db schema
+        // TO DO: Fetch from db
         if (!req.user) {
             return res.status(403).end();
         }
 
         try {
-            /*let query = `
-                SELECT
-                *
-                FROM BOOK, INVENTORY
-                WHERE INVENTORY.SPECIFICATION = BOOK
-            `;
-
-            let data = await DatabaseUtil.sendQuery(query);
-            data.rows.map(spec =>
-                this.catalogRecords.map(new Book(
-                    spec.catalogItemId,
-                    spec.title,
-                    spec.date,
-                    spec.isbn10,
-                    spec.isbn13,
-                    spec.author,
-                    spec.publisher,
-                    spec.format,
-                    spec.pages,
-                ),
-                new InventoryItem(
-                    spec.inventoryItemId,
-                    spec.specification,
-                    spec.availability
-                ));
-
-            query = `
-                SELECT
-                *
-                FROM MUSIC, INVENTORY
-                WHERE INVENTORY.SPECIFICATION = MUSIC
-            `;
-
-            data = await DatabaseUtil.sendQuery(query);
-            data.rows.map(spec =>
-                this.catalogRecords.map(new Music(
-                    spec.id,
-                    spec.title,
-                    spec.date,
-                    spec.type,
-                    spec.artist,
-                    spec.label,
-                    spec.asin,
-                ),
-                 new InventoryItem(
-                    spec.inventoryItemId,
-                    spec.specification,
-                    spec.availability
-                ));
-
-            query = `
-                SELECT
-                *
-                FROM MAGAZINE, INVENTORY
-                WHERE INVENTORY.SPECIFICATION = MAGAZINE
-            `;
-
-            data = await DatabaseUtil.sendQuery(query);
-            data.rows.map(spec =>
-                this.catalogRecords.map(new Magazine(
-                    spec.id,
-                    spec.title,
-                    spec.date,
-                    spec.isbn10,
-                    spec.isbn13,
-                    spec.publisher,
-                    spec.language,
-                ),
-                 new InventoryItem(
-                    spec.inventoryItemId,
-                    spec.specification,
-                    spec.availability
-                ));
-
-            query = `
-                SELECT
-                *
-                FROM MOVIE, INVENTORY
-                WHERE INVENTORY.SPECIFICATION = MOVIE
-            `;
-
-            data = await DatabaseUtil.sendQuery(query);
-            data.rows.map(spec =>
-                this.catalogRecords.push(map Movie(
-                    spec.id,
-                    spec.title,
-                    spec.date,
-                    spec.director,
-                    spec.producers,
-                    spec.actors,
-                    spec.language,
-                    spec.subtitles,
-                    spec.dubbed,
-                    spec.runtime,
-                ),
-                 new InventoryItem(
-                    spec.inventoryItemId,
-                    spec.specification,
-                    spec.availability
-                ));*/
-
             const records =
                 Array.from(this.catalogItems.entries())
-                    .reduce((o, [catalogItem, inventoryItems]) => {
+                    .reduce((o, [spec, inventory]) => {
                         const res = {
-                            catalogItem,
-                            inventoryItems,
+                            spec,
+                            inventory,
                         };
                         o.push(res);
                         return o;
