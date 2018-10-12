@@ -141,7 +141,6 @@ class CatalogService {
                 ) {
                 specification = new Music(v4(), title, date, musicType, artist, label, asin);
             } else {
-                console.log('here')
                 return res.status(401).end();
             }
         }
