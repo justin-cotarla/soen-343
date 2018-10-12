@@ -10,7 +10,7 @@ class Movie extends CatalogItem {
     public runtime: number;
 
     constructor (
-        id: number,
+        id: string,
         title: string,
         date: string,
         director: string,
