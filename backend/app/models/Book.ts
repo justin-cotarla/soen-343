@@ -33,4 +33,4 @@ class Book extends CatalogItem {
     }
 }
 
-export { Book, BookFormat };
+export { Book };

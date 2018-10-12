@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { authenticate, generateToken, register } from '../utility/AuthUtil';
-import { CatalogItem, Music, Book, Movie, Magazine, Administrator, Client } from '../models';
 import { BookFormat } from '../models/Book';
 import { MusicType } from '../models/Music';
 import DatabaseUtil from '../utility/DatabaseUtil';
@@ -10,23 +9,24 @@ import { Administrator, CatalogItem, InventoryItem, Book, Magazine, Movie, Music
 class CatalogService {
     private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
 
-    async viewCatalogItems(req: Request, res: Response) {
+    viewCatalogItems = async (req: Request, res: Response) => {
+        // TO DO: Modify and implement db fetching according to the db schema
         if (!req.user) {
             return res.status(403).end();
         }
 
         try {
-            const catalogRecords = Array<CatalogItem>();
             /*let query = `
                 SELECT
                 *
-                FROM BOOK
+                FROM BOOK, INVENTORY
+                WHERE INVENTORY.SPECIFICATION = BOOK
             `;
 
             let data = await DatabaseUtil.sendQuery(query);
             data.rows.map(spec =>
-                catalogRecords.push(new Book(
-                    spec.id,
+                this.catalogRecords.map(new Book(
+                    spec.catalogItemId,
                     spec.title,
                     spec.date,
                     spec.isbn10,
@@ -35,17 +35,23 @@ class CatalogService {
                     spec.publisher,
                     spec.format,
                     spec.pages,
-                )));
+                ),
+                new InventoryItem(
+                    spec.inventoryItemId,
+                    spec.specification,
+                    spec.availability
+                ));
 
             query = `
                 SELECT
                 *
-                FROM MUSIC
+                FROM MUSIC, INVENTORY
+                WHERE INVENTORY.SPECIFICATION = MUSIC
             `;
 
             data = await DatabaseUtil.sendQuery(query);
             data.rows.map(spec =>
-                catalogRecords.push(new Music(
+                this.catalogRecords.map(new Music(
                     spec.id,
                     spec.title,
                     spec.date,
@@ -53,17 +59,23 @@ class CatalogService {
                     spec.artist,
                     spec.label,
                     spec.asin,
-                )));
+                ),
+                 new InventoryItem(
+                    spec.inventoryItemId,
+                    spec.specification,
+                    spec.availability
+                ));
 
             query = `
                 SELECT
                 *
-                FROM MAGAZINE
+                FROM MAGAZINE, INVENTORY
+                WHERE INVENTORY.SPECIFICATION = MAGAZINE
             `;
 
             data = await DatabaseUtil.sendQuery(query);
             data.rows.map(spec =>
-                catalogRecords.push(new Magazine(
+                this.catalogRecords.map(new Magazine(
                     spec.id,
                     spec.title,
                     spec.date,
@@ -71,17 +83,23 @@ class CatalogService {
                     spec.isbn13,
                     spec.publisher,
                     spec.language,
-                )));
+                ),
+                 new InventoryItem(
+                    spec.inventoryItemId,
+                    spec.specification,
+                    spec.availability
+                ));
 
             query = `
                 SELECT
                 *
-                FROM MOVIE
+                FROM MOVIE, INVENTORY
+                WHERE INVENTORY.SPECIFICATION = MOVIE
             `;
 
             data = await DatabaseUtil.sendQuery(query);
             data.rows.map(spec =>
-                catalogRecords.push(new Movie(
+                this.catalogRecords.push(map Movie(
                     spec.id,
                     spec.title,
                     spec.date,
@@ -92,9 +110,25 @@ class CatalogService {
                     spec.subtitles,
                     spec.dubbed,
                     spec.runtime,
-                )));*/
+                ),
+                 new InventoryItem(
+                    spec.inventoryItemId,
+                    spec.specification,
+                    spec.availability
+                ));*/
 
-            return res.status(200).json(catalogRecords);
+            const records =
+                Array.from(this.catalogItems.entries())
+                    .reduce((o, [catalogItem, inventoryItems]) => {
+                        const res = {
+                            catalogItem,
+                            inventoryItems,
+                        };
+                        o.push(res);
+                        return o;
+                    },      []);
+
+            return res.status(200).json(records);
         } catch (err) {
             console.log('error: ${err}');
             return res.status(400).end();
