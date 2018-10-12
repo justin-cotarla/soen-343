@@ -1,5 +1,6 @@
 import React from 'react'
 import { List } from 'semantic-ui-react'
+import CatalogItemPreview from "../components/CatalogItemPreview";
 
 class Catalog extends React.Component {
     
@@ -7,8 +8,8 @@ class Catalog extends React.Component {
         return (
             <List>
                     {
-                        this.props.catalog.map((item) => {
-                            return <CatalogItemPreview title={item.title} date={item.date}/>
+                        this.props.catalog.map((item, index) => {
+                            return <CatalogItemPreview key={index} title={item.title} date={item.date}/>
                         })
                     }
             </List>
