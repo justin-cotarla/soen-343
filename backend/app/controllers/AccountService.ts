@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { authenticate, generateToken, register } from '../utility/AuthUtil';
-import { Administrator, Client } from '../models';
+import { Administrator, Client, User } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class AccountService {
@@ -14,7 +14,7 @@ class AccountService {
 
         try {
             const profile = await authenticate(email, password);
-            const isAdmin = (profile instanceof Administrator);
+            const isAdmin = profile instanceof Administrator;
             const token = await generateToken({ profile, isAdmin });
             return res.status(200).json({ token });
         } catch (err) {
@@ -45,15 +45,15 @@ class AccountService {
             return res.status(400).end();
         }
 
-        let client : Client;
+        let user : User;
         if (isAdmin) {
-            client = new Administrator(firstName, lastName, phone, email, address);
+            user = new Administrator(firstName, lastName, phone, email, address);
         } else {
-            client = new Client(firstName, lastName, phone, email, address);
+            user = new Client(firstName, lastName, phone, email, address);
         }
 
         try {
-            const registeredUser = await register(client, password);
+            const registeredUser = await register(user, password);
             return res.status(200).json({ registeredUser });
         } catch (err) {
             console.log(`error: ${err}`);
@@ -61,7 +61,7 @@ class AccountService {
         }
     }
 
-    async getUsers(req: Request, res: Response) {
+    async getActiveUsers(req: Request, res: Response) {
         if (!req.user || !(req.user instanceof Administrator)) {
             return res.status(403).end();
         }
@@ -76,7 +76,7 @@ class AccountService {
 
             const data = await DatabaseUtil.sendQuery(query);
             const users = data.rows.map(user =>
-                new Client(
+                new User(
                     user.FIRST_NAME,
                     user.LAST_NAME,
                     user.PHONE_NUMBER,

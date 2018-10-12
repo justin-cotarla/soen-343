@@ -1,12 +1,37 @@
 import { Request, Response } from 'express';
+import { authenticate, generateToken, register } from '../utility/AuthUtil';
+import { BookFormat } from '../models/Book';
+import { MusicType } from '../models/Music';
+import DatabaseUtil from '../utility/DatabaseUtil';
 import v4 from 'uuid/v4';
 import { Administrator, CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
 
 class CatalogService {
     private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
 
-    async viewCatalogItems(req: Request, res: Response) {
+    viewCatalogItems = async (req: Request, res: Response) => {
+        // TO DO: Fetch from db
+        if (!req.user) {
+            return res.status(403).end();
+        }
 
+        try {
+            const records =
+                Array.from(this.catalogItems.entries())
+                    .reduce((o, [spec, inventory]) => {
+                        const res = {
+                            spec,
+                            inventory,
+                        };
+                        o.push(res);
+                        return o;
+                    },      []);
+
+            return res.status(200).json(records);
+        } catch (err) {
+            console.log('error: ${err}');
+            return res.status(400).end();
+        }
     }
 
     async updateCatalog(req: Request, res: Response) {

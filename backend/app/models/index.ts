@@ -6,6 +6,7 @@ import { InventoryItem } from './InventoryItem';
 import { Magazine } from './Magazine';
 import { Movie } from './Movie';
 import { Music } from './Music';
+import { User } from './User';
 
 export {
     Administrator,
@@ -16,4 +17,5 @@ export {
     Magazine,
     Movie,
     Music,
+    User,
 };
