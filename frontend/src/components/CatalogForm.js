@@ -61,7 +61,8 @@ class CatalogForm extends React.Component {
             actors,
             subtitles,
             dubbed,
-            runtime, 
+            runtime,
+            musicType, 
             artist,
             label,
             asin,
@@ -109,6 +110,7 @@ class CatalogForm extends React.Component {
                 spec = {
                     title,
                     date,
+                    musicType,
                     artist,
                     label,
                     asin,
@@ -150,6 +152,7 @@ class CatalogForm extends React.Component {
         dubbed: '',
         runtime: '',
         artist: '',
+        musicType: '',
         label: '',
         asin: '',
         admin: false,
@@ -177,6 +180,7 @@ class CatalogForm extends React.Component {
             subtitles,
             dubbed,
             runtime, 
+            musicType,
             artist,
             label,
             asin,
@@ -357,6 +361,16 @@ class CatalogForm extends React.Component {
                                 {
                                     type == 'Music' &&
                                     <Form.Input 
+                                            name='musicType' 
+                                            value={musicType} 
+                                            placeholder='Type' 
+                                            required 
+                                            onChange={this.handleChange}
+                                            error={error} />
+                                }
+                                {
+                                    type == 'Music' &&
+                                    <Form.Input 
                                             name='artist' 
                                             value={artist} 
                                             placeholder='Artist' 
@@ -408,8 +422,8 @@ class CatalogForm extends React.Component {
                             success && 
                             <Header 
                                 as='h3' 
-                                className="enter-new-user"
-                                onClick={this.initializeForm}>Enter another user</Header>}
+                                className="enter-new-catalog-item"
+                                onClick={this.initializeForm}>Enter another item</Header>}
                     </Grid.Column>
                 </Grid>
             </div>

@@ -43,7 +43,7 @@ class CatalogService {
         // Check with db to see if entry with spec exists
 
         // Must be an admin to create catalog items
-        if (!req.user && !(req.user instanceof Administrator)) {
+        if (!req.user || !(req.user instanceof Administrator)) {
             return res.status(403).end();
         }
 
@@ -128,14 +128,18 @@ class CatalogService {
             break;
         case 'Music': {
             const {
-                type,
                 artist,
                 label,
+                musicType,
                 asin,
             } = spec;
 
-            if (type && artist && label && asin) {
-                specification = new Music(v4(), title, date, type, artist, label, asin);
+            if (type && artist && label && asin
+                && (musicType === MusicType.CD
+                    || musicType === MusicType.DIGITIAL
+                    || musicType === MusicType.VINYL)
+                ) {
+                specification = new Music(v4(), title, date, musicType, artist, label, asin);
             } else {
                 return res.status(401).end();
             }
