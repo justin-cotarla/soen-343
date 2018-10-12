@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
-import { register } from '../util/ApiUtil';
+import { createCatalogItem } from '../util/ApiUtil';
 
 const options = [
     { key: 'b', text: 'Book', value: 'Book'},
@@ -12,6 +12,7 @@ const options = [
 class CatalogForm extends React.Component {
     state = {
         type: '',
+        quantity: '',
         title: '',
         date: '',
         isbn10: '',
@@ -42,11 +43,97 @@ class CatalogForm extends React.Component {
 
     handleSubmit = async () => {
         this.setState({ submitting: true });
+        var spec = {}
+        const { 
+            type,
+            quantity,
+            title,
+            date,
+            isbn10,
+            isbn13,
+            author,
+            language,
+            publisher,
+            format,
+            pages,
+            director,
+            producers,
+            actors,
+            subtitles,
+            dubbed,
+            runtime, 
+            artist,
+            label,
+            asin,
+        } = this.state;
 
+        switch (type) {
+            case 'Book': {
+                spec = {
+                    title,
+                    date,
+                    isbn10,
+                    isbn13,
+                    author,
+                    publisher,
+                    format,
+                    pages,
+                }
+            }
+                break;
+            case 'Magazine': {
+                spec = {
+                    title,
+                    date,
+                    isbn10,
+                    isbn13,
+                    publisher,
+                    language,
+                }
+            }
+                break;
+            case 'Movie': {
+                spec = {
+                    title,
+                    date,
+                    director,
+                    producers,
+                    actors,
+                    subtitles,
+                    dubbed,
+                    runtime,
+                }
+            }
+                break;
+            case 'Music': {
+                spec = {
+                    title,
+                    date,
+                    artist,
+                    label,
+                    asin,
+                }
+            }
+                break;
+        }
+
+        try {
+            await createCatalogItem(type, spec, quantity);
+            this.setState({ 
+                submitting: false, 
+                success: true,
+            });
+        } catch (err) {
+            this.setState({
+                submitting: false,
+                error: true,
+            });
+        }
     };
 
     initializeForm = () => this.setState({
         type: '',
+        quantity: '',
         title: '',
         date: '',
         isbn10: '',
@@ -74,6 +161,7 @@ class CatalogForm extends React.Component {
     render() {
         const { 
             type,
+            quantity,
             title,
             date,
             isbn10,
@@ -134,6 +222,13 @@ class CatalogForm extends React.Component {
                                     required 
                                     onChange={this.handleChange}
                                     error={error} />
+                                <Form.Input 
+                                    name ="quantity" 
+                                    placeholder='Quantity'
+                                    options={options}
+                                    value={quantity}
+                                    onChange={this.handleChange} 
+                                    required/>
                                 {
                                     type == 'Book' &&
                                     <Form.Input 
