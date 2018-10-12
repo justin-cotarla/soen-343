@@ -165,8 +165,57 @@ class CatalogService {
 
     }
 
-    async deleteCatalogItem(req: Request, res: Response) {
+    deleteCatalogItem = async (req: Request, res: Response) =>
+    {
+        // Must be an admin to delete catalog items
+        if (!req.user && !(req.user instanceof Administrator)) {
+            return res.status(403).end();
+        }
 
+        if(!req.params.id){
+            return res.status(401).end();
+        }
+
+
+        this.catalogItems.forEach((value, key) => {
+            if(req.params.id === key.id){
+                if(this.catalogItems.delete(key)){
+                    return res.status(200).end();
+                }
+                else
+                    return res.status(401).end();
+            }
+        });
+
+    }
+
+    deleteInventoryItem = async (req: Request, res: Response) =>
+    {
+        // Must be an admin to delete inventory items
+        if (!req.user && !(req.user instanceof Administrator)) {
+            return res.status(403).end();
+        }
+
+        if(!req.params.id){
+            return res.status(401).end();
+        }
+
+        const inventoryList = this.catalogItems.get(req.params.id);
+
+        if(!inventoryList){
+            return res.status(401).end();
+        }
+        else {
+            let i=0;
+
+            for(i; i < inventoryList.length; i++){
+                if(inventoryList[i].available){
+                    inventoryList.splice(i, 1); //remove one item from inventory
+                    return res.status(200).end();
+                }
+                return res.status(401).end(); //none of the items are available
+            }
+        }
     }
 }
 
