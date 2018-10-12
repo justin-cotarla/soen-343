@@ -2,20 +2,20 @@ import { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import DatabaseUtil from './DatabaseUtil';
-import { Client } from '../models/Client';
+import { User, Client } from '../models';
 import { Administrator } from '../models/Administrator';
 
 declare global {
     namespace Express {
         export interface Request {
-            user?: Client;
+            user?: User;
         }
     }
 }
 
 const SALT_ROUNDS = 10;
 
-const register = async (client: Client, password: string): Promise<Client> => {
+const register = async (user: User, password: string): Promise<User> => {
     const userQuery = `
         SELECT
         ID
@@ -29,27 +29,27 @@ const register = async (client: Client, password: string): Promise<Client> => {
         (?, ?, ?, ?, ?, ?, ?);
     `;
 
-    const isAdminAccount = client instanceof Administrator ? '1' : '0';
+    const isAdminAccount = user instanceof Administrator ? '1' : '0';
 
-    let result = await DatabaseUtil.sendQuery(userQuery, [client.email]);
+    let result = await DatabaseUtil.sendQuery(userQuery, [user.email]);
     if (result.rows.length) {
         throw new Error('User already exists');
     }
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
     result = await DatabaseUtil.sendQuery(registerQuery, [
-        client.email,
-        client.firstName,
-        client.lastName,
-        client.address,
-        client.phone.toString(),
+        user.email,
+        user.firstName,
+        user.lastName,
+        user.address,
+        user.phone.toString(),
         hash,
         isAdminAccount,
     ]);
-    return client;
+    return user;
 };
 
-const authenticate = async (email: string, password: string): Promise<Client> => {
+const authenticate = async (email: string, password: string): Promise<User> => {
     const query = `
         SELECT
         *

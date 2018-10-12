@@ -1,6 +1,6 @@
-import { Client } from './Client';
+import { User } from './User';
 
-class Administrator extends Client {
+class Administrator extends User {
     constructor (
         firstName: string,
         lastName: string,
