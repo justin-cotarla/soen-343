@@ -4,6 +4,8 @@ import { Grid } from "semantic-ui-react"
 import AdminNavbar from "../components/AdminNavbar";
 import RegisterForm from "../components/RegisterForm";
 import ViewActiveUsers from "../components/ViewActiveUsers";
+import Catalog from '../components/Catalog';
+import CatalogForm from '../components/CatalogForm';
 
 class AdminDashboard extends React.Component {
     state = { activeTab: 'register' };
@@ -20,9 +22,9 @@ class AdminDashboard extends React.Component {
                     </Grid.Column>
                     <Grid.Column  computer={16}>
                         { activeTab === 'register' && <RegisterForm/> }
-                    </Grid.Column>
-                    <Grid.Column computer={12} style={{ margin: 'auto' }}>
                         { activeTab === 'users' && <ViewActiveUsers/> }
+                        { activeTab === 'catalog' && <Catalog/> }
+                        { activeTab === 'addCatalog' && <CatalogForm/> }
                     </Grid.Column>
                 </Grid>
             </div>

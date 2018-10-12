@@ -57,3 +57,12 @@ export const getActiveUsers = async () => {
         crossorigin: true
     });
 }
+
+export const getCatalog = async () => {
+    return await api.get('/catalog', {
+        headers: { 
+            "Access-Control-Allow-Origin": "*",
+            'Authorization': `Bearer ${getToken()}`,
+        },
+    });
+}

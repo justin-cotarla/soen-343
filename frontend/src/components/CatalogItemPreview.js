@@ -5,13 +5,13 @@ class CatalogItemPreview extends React.Component {
     
     render() {
         return (
-                <List.Item>
-                <Icon name="book"/>
+            <List.Item style={{ padding: '1em 0' }}>
+                <Icon size="big" name="book"/>
                 <List.Content>
-                    <List.Header>Snickerdoodle</List.Header>
-                    An excellent companion
+                    <List.Header>{this.props.title}</List.Header>
+                    {this.props.date}
                 </List.Content>
-                </List.Item>
+            </List.Item>
         );
     }
 }
