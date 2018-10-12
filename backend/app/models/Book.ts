@@ -1,6 +1,6 @@
 import { CatalogItem } from './CatalogItem';
 
-enum BookFormat {
+export enum BookFormat {
     HardCover = 'HardCover',
     PaperBack = 'PaperBack',
 }
@@ -14,7 +14,7 @@ class Book extends CatalogItem {
     public pages: number;
 
     constructor (
-        id: number,
+        id: string,
         title: string,
         date: string,
         isbn10: number,

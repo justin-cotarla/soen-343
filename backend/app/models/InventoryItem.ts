@@ -1,12 +1,12 @@
 import { CatalogItem } from './CatalogItem';
 
 class InventoryItem {
-    public id: number;
+    public id: string;
     public spec: CatalogItem;
     public available: boolean;
 
     constructor (
-        id: number,
+        id: string,
         spec: CatalogItem,
         available: boolean) {
         this.id = id;

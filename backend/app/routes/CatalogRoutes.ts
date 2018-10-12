@@ -3,7 +3,7 @@ import CatalogService from '../controllers/CatalogService';
 
 const catalogRouter = express.Router();
 
-// catalogRouter.post('/', CatalogService.___);
 catalogRouter.get('/', CatalogService.viewCatalogItems);
+catalogRouter.put('/', CatalogService.createCatalogItem);
 
 export { catalogRouter };
