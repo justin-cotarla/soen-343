@@ -4,7 +4,15 @@ import { BookFormat } from '../models/Book';
 import { MusicType } from '../models/Music';
 import DatabaseUtil from '../utility/DatabaseUtil';
 import v4 from 'uuid/v4';
-import { Administrator, CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
+import {
+    Administrator,
+    CatalogItem,
+    InventoryItem,
+    Book,
+    Magazine,
+    Movie,
+    Music,
+} from '../models';
 
 class CatalogService {
     private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
@@ -165,13 +173,31 @@ class CatalogService {
 
     }
 
-    async addInventoryItem(req: Request, res: Response) {
+    addInventoryItem = async (req: Request, res: Response) => {
+        if (!req.user && !(req.user instanceof Administrator)) {
+            return res.status(403).end();
+        }
 
+        const { catalogItemId } = req.params;
+
+        const catalogItems:CatalogItem[] = [...this.catalogItems.keys()];
+        const specification:CatalogItem = catalogItems.find(item => item.id === catalogItemId);
+
+        if (!specification) {
+            return res.status(404).end();
+        }
+
+        const inventoryItemId = v4();
+        const inventoryItem:InventoryItem = new InventoryItem(inventoryItemId, specification, true);
+
+        const inventoryItems = this.catalogItems.get(specification);
+        this.catalogItems.set(specification, [...inventoryItems, inventoryItem]);
+        return res.status(200).json({ id: inventoryItemId });
     }
 
     deleteCatalogItem = async (req: Request, res: Response) =>
+    // Must be an admin to delete catalog items
     {
-        // Must be an admin to delete catalog items
         if (!req.user && !(req.user instanceof Administrator)) {
             return res.status(403).end();
         }
