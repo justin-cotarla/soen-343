@@ -1,10 +1,12 @@
 import 'jest';
-import server from '../server';
 import supertest from 'supertest';
 
+import server from '../server';
 import { BookFormat } from '../models/Book';
-import { Administrator } from '../models';
+import { Administrator, Magazine } from '../models';
 import { generateToken } from '../utility/AuthUtil';
+
+import CatalogService from '../controllers/CatalogService';
 
 // Must create a fake token to pass auth check
 let token: string;
@@ -118,6 +120,64 @@ describe('CatalogRouter', () => {
                 .expect(200);
 
             expect(response.body.quantity).toEqual(3);
+        });
+    });
+
+    describe('PUT /catalog/:catalogItemId/inventory', () => {
+        const catalogItemId = 'test';
+
+        beforeAll(() => {
+            // jest.mock('uuid');
+            // (uuid.v4 as any).mockResolvedValue('hello');
+            jest.unmock('uuid/v4');
+            let v4 = require.requireActual('uuid/v4');
+            v4 = jest.fn();
+        });
+
+        beforeEach(() => {
+            const magazine:Magazine = new Magazine(
+                 catalogItemId,
+                 'Popular Mechanics',
+                 'Test Date',
+                 123,
+                 123,
+                 'Test Pub',
+                 'English',
+            );
+
+            CatalogService['catalogItems'].set(magazine, []);
+        });
+
+        afterEach(() => {
+            CatalogService['catalogItems'] = new Map();
+        });
+
+        it('requires admin rights', async () => {
+            supertest(server)
+                .put(`/catalog/${catalogItemId}/inventory`)
+                .expect(403);
+        });
+
+        it('throws an error if a non-existing catalogItem is requested', async (done) => {
+            supertest(server)
+                .put('/catalog/bad/inventory')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(404)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('successfully adds an inventory item', async () => {
+            const response = await supertest(server)
+            .put(`/catalog/${catalogItemId}/inventory`)
+            .set('Authorization', `Bearer ${token}`)
+            .send()
+            .expect(200);
+
+            expect(response.body.id).toHaveLength(36);
         });
     });
 });
