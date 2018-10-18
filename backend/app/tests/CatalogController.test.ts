@@ -6,7 +6,7 @@ import { BookFormat } from '../models/Book';
 import { Administrator, Magazine } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
-import CatalogService from '../controllers/CatalogService';
+import CatalogService from '../services/CatalogService';
 
 // Must create a fake token to pass auth check
 let token: string;
@@ -18,6 +18,10 @@ beforeEach(async () => {
 
 describe('CatalogRouter', () => {
     describe('PUT /catalog', () => {
+        afterEach(() => {
+            CatalogService['catalogItems'] = new Map();
+        });
+
         it('requires admin rights', async () => {
             supertest(server)
                 .put('/catalog')
@@ -81,7 +85,6 @@ describe('CatalogRouter', () => {
                 .set('Accept', 'application/json')
                 .send(bookRequest)
                 .expect(200);
-            console.log(response.body);
         });
 
         it('Creates the specified quantity of inventory items', async () => {
@@ -103,40 +106,33 @@ describe('CatalogRouter', () => {
                 .set('Authorization', `Bearer ${token}`)
                 .set('Accept', 'application/json')
                 .expect(200);
-            console.log(response.body);
             expect(response.body.inventory.length).toEqual(3);
         });
     });
 
     describe('GET /catalog', () => {
+        beforeEach(() => {
+            const catalogItemId = 'test';
+            const magazine:Magazine = new Magazine(
+                 catalogItemId,
+                 'Popular Mechanics',
+                 'Test Date',
+                 123,
+                 123,
+                 'Test Pub',
+                 'English',
+            );
+
+            CatalogService['catalogItems'].set(magazine, []);
+        });
+
         it('Returns a list of all catalog items', async () => {
-            const bookRequest = {
-                catalogItem: {
-                    title: 'TestBook',
-                    date: 'TestDate',
-                    isbn10: 1234567890,
-                    isbn13: 123456789012,
-                    author: 'TestAuthor',
-                    publisher: 'TestPublisher',
-                    format: BookFormat.HardCover,
-                    pages: 69,
-                },
-                quantity: 1,
-            };
-
-            // Add book to inventory
-            await supertest(server)
-                .put('/catalog/book')
-                .set('Authorization', `Bearer ${token}`)
-                .set('Accept', 'application/json')
-                .send(bookRequest)
-                .expect(200);
-
             const response = await supertest(server)
                 .get('/catalog')
                 .set('Authorization', `Bearer ${token}`)
                 .expect(200);
-            console.log(response.body);
+
+            expect(response.body.length).toEqual(1);
         });
     });
 
@@ -170,7 +166,7 @@ describe('CatalogRouter', () => {
         });
 
         it('requires admin rights', async () => {
-            supertest(server)
+            await supertest(server)
                 .put(`/catalog/${catalogItemId}/inventory`)
                 .expect(403);
         });
@@ -195,6 +191,58 @@ describe('CatalogRouter', () => {
             .expect(200);
 
             expect(response.body.id).toHaveLength(36);
+        });
+    });
+
+    describe('DELETE /catalog/:id', () => {
+        beforeAll(() => {
+            const magazine:Magazine = new Magazine(
+                 '1',
+                 'Popular Mechanics',
+                 'Test Date',
+                 123,
+                 123,
+                 'Test Pub',
+                 'English',
+            );
+
+            CatalogService['catalogItems'].set(magazine, []);
+        });
+
+        it('requires admin rights', async () => {
+            await supertest(server)
+                .delete('/catalog/1')
+                .expect(403);
+        });
+
+        it('throws an error if trying to delete a non-existing catalog item', async (done) => {
+            supertest(server)
+                .delete('/catalog/dne')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(404)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('successfully deletes a catalog item', async () => {
+            await supertest(server)
+                .delete('/catalog/1')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(200);
+
+            expect(CatalogService['catalogItems'].size).toEqual(0);
+        });
+    });
+
+    describe('DELETE /catalog/inventory/:id', () => {
+        it('requires admin rights', async () => {
+            await supertest(server)
+                .delete('/catalog/inventory/1')
+                .expect(403);
         });
     });
 });

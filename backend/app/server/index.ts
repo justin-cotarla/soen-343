@@ -1,7 +1,7 @@
 import express = require('express');
 
 import DatabaseUtil from '../utility/DatabaseUtil';
-import { router } from '../routes';
+import { router } from '../controllers';
 
 import { injectUser } from '../utility/AuthUtil';
 

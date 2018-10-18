@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { Administrator, CatalogItem, Book, Magazine, Music, Movie } from '../models';
 import v4 from 'uuid/v4';
 
-import CatalogService from '../controllers/CatalogService';
+import CatalogService from '../services/CatalogService';
 
 const catalogRouter = express.Router();
 
@@ -132,10 +132,55 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
     }
 });
 
-catalogRouter.get('/', CatalogService.viewCatalogItems);
-catalogRouter.delete('/:id', CatalogService.deleteCatalogItem);
-catalogRouter.delete('/inventory/:id', CatalogService.deleteInventoryItem);
+catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Response) => {
+    if (!req.user && !(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
 
-catalogRouter.put('/:catalogItemId/inventory', CatalogService.addInventoryItem);
+    const { catalogItemId } = req.params;
+    try {
+        const inventoryItemId = await CatalogService.addInventoryItem(catalogItemId);
+        if (inventoryItemId) {
+            return res.status(200).json({ id: inventoryItemId });
+        }
+        return res.status(404).end();
+    } catch (error) {
+        return res.status(500).end();
+    }
+});
+
+catalogRouter.delete('/:id', async (req: Request, res: Response) => {
+    if (!req.user && !(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
+
+    const catalogItemId = req.params.id;
+    if (!catalogItemId) {
+        return res.status(401).end();
+    }
+
+    if (await CatalogService.deleteCatalogItem(catalogItemId)) {
+        return res.status(200).end();
+    }
+
+    return res.status(404).end();
+});
+
+catalogRouter.delete('/inventory/:id', async (req: Request, res: Response) => {
+    if (!req.user && !(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
+
+    const inventoryItemId = req.params.id;
+    if (!inventoryItemId) {
+        return res.status(401).end();
+    }
+
+    if (await CatalogService.deleteInventoryItem(inventoryItemId)) {
+        return res.status(200).end();
+    }
+
+    return res.status(404).end();
+});
 
 export { catalogRouter };

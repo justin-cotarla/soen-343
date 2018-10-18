@@ -1,5 +1,5 @@
 import express from 'express';
-import AccountService from '../controllers/AccountService';
+import AccountService from '../services/AccountService';
 
 const accountRouter = express.Router();
 
