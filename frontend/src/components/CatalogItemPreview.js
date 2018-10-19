@@ -8,7 +8,7 @@ class CatalogItemPreview extends React.Component {
             <List.Item style={{ padding: '1em 0' }}>
                 <Icon size="big" name="book"/>
                 <List.Content>
-                    <List.Header>{this.props.title}</List.Header>
+                    <List.Header>{this.props.title}, {this.props.author}</List.Header>
                     {this.props.date}
                 </List.Content>
             </List.Item>

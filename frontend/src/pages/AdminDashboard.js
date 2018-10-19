@@ -8,7 +8,7 @@ import Catalog from '../components/Catalog';
 import CatalogForm from '../components/CatalogForm';
 
 class AdminDashboard extends React.Component {
-    state = { activeTab: 'register' };
+    state = { activeTab: 'catalog' };
 
     handleTabClick =  (e, { name }) => this.setState({ activeTab: name });
 
@@ -20,7 +20,7 @@ class AdminDashboard extends React.Component {
                     <Grid.Column width={16}>
                         <AdminNavbar vertical={false} active={activeTab} handleTabClick={this.handleTabClick}/> 
                     </Grid.Column>
-                    <Grid.Column  computer={16}>
+                    <Grid.Column  computer={16} >
                         { activeTab === 'register' && <RegisterForm/> }
                         { activeTab === 'users' && <ViewActiveUsers/> }
                         { activeTab === 'catalog' && <Catalog/> }

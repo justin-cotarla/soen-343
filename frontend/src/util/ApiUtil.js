@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { getToken } from './AuthUtil';
-import { puts } from 'util';
 
 const api = axios.create({
     baseURL: `http://${process.env.REACT_APP_IP}/api/`,
@@ -32,13 +31,12 @@ export const register = async (firstName, lastName, email, address, phone, passw
     });
 }
 
-export const createCatalogItem = async (type, spec, quantity) => {
+export const createBook = async (catalogItem, quantity) => {
     return await api({
         method: 'put',
-        url: '/catalog',
+        url: '/catalog/book',
         data: {
-            type,
-            spec,
+            catalogItem,
             quantity,
         },
         headers: {
@@ -46,6 +44,49 @@ export const createCatalogItem = async (type, spec, quantity) => {
         },
     });
 }
+
+export const createMagazine = async (catalogItem, quantity) => {
+    return await api({
+        method: 'put',
+        url: '/catalog/magazine',
+        data: {
+            catalogItem,
+            quantity,
+        },
+        headers: {
+            'Authorization': `Bearer ${getToken()}` 
+        },
+    });
+}
+
+export const createMovie = async (catalogItem, quantity) => {
+    return await api({
+        method: 'put',
+        url: '/catalog/movie',
+        data: {
+            catalogItem,
+            quantity,
+        },
+        headers: {
+            'Authorization': `Bearer ${getToken()}` 
+        },
+    });
+}
+
+export const createMusic = async (catalogItem, quantity) => {
+    return await api({
+        method: 'put',
+        url: '/catalog/music',
+        data: {
+            catalogItem,
+            quantity,
+        },
+        headers: {
+            'Authorization': `Bearer ${getToken()}` 
+        },
+    });
+}
+
 
 export const getActiveUsers = async () => {
     return await api.get('/accounts?active=true', {

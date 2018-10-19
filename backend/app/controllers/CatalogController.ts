@@ -120,7 +120,7 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         break;
     }
 
-    if (!catalogItem) {
+    if (!record) {
         return res.status(401).end();
     }
 
