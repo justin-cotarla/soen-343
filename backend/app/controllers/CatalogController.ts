@@ -149,6 +149,23 @@ catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Respons
     }
 });
 
+catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
+    if (!req.user && !(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
+
+    const catalogItemId = req.params.id;
+    if (!catalogItemId) {
+        return res.status(401).end();
+    }
+
+    if (await CatalogService.deleteInventoryItem(catalogItemId)) {
+        return res.status(200).end();
+    }
+
+    return res.status(404).end();
+});
+
 catalogRouter.delete('/:id', async (req: Request, res: Response) => {
     if (!req.user && !(req.user instanceof Administrator)) {
         return res.status(403).end();
@@ -160,23 +177,6 @@ catalogRouter.delete('/:id', async (req: Request, res: Response) => {
     }
 
     if (await CatalogService.deleteCatalogItem(catalogItemId)) {
-        return res.status(200).end();
-    }
-
-    return res.status(404).end();
-});
-
-catalogRouter.delete('/inventory/:id', async (req: Request, res: Response) => {
-    if (!req.user && !(req.user instanceof Administrator)) {
-        return res.status(403).end();
-    }
-
-    const inventoryItemId = req.params.id;
-    if (!inventoryItemId) {
-        return res.status(401).end();
-    }
-
-    if (await CatalogService.deleteInventoryItem(inventoryItemId)) {
         return res.status(200).end();
     }
 

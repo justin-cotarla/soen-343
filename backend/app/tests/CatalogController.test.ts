@@ -3,7 +3,7 @@ import supertest from 'supertest';
 
 import server from '../server';
 import { BookFormat } from '../models/Book';
-import { Administrator, Magazine } from '../models';
+import { Administrator, Magazine, InventoryItem } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
 import CatalogService from '../services/CatalogService';
@@ -238,11 +238,65 @@ describe('CatalogRouter', () => {
         });
     });
 
-    describe('DELETE /catalog/inventory/:id', () => {
+    describe('DELETE /catalog/:id/inventory', () => {
+        const magazine:Magazine = new Magazine(
+            '1',
+            'Popular Mechanics',
+            'Test Date',
+            123,
+            123,
+            'Test Pub',
+            'English',
+        );
+        const inventory = [
+            new InventoryItem('1', magazine, false),
+            new InventoryItem('2', magazine, true),
+        ];
+        beforeAll(() => {
+            CatalogService['catalogItems'].set(magazine, inventory);
+        });
+
         it('requires admin rights', async () => {
             await supertest(server)
-                .delete('/catalog/inventory/1')
+                .delete('/catalog/1/inventory')
                 .expect(403);
         });
+
+        it('throws an error if trying to delete from a non-existing catalog item', async (done) => {
+            supertest(server)
+                .delete('/catalog/dne/inventory')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(404)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('deletes an available inventory item for a specific catalog item', async () => {
+            await supertest(server)
+                .delete('/catalog/1/inventory')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(200);
+
+            expect(CatalogService['catalogItems'].get(magazine).length).toEqual(1);
+        });
+
+        it('will not delete an unavailable inventory item', async (done) => {
+            supertest(server)
+                .delete('/catalog/1/inventory')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(404)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+
+            expect(CatalogService['catalogItems'].get(magazine).length).toEqual(1);
+        });
+
     });
 });

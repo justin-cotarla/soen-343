@@ -71,8 +71,14 @@ class CatalogService {
         return await false;
     }
 
-    deleteInventoryItem = async (inventoryItemId: any) : Promise<boolean> => {
-        const inventoryList = this.catalogItems.get(inventoryItemId);
+    deleteInventoryItem = async (catalogItemId: string) : Promise<boolean> => {
+        const catalogItems = this.catalogItems.keys();
+        let inventoryList = null;
+        for (const catalogItem of catalogItems) {
+            if (catalogItem.id === catalogItemId) {
+                inventoryList = this.catalogItems.get(catalogItem);
+            }
+        }
 
         if (!inventoryList) {
             return await false;
@@ -84,8 +90,9 @@ class CatalogService {
                 inventoryList.splice(i, 1); // remove one item from inventory
                 return await true;
             }
-            return await false; // none of the items are available
         }
+
+        return await false; // none of the items are available
     }
 }
 
