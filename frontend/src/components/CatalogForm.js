@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Form, Grid, Header, Segment, Message } from 'semantic-ui-react'
+import { Button, Form, Grid, Header, Segment, Message, Dropdown } from 'semantic-ui-react'
 import { createBook, createMagazine, createMovie, createMusic } from '../util/ApiUtil';
 
 const options = [
@@ -236,23 +236,30 @@ class CatalogForm extends React.Component {
                                     required/>
                                 {
                                     type === 'Book' && [
-                                    <Form.Group widths="equal">
-                                        <Form.Input 
-                                            name='format' 
-                                            value={format} 
-                                            placeholder='Format' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />,
-                                        <Form.Input 
-                                            name='pages' 
-                                            value={pages} 
-                                            placeholder='Pages' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />
-                                    </Form.Group>,
-                                    <Form.Group widths="equal">
+                                    <Form.Dropdown
+                                        key="book-format"
+                                        control={Dropdown}
+                                        name="format"
+                                        placeholder='Select book format'
+                                        value={format}
+                                        options={[
+                                            { value: 'HardCover', text: 'Hardcover' },
+                                            { value: 'PaperBack', text: 'Paperback '},
+                                        ]}
+                                        onChange={this.handleChange}
+                                        selection
+                                        search
+                                        required
+                                        error={error}/>,
+                                    <Form.Input 
+                                        key="book-pages"
+                                        name='pages' 
+                                        value={pages} 
+                                        placeholder='Pages' 
+                                        required 
+                                        onChange={this.handleChange}
+                                        error={error} />,
+                                    <Form.Group widths="equal" key="book-author-publisher">
                                         <Form.Input 
                                             name='author' 
                                             value={author} 
@@ -268,7 +275,7 @@ class CatalogForm extends React.Component {
                                             onChange={this.handleChange}
                                             error={error} />
                                     </Form.Group>,
-                                    <Form.Group widths="equal">
+                                    <Form.Group widths="equal" key="book-isbn">
                                         <Form.Input 
                                             name='isbn10' 
                                             value={isbn10} 
@@ -289,6 +296,7 @@ class CatalogForm extends React.Component {
                                 {
                                     type === 'Magazine' && [
                                     <Form.Input 
+                                        key="mag-publisher"
                                         name='publisher' 
                                         value={publisher} 
                                         placeholder='Publisher' 
@@ -296,13 +304,14 @@ class CatalogForm extends React.Component {
                                         onChange={this.handleChange}
                                         error={error} />,
                                     <Form.Input 
+                                        key="mag-lang"
                                         name='language' 
                                         value={language} 
                                         placeholder='Language' 
                                         required 
                                         onChange={this.handleChange}
                                         error={error} />,
-                                    <Form.Group widths="equal">
+                                    <Form.Group widths="equal" key="mag-isbn">
                                         <Form.Input 
                                             name='isbn10' 
                                             value={isbn10} 
@@ -323,6 +332,7 @@ class CatalogForm extends React.Component {
                                 {
                                     type === 'Movie' && [
                                     <Form.Input 
+                                        key="movie-lang"
                                         name='language' 
                                         value={language} 
                                         placeholder='Language' 
@@ -379,34 +389,46 @@ class CatalogForm extends React.Component {
                                 }
                                 {
                                     type === 'Music' && [
+                                    <Form.Dropdown
+                                        key="music-type"
+                                        control={Dropdown}
+                                        name="musicType"
+                                        placeholder='Select music type'
+                                        value={musicType}
+                                        options={[
+                                            { value: 'CD', text: 'CD' },
+                                            { value: 'VINYL', text: 'Vinyl' },
+                                            { value: 'DIGITAL', text: 'Digital' },
+                                        ]}
+                                        onChange={this.handleChange}
+                                        selection
+                                        search
+                                        required
+                                        error={error}/>,
                                     <Form.Input 
-                                            name='musicType' 
-                                            value={musicType} 
-                                            placeholder='Type' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />,
+                                        key="music-artist"
+                                        name='artist' 
+                                        value={artist} 
+                                        placeholder='Artist' 
+                                        required 
+                                        onChange={this.handleChange}
+                                        error={error} />,
                                     <Form.Input 
-                                            name='artist' 
-                                            value={artist} 
-                                            placeholder='Artist' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />,
+                                        key="music-label"
+                                        name='label' 
+                                        value={label} 
+                                        placeholder='Label' 
+                                        required 
+                                        onChange={this.handleChange}
+                                        error={error} />,
                                     <Form.Input 
-                                            name='label' 
-                                            value={label} 
-                                            placeholder='Label' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />,
-                                    <Form.Input 
-                                            name='asin' 
-                                            value={asin} 
-                                            placeholder='asin' 
-                                            required 
-                                            onChange={this.handleChange}
-                                            error={error} />
+                                        key="music-asin"
+                                        name='asin' 
+                                        value={asin} 
+                                        placeholder='asin' 
+                                        required 
+                                        onChange={this.handleChange}
+                                        error={error} />,
                                     ]
                                 }        
                                 <Message 
