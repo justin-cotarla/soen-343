@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run serve",
-    "test": "node_modules/.bin/jest",
+    "test": "node_modules/.bin/jest --verbose",
     "build": "tsc",
     "serve": "node dist/index.js",
     "dev": "nodemon --watch 'app/**/*.ts' --ignore 'app/**/*.test.ts' --exec 'ts-node' app/index.ts"

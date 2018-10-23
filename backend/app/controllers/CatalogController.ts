@@ -45,7 +45,7 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         return res.status(401).end();
     }
 
-    let record: CatalogItem = null;
+    let record: any = null;
     switch (type) {
     case 'book': {
         const {
@@ -58,8 +58,12 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         } = catalogItem;
 
         if (isbn10 && isbn13 && author && publisher && format && pages) {
-            record = new Book(
-                v4(), title, date, isbn10, isbn13, author, publisher, format, pages);
+            catalogItem.id = v4();
+            try {
+                record = await CatalogService.addCatalogItem(catalogItem as Book, quantity);
+            } catch (error) {
+                return res.status(500).end();
+            }
         }
     }
         break;
@@ -72,8 +76,12 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         } = catalogItem;
 
         if (isbn10 && publisher && language) {
-            record = new Magazine(
-                v4(), title, date, isbn10, isbn13, publisher, language);
+            catalogItem.id = v4();
+            try {
+                record = await CatalogService.addCatalogItem(catalogItem as Magazine, quantity);
+            } catch (error) {
+                return res.status(500).end();
+            }
         }
     }
         break;
@@ -90,18 +98,12 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
 
         if (director && producers && actors && language
             && subtitles && dubbed && runtime) {
-            record = new Movie(
-                v4(),
-                title,
-                date,
-                director,
-                producers,
-                actors,
-                language,
-                subtitles,
-                dubbed,
-                runtime,
-            );
+            catalogItem.id = v4();
+            try {
+                record = await CatalogService.addCatalogItem(catalogItem as Movie, quantity);
+            } catch (error) {
+                return res.status(500).end();
+            }
         }
     }
         break;
@@ -114,7 +116,12 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         } = catalogItem;
 
         if (type && artist && label && asin) {
-            record = new Music(v4(), title, date, type, artist, label, asin);
+            catalogItem.id = v4();
+            try {
+                record = await CatalogService.addCatalogItem(catalogItem as Music, quantity);
+            } catch (error) {
+                return res.status(500).end();
+            }
         }
     }
         break;
@@ -124,12 +131,7 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         return res.status(401).end();
     }
 
-    try {
-        const catalogItem = await CatalogService.addCatalogItem(record, quantity);
-        return res.status(200).json(catalogItem);
-    } catch (error) {
-        return res.status(401).end();
-    }
+    return res.status(200).json(record);
 });
 
 catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Response) => {
