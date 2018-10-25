@@ -35,7 +35,7 @@ ENGINE = InnoDB;
 -- Table `library_db`.`CATALOG_ITEM`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `library_db`.`CATALOG_ITEM` (
-  `ID` INT NOT NULL,
+  `ID` INT NOT NULL AUTO_INCREMENT,
   `TITLE` VARCHAR(45) NULL,
   `DATE` DATETIME NULL,
   PRIMARY KEY (`ID`))
@@ -124,8 +124,8 @@ ENGINE = InnoDB;
 -- Table `library_db`.`INVENTORY_ITEM`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `library_db`.`INVENTORY_ITEM` (
-  `ID` INT NOT NULL,
-  `AVAILABLE` TINYINT NULL,
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `AVAILABLE` TINYINT NULL DEFAULT 1,
   `CATALOG_ITEM_ID` INT NOT NULL,
   PRIMARY KEY (`ID`),
   INDEX `fk_INVENTORY_CATALOG_ITEM1_idx` (`CATALOG_ITEM_ID` ASC),
