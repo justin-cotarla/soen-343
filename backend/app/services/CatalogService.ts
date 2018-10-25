@@ -1,6 +1,6 @@
 import v4 from 'uuid/v4';
 import { Request, Response } from 'express';
-import { CatalogItem, InventoryItem } from '../models';
+import { CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
 
 class CatalogService {
     private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
@@ -17,8 +17,40 @@ class CatalogService {
                 },      []);
     }
 
-    async updateCatalog(catalogItemId: string) {
+    updateCatalogItem = async (record: CatalogItem) : Promise<Boolean> => {
+        let originalRecord: CatalogItem = null;
+        if (record === null) {
+            throw new Error('Cannot modify null cataolog item');
 
+        } else if (record instanceof Book) {
+            originalRecord = BookTDG.find(record.id);
+            this.replaceCatalogItem(originalRecord, record);
+            return await BookTDG.update(record);
+
+        } else if (record instanceof Music) {
+            originalRecord = MusicTDG.find(record.id);
+            this.replaceCatalogItem(originalRecord, record);
+            return await MusicTDG.update(record);
+
+        } else if (record instanceof Magazine) {
+            originalRecord = MagazineTDG.find(record.id);
+            this.replaceCatalogItem(originalRecord, record);
+            return await MagazineTDG.update(record);
+
+        } else if (record instanceof Movie) {
+            originalRecord = MovieTDG.find(record.id);
+            this.replaceCatalogItem(originalRecord, record);
+            return await MovieTDG.update(record);
+        }
+
+    }
+    // Helper function to replace the original record with the new record.
+    // Also deletes the old record.
+    replaceCatalogItem = async (originalRecord: CatalogItem, newRecord: CatalogItem) :
+    Promise<void> => {
+        const inventory: InventoryItem[] = this.catalogItems.get(originalRecord);
+        this.catalogItems.set(newRecord, inventory);
+        this.catalogItems.delete(originalRecord);
     }
 
     addCatalogItem = async (record: CatalogItem, quantity: number) : Promise<Object> => {

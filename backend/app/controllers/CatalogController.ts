@@ -151,6 +151,116 @@ catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Respons
     }
 });
 
+catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response) => {
+    // Must be an admin to modify catalog items
+    if (!req.user && !(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
+
+    //  Get the catalog item type and the id of the item
+    const catalogItemType = req.params.type;
+    const catalogItemId = req.params.id;
+
+    if (!catalogItemType || !catalogItemId) {
+        return res.status(401).end();
+    }
+
+    // Response body must have the new catalog item
+    const catalogItem = req.body;
+    if (!catalogItem) {
+        return res.status(401).end();
+    }
+
+    let record: any = null;
+    switch (catalogItemType) {
+    case 'book': {
+        const {
+            isbn10,
+            isbn13,
+            author,
+            publisher,
+            format,
+            pages,
+        } = catalogItem;
+
+        if (isbn10 && isbn13 && author && publisher && format && pages) {
+            catalogItem.id = catalogItemId;
+            try {
+                record = await CatalogService.updateCatalogItem(catalogItem as Book);
+            } catch (error) {
+                return res.status(500).end();
+            }
+        }
+    }
+        break;
+    case 'magazine': {
+        const {
+            isbn10,
+            isbn13,
+            publisher,
+            language,
+        } = catalogItem;
+
+        if (isbn10 && publisher && language) {
+            catalogItem.id = catalogItemId;
+            try {
+                record = await CatalogService.updateCatalogItem(catalogItem as Magazine);
+            } catch (error) {
+                return res.status(500).end();
+            }
+        }
+    }
+        break;
+    case 'movie': {
+        const {
+            director,
+            producers,
+            actors,
+            language,
+            subtitles,
+            dubbed,
+            runtime,
+        } = catalogItem;
+
+        if (director && producers && actors && language
+            && subtitles && dubbed && runtime) {
+            catalogItem.id = catalogItemId;
+            try {
+                record = await CatalogService.updateCatalogItem(catalogItem as Movie);
+            } catch (error) {
+                return res.status(500).end();
+            }
+        }
+    }
+        break;
+    case 'music': {
+        const {
+            type,
+            artist,
+            label,
+            asin,
+        } = catalogItem;
+
+        if (type && artist && label && asin) {
+            catalogItem.id = catalogItemId;
+            try {
+                record = await CatalogService.updateCatalogItem(catalogItem as Music);
+            } catch (error) {
+                return res.status(500).end();
+            }
+        }
+    }
+        break;
+    }
+
+    if (!record) {
+        return res.status(401).end();
+    }
+
+    return res.status(200).json(record);
+
+});
+
 catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user && !(req.user instanceof Administrator)) {
         return res.status(403).end();
