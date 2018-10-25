@@ -36,7 +36,7 @@ class UserTDG implements TableDataGateway {
             console.log(`error: ${err}`);
             return null;
         }
-    } // User
+    }
     insert = async(item: NewUser): Promise<boolean> => {
         try {
             const registeredUser = await register(item.user, item.password);
