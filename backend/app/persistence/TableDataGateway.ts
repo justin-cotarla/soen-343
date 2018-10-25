@@ -1,6 +1,6 @@
 export interface TableDataGateway  {
-    find(id:string):any;
-    insert(item:any):boolean;
-    update(item:any):boolean;
-    delete(id:string):any;
+    find(id:string):Promise<any>;
+    insert(item:any):Promise<boolean>;
+    update(item:any):Promise<boolean>;
+    delete(id:string):Promise<any>;
 }
