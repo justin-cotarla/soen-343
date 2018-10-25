@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
 
 class Catalog {
-    private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
 
     viewItems = async () : Promise<CatalogItem[]> => {
         return await Array.from(this.catalogItems.entries())
@@ -18,39 +17,23 @@ class Catalog {
     }
 
     updateItem = async (record: CatalogItem) : Promise<Boolean> => {
-        let originalRecord: CatalogItem = null;
-        if (record === null) {
-            throw new Error('Cannot modify null cataolog item');
-
-        } else if (record instanceof Book) {
-            originalRecord = BookTDG.find(record.id);
-            this.replaceCatalogItem(originalRecord, record);
+        if (!record) {
+            throw new Error('Cannot modify null catalog item');
+        }
+        switch (record.constructor) {
+        case Book: {
             return await BookTDG.update(record);
-
-        } else if (record instanceof Music) {
-            originalRecord = MusicTDG.find(record.id);
-            this.replaceCatalogItem(originalRecord, record);
+        }
+        case Music: {
             return await MusicTDG.update(record);
-
-        } else if (record instanceof Magazine) {
-            originalRecord = MagazineTDG.find(record.id);
-            this.replaceCatalogItem(originalRecord, record);
+        }
+        case Magazine: {
             return await MagazineTDG.update(record);
-
-        } else if (record instanceof Movie) {
-            originalRecord = MovieTDG.find(record.id);
-            this.replaceCatalogItem(originalRecord, record);
+        }
+        case Movie: {
             return await MovieTDG.update(record);
         }
-
-    }
-    // Helper function to replace the original record with the new record.
-    // Also deletes the old record.
-    replaceCatalogItem = async (originalRecord: CatalogItem, newRecord: CatalogItem) :
-    Promise<void> => {
-        const inventory: InventoryItem[] = this.catalogItems.get(originalRecord);
-        this.catalogItems.set(newRecord, inventory);
-        this.catalogItems.delete(originalRecord);
+        }
     }
 
     addItem = async (record: CatalogItem, quantity: number) : Promise<Object> => {
