@@ -10,7 +10,7 @@ interface NewUser {
 
 class UserTDG implements TableDataGateway {
 
-    find = async(id:string): Promise<User> => {
+    find = async(id: string): Promise<User> => {
         try {
             const query = `
                 SELECT
@@ -20,6 +20,9 @@ class UserTDG implements TableDataGateway {
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [id]);
+            if (!data.rows.length) {
+                return null;
+            }
             const users = data.rows.map(user =>
                 new User(
                     user.FIRST_NAME,
@@ -28,16 +31,13 @@ class UserTDG implements TableDataGateway {
                     user.EMAIL,
                     user.ADDRESS,
                 ));
-            if (!data.rows.length) {
-                return null;
-            }
             return users[0];
         } catch (err) {
             console.log(`error: ${err}`);
             return null;
         }
     } // User
-    insert = async(item:NewUser):Promise <boolean> => {
+    insert = async(item: NewUser): Promise<boolean> => {
         try {
             const registeredUser = await register(item.user, item.password);
             if (!registeredUser) {
@@ -49,21 +49,26 @@ class UserTDG implements TableDataGateway {
             return false;
         }
     }
-    update = async (item:User):Promise <boolean> => {
+    update = async (item: User): Promise<boolean> => {
         try {
             const query = `
                 UPDATE
-                FROM ACCOUNT
+                ACCOUNT
+                SET FIRST_NAME = ?,
+                LAST_NAME = ?,
+                PHONE_NUMBER = ?,
+                EMAIL = ?,
+                ADDRESS = ?,
                 WHERE ID = ?
-                SET FIRST_NAME = ?
-                LAST_NAME = ?
-                PHONE_NUMBER = ?
-                EMAIL = ?
-                ADDRESS = ?
             `;
 
-            await DatabaseUtil.sendQuery(query, [item.id, item.firstName,
-                item.lastName, item.phone.toString(), item.email, item.address]);
+            await DatabaseUtil.sendQuery(query, [
+                item.firstName,
+                item.lastName,
+                item.phone.toString(),
+                item.email,
+                item.address,
+                item.id]);
             return true;
         } catch (err) {
             console.log(`error: ${err}`);
