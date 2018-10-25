@@ -2,11 +2,11 @@ import { CatalogItem } from './CatalogItem';
 
 class Movie extends CatalogItem {
     public director: string;
-    public producers: string[];
-    public actors: string[];
+    public producers: string;
+    public actors: string;
     public language: string;
-    public subtitles: string[];
-    public dubbed: string[];
+    public subtitles: string;
+    public dubbed: string;
     public runtime: number;
 
     constructor (
@@ -14,11 +14,11 @@ class Movie extends CatalogItem {
         title: string,
         date: string,
         director: string,
-        producers: string[],
-        actors: string[],
+        producers: string,
+        actors: string,
         language: string,
-        subtitles: string[],
-        dubbed: string[],
+        subtitles: string,
+        dubbed: string,
         runtime: number) {
         super(id, title, date);
         this.director = director;
