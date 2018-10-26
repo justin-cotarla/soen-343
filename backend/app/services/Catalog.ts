@@ -36,20 +36,21 @@ class Catalog {
         }
     }
 
-    addItem = async (record: CatalogItem, quantity: number) : Promise<Object> => {
+    addItem = async (record: CatalogItem, quantity: number)
+    : Promise<{ catalogItem: CatalogItem, inventory: InventoryItem[] }> => {
         if (record === null) {
             throw new Error('Cannot add null catalog item');
         }
+
+        await CatalogTDG.insert(record);
 
         let i = 0;
         const inventoryItems = [];
         for (i; i < quantity; i += 1) {
             const inventoryItem: InventoryItem = new InventoryItem(v4(), record, true);
+            await InventoryTDG.insert(inventoryItem);
             inventoryItems.push(inventoryItem);
         }
-
-        // add new catalog item and inventory items to list
-        this.catalogItems.set(record, inventoryItems);
 
         return await {
             catalogItem: record,
