@@ -1,11 +1,10 @@
 import v4 from 'uuid/v4';
 import { Request, Response } from 'express';
-import { CatalogItem, InventoryItem } from '../models';
+import { CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
 
-class CatalogService {
-    private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
+class Catalog {
 
-    viewCatalogItems = async () : Promise<CatalogItem[]> => {
+    viewItems = async () : Promise<CatalogItem[]> => {
         return await Array.from(this.catalogItems.entries())
                 .reduce((o, [catalogItem, inventory]) => {
                     const res = {
@@ -17,24 +16,41 @@ class CatalogService {
                 },      []);
     }
 
-    async updateCatalog(catalogItemId: string) {
-
+    updateItem = async (record: CatalogItem) : Promise<Boolean> => {
+        if (!record) {
+            throw new Error('Cannot modify null catalog item');
+        }
+        switch (record.constructor) {
+        case Book: {
+            return await BookTDG.update(record);
+        }
+        case Music: {
+            return await MusicTDG.update(record);
+        }
+        case Magazine: {
+            return await MagazineTDG.update(record);
+        }
+        case Movie: {
+            return await MovieTDG.update(record);
+        }
+        }
     }
 
-    addCatalogItem = async (record: CatalogItem, quantity: number) : Promise<Object> => {
+    addItem = async (record: CatalogItem, quantity: number)
+    : Promise<{ catalogItem: CatalogItem, inventory: InventoryItem[] }> => {
         if (record === null) {
             throw new Error('Cannot add null catalog item');
         }
+
+        await CatalogTDG.insert(record);
 
         let i = 0;
         const inventoryItems = [];
         for (i; i < quantity; i += 1) {
             const inventoryItem: InventoryItem = new InventoryItem(v4(), record, true);
+            await InventoryTDG.insert(inventoryItem);
             inventoryItems.push(inventoryItem);
         }
-
-        // add new catalog item and inventory items to list
-        this.catalogItems.set(record, inventoryItems);
 
         return await {
             catalogItem: record,
@@ -63,7 +79,6 @@ class CatalogService {
         if (id === null) {
             throw new Error('Cannot delete catalog item of null id');
         }
-
         await CatalogTDG.delete(id);
 
         return await true;
@@ -94,4 +109,4 @@ class CatalogService {
     }
 }
 
-export default new CatalogService();
+export default new Catalog();
