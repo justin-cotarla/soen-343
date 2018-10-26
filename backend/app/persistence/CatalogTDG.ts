@@ -8,7 +8,7 @@ export class CatalogTDG implements TableDataGateway {
             SELECT *
             FROM
             CATALOG_ITEM
-            WHERE=?
+            WHERE ID = ?
         `;
         try {
             const data = await DatabaseUtil.sendQuery(query, [id]);
@@ -20,7 +20,6 @@ export class CatalogTDG implements TableDataGateway {
             return new CatalogItem(item.ID, item.TITLE, item.DATE);
         } catch (err) {
             console.log(err);
-            return null;
         }
     }
 
@@ -47,14 +46,14 @@ export class CatalogTDG implements TableDataGateway {
 
     insert = async (item: CatalogItem): Promise<CatalogItem> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 INSERT INTO CATALOG_ITEM
                 (TITLE, DATE)
                 VALUES
                 (?, ?)
             `;
 
-            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
+            const result = await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
             ]);
@@ -71,7 +70,7 @@ export class CatalogTDG implements TableDataGateway {
 
     update = async (item: CatalogItem): Promise<void> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 UPDATE
                 CATALOG_ITEM
                 SET TITLE = ?,
@@ -79,7 +78,7 @@ export class CatalogTDG implements TableDataGateway {
                 WHERE ID = ?
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [
+            await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
                 item.id,
@@ -91,13 +90,13 @@ export class CatalogTDG implements TableDataGateway {
 
     delete = async (id: string): Promise<void> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 DELETE
                 FROM CATALOG_ITEM
                 WHERE ID = ?
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [id]);
+            await DatabaseUtil.sendQuery(query, [id]);
         } catch (err) {
             console.log(err);
         }
