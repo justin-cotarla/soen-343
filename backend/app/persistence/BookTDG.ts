@@ -20,20 +20,18 @@ class BookTDG implements TableDataGateway {
                 return null;
             }
 
-            const books = data.rows.map(book =>
-                new Book(
-                    book.ID,
-                    book.TITLE,
-                    book.DATA,
-                    book.ISBN_10,
-                    book.ISBN_13,
-                    book.AUTHOR,
-                    book.PUBLISHER,
-                    book.FORMAT,
-                    book.PAGES,
-                ));
-
-            return books[0];
+            const book = data.rows[0];
+            return new Book(
+                book.ID,
+                book.TITLE,
+                book.DATE,
+                book.ISBN_10,
+                book.ISBN_13,
+                book.AUTHOR,
+                book.PUBLISHER,
+                book.FORMAT,
+                book.PAGES,
+            );
         } catch (err) {
             console.log(`error: ${err}`);
             return null;
@@ -46,14 +44,12 @@ class BookTDG implements TableDataGateway {
         }
 
         try {
-
             const queryCatalogItem = `
                 INSERT INTO CATALOG_ITEM
                 (TITLE, DATE)
                 VALUES
                 (?, ?)
             `;
-
             const queryBook  = `
                 INSERT INTO BOOK
                 (ISBN_10, ISBN_13, AUTHOR, PUBLISHER, FORMAT, PAGES, CATALOG_ITEM_ID)
@@ -61,7 +57,7 @@ class BookTDG implements TableDataGateway {
                 (?, ?, ?, ?, ?, ?, ?)
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [
+            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
                 item.title,
                 item.date,
             ]);
@@ -73,7 +69,7 @@ class BookTDG implements TableDataGateway {
                 item.publisher,
                 item.format.toString(),
                 item.pages.toString(),
-                item.id.toString(),
+                result.rows.insertId,
             ]);
             return true;
         } catch (err) {
@@ -91,7 +87,6 @@ class BookTDG implements TableDataGateway {
                 DATE = ?
                 WHERE ID = ?
             `;
-
             const queryBook = `
                 UPDATE
                 BOOK
@@ -130,19 +125,25 @@ class BookTDG implements TableDataGateway {
         const foundBook = await this.find(id);
         if (foundBook) {
             try {
-                const queryCatalogItem = `
+                const queryInventoryItem = `
                     DELETE
-                    FROM CATALOG_ITEM
-                    WHERE ID = ?
+                    FROM INVENTORY_ITEM
+                    WHERE CATALOG_ITEM_ID = ?
                 `;
                 const queryBook = `
                     DELETE
                     FROM BOOK
                     WHERE CATALOG_ITEM_ID = ?
                 `;
+                const queryCatalogItem = `
+                    DELETE
+                    FROM CATALOG_ITEM
+                    WHERE ID = ?
+               `;
 
-                await DatabaseUtil.sendQuery(queryCatalogItem, [id]);
+                await DatabaseUtil.sendQuery(queryInventoryItem, [id]);
                 await DatabaseUtil.sendQuery(queryBook, [id]);
+                await DatabaseUtil.sendQuery(queryCatalogItem, [id]);
                 return foundBook;
             } catch (err) {
                 console.log(`error: ${err}`);
