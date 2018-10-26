@@ -19,8 +19,8 @@ class MovieTDG implements TableDataGateway {
                 return null;
             }
 
-            const movies = data.rows.map(movie =>
-                new Movie(
+            const movie = data.rows[0];
+            return new Movie(
                     movie.ID,
                     movie.TITLE,
                     movie.DATE,
@@ -31,9 +31,7 @@ class MovieTDG implements TableDataGateway {
                     movie.SUBTITLES,
                     movie.DUBBED,
                     movie.RUNTIME,
-                ));
-
-            return movies[0];
+                );
         } catch (err) {
             console.log(`error: ${err}`);
             return null;
@@ -55,7 +53,7 @@ class MovieTDG implements TableDataGateway {
                 (?, ?, ?, ?, ?, ?, ?, ?);
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [
+            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
                 item.title,
                 item.date]);
 
@@ -67,7 +65,7 @@ class MovieTDG implements TableDataGateway {
                 item.subtitles,
                 item.dubbed,
                 item.runtime.toString(),
-                item.id]);
+                result.rows.insertId]);
             return true;
         } catch (err) {
             console.log(`error: ${err}`);
