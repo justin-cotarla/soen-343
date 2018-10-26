@@ -1,11 +1,10 @@
 import v4 from 'uuid/v4';
 import { Request, Response } from 'express';
-import { CatalogItem, InventoryItem } from '../models';
+import { CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
 
-class CatalogService {
-    private catalogItems: Map<CatalogItem, InventoryItem[]> = new Map();
+class Catalog {
 
-    viewCatalogItems = async () : Promise<CatalogItem[]> => {
+    viewItems = async () : Promise<CatalogItem[]> => {
         return await Array.from(this.catalogItems.entries())
                 .reduce((o, [catalogItem, inventory]) => {
                     const res = {
@@ -17,8 +16,24 @@ class CatalogService {
                 },      []);
     }
 
-    async updateCatalog(catalogItemId: string) {
-
+    updateItem = async (record: CatalogItem) : Promise<Boolean> => {
+        if (!record) {
+            throw new Error('Cannot modify null catalog item');
+        }
+        switch (record.constructor) {
+        case Book: {
+            return await BookTDG.update(record);
+        }
+        case Music: {
+            return await MusicTDG.update(record);
+        }
+        case Magazine: {
+            return await MagazineTDG.update(record);
+        }
+        case Movie: {
+            return await MovieTDG.update(record);
+        }
+        }
     }
 
     addItem = async (record: CatalogItem, quantity: number)
@@ -60,7 +75,7 @@ class CatalogService {
         return await inventoryItemId;
     }
 
-    deleteCatalogItem = async (catalogItemId: string) : Promise<boolean> => {
+    deleteItem = async (catalogItemId: string) : Promise<boolean> => {
         const catalogItems = this.catalogItems.keys();
         for (const catalogItem of catalogItems) {
             if (catalogItem.id === catalogItemId) {
@@ -97,4 +112,4 @@ class CatalogService {
     }
 }
 
-export default new CatalogService();
+export default new Catalog();
