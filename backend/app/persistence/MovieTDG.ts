@@ -1,17 +1,17 @@
-import { TableDataGateway } from './TableDataGateway';
+import { CatalogTDG } from './CatalogTDG';
 import { Movie } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
-class MovieTDG implements TableDataGateway {
-
-    find = async (id: string): Promise<Movie> => {
+class MovieTDG extends CatalogTDG{
+    find = async(id: string) : Promise<Movie> => {
         try {
             const query = `
                 SELECT
-                ID, TITLE, DATE, DIRECTOR, PRODUCERS, ACTORS, LANGUAGE, SUBTITLES, DUBBED, RUNTIME
+                *
                 FROM CATALOG_ITEM
-                INNER JOIN MOVIE ON CATALOG_ITEM.ID = MOVIE.CATALOG_ITEM_ID
-                WHERE ID = ?;
+                JOIN MOVIE
+                ON CATALOG_ITEM.ID = MOVIE.CATALOG_ITEM_ID
+                WHERE ID = ?
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [id]);
@@ -21,6 +21,39 @@ class MovieTDG implements TableDataGateway {
 
             const movie = data.rows[0];
             return new Movie(
+                movie.ID,
+                movie.TITLE,
+                movie.DATE,
+                movie.DIRECTOR,
+                movie.PRODUCERS,
+                movie.ACTORS,
+                movie.LANGUAGE,
+                movie.SUBTITLES,
+                movie.DUBBED,
+                movie.RUNTIME,
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    findAll = async (): Promise<Movie[]> => {
+        try {
+            const query = `
+            SELECT
+            *
+            FROM
+            CATALOG_ITEM
+            JOIN MOVIE
+            ON ID = CATALOG_ITEM_ID
+            `;
+            const data = await DatabaseUtil.sendQuery(query);
+            if (!data.rows.length) {
+                return [];
+            }
+
+            return data.rows.map((movie: any) => {
+                new Movie(
                     movie.ID,
                     movie.TITLE,
                     movie.DATE,
@@ -32,33 +65,33 @@ class MovieTDG implements TableDataGateway {
                     movie.DUBBED,
                     movie.RUNTIME,
                 );
+            });
         } catch (err) {
-            console.log(`error: ${err}`);
-            return null;
+            console.log(err);
         }
     }
 
-    insert = async (item: Movie): Promise<boolean> => {
-        if (item === null) {
-            throw new Error('Cannot add null movie item');
-        }
+    insert = async (item: Movie): Promise<Movie> => {
         try {
-            const queryCatalogItem = `
-                INSERT INTO CATALOG_ITEM
-                (TITLE, DATE)
-                VALUES
-                (?, ?);
-            `;
-            const queryMovie = `
-                INSERT INTO MOVIE
-                (DIRECTOR, PRODUCERS, ACTORS, LANGUAGE, SUBTITLES, DUBBED, RUNTIME, CATALOG_ITEM_ID)
-                VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?);
+            const queryMovie  = `
+            INSERT
+            INTO
+            MOVIE
+            (
+                DIRECTOR,
+                PRODUCERS,
+                ACTORS,
+                LANGUAGE,
+                SUBTITLES,
+                DUBBED,
+                RUNTIME,
+                CATALOG_ITEM_ID
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?)
             `;
 
-            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
-                item.title,
-                item.date]);
+            const catalogItem = await super.insert(item);
 
             await DatabaseUtil.sendQuery(queryMovie, [
                 item.director,
@@ -68,42 +101,48 @@ class MovieTDG implements TableDataGateway {
                 item.subtitles,
                 item.dubbed,
                 item.runtime.toString(),
-                result.rows.insertId]);
-            return true;
+                catalogItem.id,
+            ]);
+
+            return new Movie(
+                catalogItem.id,
+                catalogItem.title,
+                catalogItem.date,
+                item.director,
+                item.producers,
+                item.actors,
+                item.language,
+                item.subtitles,
+                item.dubbed,
+                item.runtime,
+            );
         } catch (err) {
-            console.log(`error: ${err}`);
-            return null;
+            console.log(err);
         }
     }
 
-    update = async (item: Movie): Promise<boolean> => {
+    update = async (item: Movie): Promise<void> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 UPDATE
                 CATALOG_ITEM
-                SET TITLE = ?,
-                DATE = ?
-                WHERE ID = ?;
-            `;
-            const queryMovie = `
-                UPDATE
-                MOVIE
-                SET DIRECTOR = ?,
+                JOIN MOVIE ON ID = CATALOG_ITEM_ID
+                SET
+                TITLE = ?,
+                DATE = ?,
+                DIRECTOR = ?,
                 PRODUCERS = ?,
                 ACTORS = ?,
                 LANGUAGE = ?,
                 SUBTITLES = ?,
                 DUBBED = ?,
-                RUNTIME = ?,
-                WHERE CATALOG_ITEM_ID = ?;
+                RUNTIME = ?
+                WHERE CATALOG.ID = ?
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [
+            await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
-                item.id]);
-
-            await DatabaseUtil.sendQuery(queryMovie, [
                 item.director,
                 item.producers,
                 item.actors,
@@ -111,43 +150,27 @@ class MovieTDG implements TableDataGateway {
                 item.subtitles,
                 item.dubbed,
                 item.runtime.toString(),
-                item.id]);
-            return true;
+                item.id,
+            ]);
         } catch (err) {
-            console.log(`error: ${err}`);
-            return false;
+            console.log(err);
         }
     }
 
-    delete = async (id:string): Promise<Movie> => {
-        const foundMovie = await this.find(id);
-        if (foundMovie) {
-            try {
-                const queryInventory = `
-                    DELETE
-                    FROM INVENTORY_ITEM
-                    WHERE CATALOG_ITEM_ID = ?;
-                `;
-                const queryMovie = `
-                    DELETE
-                    FROM MOVIE
-                    WHERE CATALOG_ITEM_ID = ?;
-                `;
-                const queryCatalog = `
-                    DELETE
-                    FROM CATALOG_ITEM
-                    WHERE ID = ?;
-                `;
-                await DatabaseUtil.sendQuery(queryInventory, [id]);
-                await DatabaseUtil.sendQuery(queryMovie, [id]);
-                await DatabaseUtil.sendQuery(queryCatalog, [id]);
-                return foundMovie;
-            } catch (err) {
-                console.log(`error: ${err}`);
-                return null;
-            }
-        }
-        return null;
-    }
+    delete = async (id: string): Promise<void> => {
+        try {
+            const query = `
+                DELETE
+                FROM MOVIE
+                WHERE CATALOG_ITEM_ID = ?
+            `;
 
+            await DatabaseUtil.sendQuery(query, [id]);
+            await super.delete(id);
+        } catch (err) {
+            console.log(err);
+        }
+    }
 }
+
+export default new MovieTDG();

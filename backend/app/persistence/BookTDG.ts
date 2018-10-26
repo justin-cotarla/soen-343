@@ -1,17 +1,16 @@
-import { TableDataGateway } from './TableDataGateway';
+import { CatalogTDG } from './CatalogTDG';
 import { Book } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
-class BookTDG implements TableDataGateway {
-
+class BookTDG extends CatalogTDG{
     find = async(id: string) : Promise<Book> => {
-
         try {
             const query = `
                 SELECT
                 *
                 FROM CATALOG_ITEM
-                INNER JOIN BOOK ON CATALOG_ITEM.ID = BOOK.CATALOG_ITEM_ID
+                JOIN BOOK
+                ON CATALOG_ITEM.ID = BOOK.CATALOG_ITEM_ID
                 WHERE ID = ?
             `;
 
@@ -33,34 +32,63 @@ class BookTDG implements TableDataGateway {
                 book.PAGES,
             );
         } catch (err) {
-            console.log(`error: ${err}`);
-            return null;
+            console.log(err);
         }
     }
 
-    insert = async (item: Book): Promise<boolean> => {
-        if (item === null) {
-            throw new Error('Cannot add null book item');
-        }
-
+    findAll = async (): Promise<Book[]> => {
         try {
-            const queryCatalogItem = `
-                INSERT INTO CATALOG_ITEM
-                (TITLE, DATE)
-                VALUES
-                (?, ?)
+            const query = `
+            SELECT
+            *
+            FROM
+            CATALOG_ITEM
+            JOIN BOOK
+            ON ID = CATALOG_ITEM_ID
             `;
+            const data = await DatabaseUtil.sendQuery(query);
+            if (!data.rows.length) {
+                return [];
+            }
+
+            return data.rows.map((book: any) => {
+                new Book(
+                    book.ID,
+                    book.TITLE,
+                    book.DATE,
+                    book.ISBN_10,
+                    book.ISBN_13,
+                    book.AUTHOR,
+                    book.PUBLISHER,
+                    book.FORMAT,
+                    book.PAGES,
+                );
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    insert = async (item: Book): Promise<Book> => {
+        try {
             const queryBook  = `
-                INSERT INTO BOOK
-                (ISBN_10, ISBN_13, AUTHOR, PUBLISHER, FORMAT, PAGES, CATALOG_ITEM_ID)
-                VALUES
-                (?, ?, ?, ?, ?, ?, ?)
+            INSERT
+            INTO
+            BOOK
+            (
+                ISBN_10,
+                ISBN_13,
+                AUTHOR,
+                PUBLISHER,
+                FORMAT,
+                PAGES,
+                CATALOG_ITEM_ID
+            )
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?)
             `;
 
-            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
-                item.title,
-                item.date,
-            ]);
+            const catalogItem = await super.insert(item);
 
             await DatabaseUtil.sendQuery(queryBook, [
                 item.isbn10.toString(),
@@ -69,43 +97,46 @@ class BookTDG implements TableDataGateway {
                 item.publisher,
                 item.format.toString(),
                 item.pages.toString(),
-                result.rows.insertId,
+                catalogItem.id,
             ]);
-            return true;
+
+            return new Book(
+                catalogItem.id,
+                catalogItem.title,
+                catalogItem.date,
+                item.isbn10,
+                item.isbn13,
+                item.author,
+                item.publisher,
+                item.format,
+                item.pages,
+            );
         } catch (err) {
-            console.log(`error: ${err}`);
-            return false;
+            console.log(err);
         }
     }
 
-    update = async (item: Book): Promise<boolean> => {
+    update = async (item: Book): Promise<void> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 UPDATE
                 CATALOG_ITEM
-                SET TITLE = ?,
-                DATE = ?
-                WHERE ID = ?
-            `;
-            const queryBook = `
-                UPDATE
-                BOOK
+                JOIN BOOK ON ID = CATALOG_ITEM_ID
+                SET
+                TITLE = ?,
+                DATE = ?,
                 ISBN_10 = ?,
                 ISBN_13 = ?,
                 AUTHOR = ?,
                 PUBLISHER = ?,
                 FORMAT = ?,
                 PAGES = ?,
-                WHERE CATALOG_ITEM_ID = ?
+                WHERE CATALOG.ID = ?
             `;
 
-            await DatabaseUtil.sendQuery(queryCatalogItem, [
+            await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
-                item.id,
-            ]);
-
-            await DatabaseUtil.sendQuery(queryBook, [
                 item.isbn10.toString(),
                 item.isbn13.toString(),
                 item.author,
@@ -114,42 +145,25 @@ class BookTDG implements TableDataGateway {
                 item.pages.toString(),
                 item.id,
             ]);
-            return true;
         } catch (err) {
-            console.log(`error: ${err}`);
-            return false;
+            console.log(err);
         }
     }
 
-    delete = async (id: string): Promise<Book> => {
-        const foundBook = await this.find(id);
-        if (foundBook) {
-            try {
-                const queryInventoryItem = `
-                    DELETE
-                    FROM INVENTORY_ITEM
-                    WHERE CATALOG_ITEM_ID = ?
-                `;
-                const queryBook = `
-                    DELETE
-                    FROM BOOK
-                    WHERE CATALOG_ITEM_ID = ?
-                `;
-                const queryCatalogItem = `
-                    DELETE
-                    FROM CATALOG_ITEM
-                    WHERE ID = ?
-               `;
+    delete = async (id: string): Promise<void> => {
+        try {
+            const query = `
+                DELETE
+                FROM BOOK
+                WHERE CATALOG_ITEM_ID = ?
+            `;
 
-                await DatabaseUtil.sendQuery(queryInventoryItem, [id]);
-                await DatabaseUtil.sendQuery(queryBook, [id]);
-                await DatabaseUtil.sendQuery(queryCatalogItem, [id]);
-                return foundBook;
-            } catch (err) {
-                console.log(`error: ${err}`);
-                return null;
-            }
+            await DatabaseUtil.sendQuery(query, [id]);
+            await super.delete(id);
+        } catch (err) {
+            console.log(err);
         }
-        return null;
     }
 }
+
+export default new BookTDG();
