@@ -58,7 +58,7 @@ class BookTDG implements TableDataGateway {
                 INSERT INTO BOOK
                 (ISBN_10, ISBN_13, AUTHOR, PUBLISHER, FORMAT, PAGES, CATALOG_ITEM_ID)
                 VALUES
-                (?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?)
             `;
 
             await DatabaseUtil.sendQuery(queryCatalogItem, [
@@ -95,8 +95,6 @@ class BookTDG implements TableDataGateway {
             const queryBook = `
                 UPDATE
                 BOOK
-                SET TITLE = ?,
-                DATE = ?,
                 ISBN_10 = ?,
                 ISBN_13 = ?,
                 AUTHOR = ?,
