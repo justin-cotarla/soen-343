@@ -50,9 +50,9 @@ class MovieTDG implements TableDataGateway {
             `;
             const queryMovie = `
                 INSERT INTO MOVIE
-                (DIRECTOR, PRODUCERS, ACTORS, LANGUAGE, SUBTITLES, DUBBED, RUNTIME)
+                (DIRECTOR, PRODUCERS, ACTORS, LANGUAGE, SUBTITLES, DUBBED, RUNTIME, CATALOG_ITEM_ID)
                 VALUES
-                (?, ?, ?, ?, ?, ?, ?);
+                (?, ?, ?, ?, ?, ?, ?, ?);
             `;
 
             await DatabaseUtil.sendQuery(queryCatalogItem, [
@@ -66,8 +66,8 @@ class MovieTDG implements TableDataGateway {
                 item.language,
                 item.subtitles,
                 item.dubbed,
-                item.runtime.toString()]);
-            
+                item.runtime.toString(),
+                item.id]);
             return true;
         } catch (err) {
             console.log(`error: ${err}`);
@@ -111,7 +111,6 @@ class MovieTDG implements TableDataGateway {
                 item.dubbed,
                 item.runtime.toString(),
                 item.id]);
-                
             return true;
         } catch (err) {
             console.log(`error: ${err}`);
@@ -123,12 +122,24 @@ class MovieTDG implements TableDataGateway {
         const foundMovie = await this.find(id);
         if (foundMovie) {
             try {
-                const query = `
+                const queryInventory = `
+                    DELETE
+                    FROM INVENTORY_ITEM
+                    WHERE CATALOG_ITEM_ID = ?;
+                `;
+                const queryMovie = `
                     DELETE
                     FROM MOVIE
                     WHERE CATALOG_ITEM_ID = ?;
                 `;
-                await DatabaseUtil.sendQuery(query, [id]);
+                const queryCatalog = `
+                    DELETE
+                    FROM CATALOG_ITEM
+                    WHERE ID = ?;
+                `;
+                await DatabaseUtil.sendQuery(queryInventory, [id]);
+                await DatabaseUtil.sendQuery(queryMovie, [id]);
+                await DatabaseUtil.sendQuery(queryCatalog, [id]);
                 return foundMovie;
             } catch (err) {
                 console.log(`error: ${err}`);
