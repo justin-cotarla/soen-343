@@ -59,20 +59,17 @@ class Catalog {
     }
 
     addInventoryItem = async (catalogItemId: string) : Promise<string> => {
-        const catalogItems:CatalogItem[] = [...this.catalogItems.keys()];
-        const specification:CatalogItem = catalogItems.find(item => item.id === catalogItemId);
+        const specification = await CatalogTDG.find(catalogItemId);
 
         if (!specification) {
-            return await null;
+            return null;
         }
 
         const inventoryItemId = v4();
         const inventoryItem:InventoryItem = new InventoryItem(inventoryItemId, specification, true);
+        await InventoryTDG.insert(inventoryItem);
 
-        const inventoryItems = this.catalogItems.get(specification);
-        this.catalogItems.set(specification, [...inventoryItems, inventoryItem]);
-
-        return await inventoryItemId;
+        return inventoryItemId;
     }
 
     deleteItem = async (id: string): Promise<boolean> => {
