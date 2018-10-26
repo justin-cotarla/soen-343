@@ -12,7 +12,7 @@ class MusicTDG implements TableDataGateway {
                 SELECT
                 ID, TITLE, DATE, TYPE, ARTIST, LABEL, ASIN
                 FROM CATALOG_ITEM
-                INNER JOIN MOVIE ON CATALOG_ITEM.ID = MUSIC.CATALOG_ITEM_ID
+                INNER JOIN MUSIC ON CATALOG_ITEM.ID = MUSIC.CATALOG_ITEM_ID
                 WHERE ID = ?;
             `;
 
@@ -70,9 +70,57 @@ class MusicTDG implements TableDataGateway {
         }
     }
     update = async (item: Music): Promise<boolean> => {
-            return false;       
+        try {
+            const queryCatalogItem = `
+                UPDATE
+                CATALOG_ITEM
+                SET TITLE = ?,
+                DATE = ?
+                WHERE ID = ?;
+            `;
+            const queryMusic = `
+                UPDATE
+                MUSIC
+                SET TYPE = ?,
+                ARTIST = ?,
+                LABEL = ?,
+                ASIN = ?,
+                WHERE CATALOG_ITEM_ID = ?;
+            `;
+
+             await DatabaseUtil.sendQuery(queryCatalogItem, [
+                item.title,
+                item.date,
+                item.id]);
+
+             await DatabaseUtil.sendQuery(queryMusic, [
+                item.type,
+                item.artist,
+                item.label,
+                item.asin]);
+                
+            return true;
+        } catch (err) {
+            console.log(`error: ${err}`);
+            return false;
+        }
     }
     delete = async (id:string): Promise<Music> => {
+        const foundMusic = await this.find(id);
+        if (foundMusic) {
+            try {
+                const query = `
+                    DELETE
+                    FROM MUSIC
+                    WHERE CATALOG_ITEM_ID = ?;
+                `;
+                await DatabaseUtil.sendQuery(query, [id]);
+                return foundMusic;
+            } catch (err) {
+                console.log(`error: ${err}`);
+                return null;
+            }
+        }
         return null;
     }
 }
