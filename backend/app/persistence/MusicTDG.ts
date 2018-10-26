@@ -38,7 +38,9 @@ class MusicTDG implements TableDataGateway {
         }    
     }
     insert = async(item: Music): Promise<boolean> => {
-
+        if (item === null) {
+            throw new Error('Cannot add null music item');
+        }
         try {
             const queryCatalogItem = `
                 INSERT INTO CATALOG_ITEM
@@ -48,9 +50,9 @@ class MusicTDG implements TableDataGateway {
             `;
             const queryMusic = `
                 INSERT INTO MUSIC
-                (TYPE, ARTIST, LABEL, ASIN)
+                (TYPE, ARTIST, LABEL, ASIN, CATALOG_ITEM_ID)
                 VALUES
-                (?, ?, ?, ?);
+                (?, ?, ?, ?, ?);
             `;
 
              await DatabaseUtil.sendQuery(queryCatalogItem, [
@@ -58,10 +60,11 @@ class MusicTDG implements TableDataGateway {
                 item.date]);
 
              await DatabaseUtil.sendQuery(queryMusic, [
-                item.type,
+                item.type.toString(),
                 item.artist,
                 item.label,
-                item.asin]);
+                item.asin,
+                item.id]);
             
             return true;
         } catch (err) {
@@ -94,10 +97,11 @@ class MusicTDG implements TableDataGateway {
                 item.id]);
 
              await DatabaseUtil.sendQuery(queryMusic, [
-                item.type,
+                item.type.toString(),
                 item.artist,
                 item.label,
-                item.asin]);
+                item.asin,
+                item.id]);
                 
             return true;
         } catch (err) {
@@ -109,12 +113,19 @@ class MusicTDG implements TableDataGateway {
         const foundMusic = await this.find(id);
         if (foundMusic) {
             try {
-                const query = `
+            
+                const queryMusic = `
                     DELETE
                     FROM MUSIC
                     WHERE CATALOG_ITEM_ID = ?;
                 `;
-                await DatabaseUtil.sendQuery(query, [id]);
+                const queryCatalog = `
+                    DELETE
+                    FROM CATALOG_ITEM
+                    WHERE ID = ?;
+                `;
+                await DatabaseUtil.sendQuery(queryMusic, [id]);
+                await DatabaseUtil.sendQuery(queryCatalog, [id]);
                 return foundMusic;
             } catch (err) {
                 console.log(`error: ${err}`);
