@@ -33,7 +33,7 @@ class CatalogService {
         const inventoryItems = [];
         for (i; i < quantity; i += 1) {
             const inventoryItem: InventoryItem = new InventoryItem(v4(), record, true);
-            InventoryTDG.insert(inventoryItem);
+            await InventoryTDG.insert(inventoryItem);
             inventoryItems.push(inventoryItem);
         }
 
