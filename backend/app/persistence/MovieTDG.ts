@@ -39,6 +39,9 @@ class MovieTDG implements TableDataGateway {
     }
 
     insert = async (item: Movie): Promise<boolean> => {
+        if (item === null) {
+            throw new Error('Cannot add null movie item');
+        }
         try {
             const queryCatalogItem = `
                 INSERT INTO CATALOG_ITEM
