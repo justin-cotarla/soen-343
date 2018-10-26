@@ -21,8 +21,8 @@ class MusicTDG implements TableDataGateway {
                 return null;
             }
 
-             const music = data.rows.map(music =>
-                new Music(
+             const music = data.rows[0];
+              return new Music(
                     music.ID,
                     music.TITLE,
                     music.DATE,
@@ -30,8 +30,7 @@ class MusicTDG implements TableDataGateway {
                     music.ARTIST,
                     music.LABEL,
                     music.ASIN,
-                ));
-             return music[0];
+                );
         } catch (err) {
             console.log(`error: ${err}`);
             return null;
@@ -55,7 +54,7 @@ class MusicTDG implements TableDataGateway {
                 (?, ?, ?, ?, ?);
             `;
 
-             await DatabaseUtil.sendQuery(queryCatalogItem, [
+            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
                 item.title,
                 item.date]);
 
@@ -64,7 +63,7 @@ class MusicTDG implements TableDataGateway {
                 item.artist,
                 item.label,
                 item.asin,
-                item.id]);
+                result.rows.insertId]);
             
             return true;
         } catch (err) {
@@ -119,12 +118,18 @@ class MusicTDG implements TableDataGateway {
                     FROM MUSIC
                     WHERE CATALOG_ITEM_ID = ?;
                 `;
+                const queryInventory = `
+                    DELETE
+                    FROM INVENTORY_ITEM
+                    WHERE CATALOG_ITEM_ID = ?;
+                `;
                 const queryCatalog = `
                     DELETE
                     FROM CATALOG_ITEM
                     WHERE ID = ?;
                 `;
                 await DatabaseUtil.sendQuery(queryMusic, [id]);
+                await DatabaseUtil.sendQuery(queryInventory, [id]);
                 await DatabaseUtil.sendQuery(queryCatalog, [id]);
                 return foundMusic;
             } catch (err) {
