@@ -1,29 +1,33 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { Header, Grid } from 'semantic-ui-react';
+
 import UserList from './UserList';
+import { getActiveUsers } from '../util/ApiUtil';
 
 class ViewActiveUsers extends Component {
-    constructor() {
-        super();
-        this.state = { 
-            users: [] 
-        };
-      }
+    state = { users: [] };
 
-    componentDidMount() {
-        axios.get(`http://localhost/api/accounts/users?active=true`, {
-            headers: {"Access-Control-Allow-Origin": "*"},
-            responseType:'json',
-            crossorigin:true
-        })
-          .then(response => {
-            this.setState({ users: response.data });
-          })
+    componentDidMount = async () => {
+        try {
+            const { data } = await getActiveUsers();
+            this.setState({ users: data });
+        } catch (err) {
+
+        }
     }
 
     render() {
         return (
-            <UserList users={this.state.users}/>
+            <div style={{ display: 'inline-block', margin: 'auto' }}>
+                <Grid textAlign='center' style={{ margin: '3em 1em' }} >
+                    <Grid.Column>
+                        <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
+                            Active Users
+                        </Header>
+                        <UserList users={this.state.users}/>
+                    </Grid.Column>
+                </Grid>
+            </div>
         );
     }
 }

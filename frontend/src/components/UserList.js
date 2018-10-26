@@ -7,6 +7,7 @@ class UserList extends Component {
     render() {
         const userList = this.props.users.map((user) => 
             <User 
+                key={user.email}
                 firstName={user.firstName} 
                 lastName={user.lastName}
                 email={user.email}
@@ -14,7 +15,7 @@ class UserList extends Component {
             />
         );
         return (
-            <Card.Group className="userlist-list centered">
+            <Card.Group className="userlist-list">
                 {userList}
             </Card.Group>
         );

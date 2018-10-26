@@ -1,7 +1,7 @@
 import 'jest';
 import mysql from 'mysql';
 
-import DatabaseUtil from './DatabaseUtil';
+import DatabaseUtil from '../utility/DatabaseUtil';
 
 beforeEach(() => {
     jest.clearAllMocks();

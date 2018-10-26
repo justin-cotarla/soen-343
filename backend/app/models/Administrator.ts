@@ -1,12 +1,12 @@
-import { Client } from './Client';
+import { User } from './User';
 
-class Administrator extends Client {
+class Administrator extends User {
     constructor (
         firstName: string,
         lastName: string,
         phone: number,
         email: string,
-        address:string) {
+        address: string) {
         super(firstName, lastName, phone, email, address);
     }
 }
