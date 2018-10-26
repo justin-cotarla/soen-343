@@ -1,7 +1,7 @@
 import * as mysql from 'mysql';
 
 declare interface QueryResponse {
-    rows: any[];
+    rows: any;
     fields?: mysql.FieldInfo[];
 }
 

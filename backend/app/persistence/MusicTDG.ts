@@ -1,28 +1,56 @@
-import { TableDataGateway } from './TableDataGateway';
+import { CatalogTDG } from './CatalogTDG';
 import { Music } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
-
-class MusicTDG implements TableDataGateway {
-
-    find = async(id: string): Promise<Music> => {
-
+class MusicTDG extends CatalogTDG{
+    find = async(id: string) : Promise<Music> => {
         try {
             const query = `
                 SELECT
-                ID, TITLE, DATE, TYPE, ARTIST, LABEL, ASIN
+                *
                 FROM CATALOG_ITEM
-                INNER JOIN MUSIC ON CATALOG_ITEM.ID = MUSIC.CATALOG_ITEM_ID
-                WHERE ID = ?;
+                JOIN MUSIC
+                ON CATALOG_ITEM.ID = MUSIC.CATALOG_ITEM_ID
+                WHERE ID = ?
             `;
 
-             const data = await DatabaseUtil.sendQuery(query, [id]);
+            const data = await DatabaseUtil.sendQuery(query, [id]);
             if (!data.rows.length) {
                 return null;
             }
 
-             const music = data.rows[0];
-              return new Music(
+            const music = data.rows[0];
+            return new Music(
+                music.ID,
+                music.TITLE,
+                music.DATE,
+                music.TYPE,
+                music.ARTIST,
+                music.LABEL,
+                music.ASIN,
+            );
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    findAll = async (): Promise<Music[]> => {
+        try {
+            const query = `
+            SELECT
+            *
+            FROM
+            CATALOG_ITEM
+            JOIN MUSIC
+            ON ID = CATALOG_ITEM_ID
+            `;
+            const data = await DatabaseUtil.sendQuery(query);
+            if (!data.rows.length) {
+                return [];
+            }
+
+            return data.rows.map((music: any) => {
+                new Music(
                     music.ID,
                     music.TITLE,
                     music.DATE,
@@ -31,112 +59,97 @@ class MusicTDG implements TableDataGateway {
                     music.LABEL,
                     music.ASIN,
                 );
+            });
         } catch (err) {
-            console.log(`error: ${err}`);
-            return null;
-        }    
-    }
-    insert = async(item: Music): Promise<boolean> => {
-        if (item === null) {
-            throw new Error('Cannot add null music item');
+            console.log(err);
         }
+    }
+
+    insert = async (item: Music): Promise<Music> => {
         try {
-            const queryCatalogItem = `
-                INSERT INTO CATALOG_ITEM
-                (TITLE, DATE)
-                VALUES
-                (?, ?);
-            `;
-            const queryMusic = `
-                INSERT INTO MUSIC
-                (TYPE, ARTIST, LABEL, ASIN, CATALOG_ITEM_ID)
-                VALUES
-                (?, ?, ?, ?, ?);
+            const queryMusic  = `
+            INSERT
+            INTO
+            MUSIC
+            (
+                TYPE,
+                ARTIST,
+                LABEL,
+                ASIN,
+                CATALOG_ITEM_ID
+            )
+            VALUES
+            (?, ?, ?, ?, ?)
             `;
 
-            const result = await DatabaseUtil.sendQuery(queryCatalogItem, [
-                item.title,
-                item.date]);
+            const catalogItem = await super.insert(item);
 
-             await DatabaseUtil.sendQuery(queryMusic, [
-                item.type.toString(),
+            await DatabaseUtil.sendQuery(queryMusic, [
+                item.type,
                 item.artist,
                 item.label,
                 item.asin,
-                result.rows.insertId]);
-            
-            return true;
+                catalogItem.id,
+            ]);
+
+            return new Music(
+                catalogItem.id,
+                catalogItem.title,
+                catalogItem.date,
+                item.type,
+                item.artist,
+                item.label,
+                item.asin,
+            );
         } catch (err) {
-            console.log(`error: ${err}`);
-            return null;
+            console.log(err);
         }
     }
-    update = async (item: Music): Promise<boolean> => {
+
+    update = async (item: Music): Promise<void> => {
         try {
-            const queryCatalogItem = `
+            const query = `
                 UPDATE
                 CATALOG_ITEM
-                SET TITLE = ?,
-                DATE = ?
-                WHERE ID = ?;
-            `;
-            const queryMusic = `
-                UPDATE
-                MUSIC
-                SET TYPE = ?,
+                JOIN MUSIC ON ID = CATALOG_ITEM_ID
+                SET
+                TITLE = ?,
+                DATE = ?,
+                TYPE = ?,
                 ARTIST = ?,
                 LABEL = ?,
                 ASIN = ?,
-                WHERE CATALOG_ITEM_ID = ?;
+                WHERE CATALOG.ID = ?
             `;
 
-             await DatabaseUtil.sendQuery(queryCatalogItem, [
+            await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
-                item.id]);
-
-             await DatabaseUtil.sendQuery(queryMusic, [
-                item.type.toString(),
+                item.type,
                 item.artist,
                 item.label,
                 item.asin,
-                item.id]);
-                
-            return true;
+                item.id,
+            ]);
         } catch (err) {
-            console.log(`error: ${err}`);
-            return false;
+            console.log(err);
         }
     }
-    delete = async (id:string): Promise<Music> => {
-        const foundMusic = await this.find(id);
-        if (foundMusic) {
-            try {
-            
-                const queryMusic = `
-                    DELETE
-                    FROM MUSIC
-                    WHERE CATALOG_ITEM_ID = ?;
-                `;
-                const queryInventory = `
-                    DELETE
-                    FROM INVENTORY_ITEM
-                    WHERE CATALOG_ITEM_ID = ?;
-                `;
-                const queryCatalog = `
-                    DELETE
-                    FROM CATALOG_ITEM
-                    WHERE ID = ?;
-                `;
-                await DatabaseUtil.sendQuery(queryMusic, [id]);
-                await DatabaseUtil.sendQuery(queryInventory, [id]);
-                await DatabaseUtil.sendQuery(queryCatalog, [id]);
-                return foundMusic;
-            } catch (err) {
-                console.log(`error: ${err}`);
-                return null;
-            }
+
+    delete = async (id: string): Promise<void> => {
+        try {
+            const query = `
+                DELETE
+                FROM MUSIC
+                WHERE CATALOG_ITEM_ID = ?
+            `;
+
+            await DatabaseUtil.sendQuery(query, [id]);
+            await super.delete(id);
+        } catch (err) {
+            console.log(err);
         }
-        return null;
     }
 }
+
+export default new MusicTDG();
