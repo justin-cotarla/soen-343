@@ -10,7 +10,8 @@ class BookTDG implements TableDataGateway {
             const query = `
                 SELECT
                 *
-                FROM BOOK
+                FROM CATALOG_ITEM
+                INNER JOIN BOOK ON CATALOG_ITEM.ID = BOOK.CATALOG_ITEM_ID
                 WHERE ID = ?
             `;
 
@@ -24,13 +25,14 @@ class BookTDG implements TableDataGateway {
                     book.ID,
                     book.TITLE,
                     book.DATA,
-                    book.ISBN10,
-                    book.ISBN13,
+                    book.ISBN_10,
+                    book.ISBN_13,
                     book.AUTHOR,
                     book.PUBLISHER,
                     book.FORMAT,
                     book.PAGES,
                 ));
+
             return books[0];
         } catch (err) {
             console.log(`error: ${err}`);
@@ -44,23 +46,34 @@ class BookTDG implements TableDataGateway {
         }
 
         try {
-            const query  = `
-            INSERT INTO BOOK
-            (TITLE, DATE, ISBN10, ISBN13, AUTHOR, PUBLISHER, FORMAT, PAGES)
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?)
+
+            const queryCatalogItem = `
+                INSERT INTO CATALOG_ITEM
+                (TITLE, DATE)
+                VALUES
+                (?, ?)
             `;
 
-            await DatabaseUtil.sendQuery(query, [
-                item.id,
+            const queryBook  = `
+                INSERT INTO BOOK
+                (ISBN_10, ISBN_13, AUTHOR, PUBLISHER, FORMAT, PAGES, CATALOG_ITEM_ID)
+                VALUES
+                (?, ?, ?, ?, ?, ?)
+            `;
+
+            await DatabaseUtil.sendQuery(queryCatalogItem, [
                 item.title,
                 item.date,
+            ]);
+
+            await DatabaseUtil.sendQuery(queryBook, [
                 item.isbn10.toString(),
                 item.isbn13.toString(),
                 item.author,
                 item.publisher,
                 item.format.toString(),
                 item.pages.toString(),
+                item.id.toString(),
             ]);
             return true;
         } catch (err) {
@@ -71,30 +84,42 @@ class BookTDG implements TableDataGateway {
 
     update = async (item: Book): Promise<boolean> => {
         try {
-            const query = `
+            const queryCatalogItem = `
+                UPDATE
+                CATALOG_ITEM
+                SET TITLE = ?,
+                DATE = ?
+                WHERE ID = ?
+            `;
+
+            const queryBook = `
                 UPDATE
                 BOOK
-                WHERE ID = ?
                 SET TITLE = ?,
                 DATE = ?,
-                ISBN10 = ?,
-                ISBN13 = ?,
+                ISBN_10 = ?,
+                ISBN_13 = ?,
                 AUTHOR = ?,
                 PUBLISHER = ?,
                 FORMAT = ?,
                 PAGES = ?,
+                WHERE CATALOG_ITEM_ID = ?
             `;
 
-            await DatabaseUtil.sendQuery(query, [
-                item.id,
+            await DatabaseUtil.sendQuery(queryCatalogItem, [
                 item.title,
                 item.date,
+                item.id,
+            ]);
+
+            await DatabaseUtil.sendQuery(queryBook, [
                 item.isbn10.toString(),
                 item.isbn13.toString(),
                 item.author,
                 item.publisher,
                 item.format.toString(),
                 item.pages.toString(),
+                item.id,
             ]);
             return true;
         } catch (err) {
@@ -107,13 +132,19 @@ class BookTDG implements TableDataGateway {
         const foundBook = await this.find(id);
         if (foundBook) {
             try {
-                const query = `
-                DELETE
-                FROM BOOK
-                WHERE ID = ?
+                const queryCatalogItem = `
+                    DELETE
+                    FROM CATALOG_ITEM
+                    WHERE ID = ?
+                `;
+                const queryBook = `
+                    DELETE
+                    FROM BOOK
+                    WHERE CATALOG_ITEM_ID = ?
                 `;
 
-                await DatabaseUtil.sendQuery(query, [id]);
+                await DatabaseUtil.sendQuery(queryCatalogItem, [id]);
+                await DatabaseUtil.sendQuery(queryBook, [id]);
                 return foundBook;
             } catch (err) {
                 console.log(`error: ${err}`);
