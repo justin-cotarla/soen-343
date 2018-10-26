@@ -59,16 +59,14 @@ class CatalogService {
         return await inventoryItemId;
     }
 
-    deleteCatalogItem = async (catalogItemId: string) : Promise<boolean> => {
-        const catalogItems = this.catalogItems.keys();
-        for (const catalogItem of catalogItems) {
-            if (catalogItem.id === catalogItemId) {
-                this.catalogItems.delete(catalogItem);
-                return await true;
-            }
+    deleteItem = async (id: string): Promise<boolean> => {
+        if (id === null) {
+            throw new Error('Cannot delete catalog item of null id');
         }
 
-        return await false;
+        await CatalogTDG.delete(id);
+
+        return await true;
     }
 
     deleteInventoryItem = async (catalogItemId: string) : Promise<boolean> => {
