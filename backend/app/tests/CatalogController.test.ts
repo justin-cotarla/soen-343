@@ -6,7 +6,7 @@ import { BookFormat } from '../models/Book';
 import { Administrator, Magazine, InventoryItem } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
-import CatalogService from '../services/CatalogService';
+import Catalog from '../services/Catalog';
 
 // Must create a fake token to pass auth check
 let token: string;
@@ -19,7 +19,7 @@ beforeEach(async () => {
 describe('CatalogRouter', () => {
     describe('PUT /catalog', () => {
         afterEach(() => {
-            CatalogService['catalogItems'] = new Map();
+            Catalog['catalogItems'] = new Map();
         });
 
         it('requires admin rights', async () => {
@@ -123,7 +123,7 @@ describe('CatalogRouter', () => {
                  'English',
             );
 
-            CatalogService['catalogItems'].set(magazine, []);
+            Catalog['catalogItems'].set(magazine, []);
         });
 
         it('Returns a list of all catalog items', async () => {
@@ -158,11 +158,11 @@ describe('CatalogRouter', () => {
                  'English',
             );
 
-            CatalogService['catalogItems'].set(magazine, []);
+            Catalog['catalogItems'].set(magazine, []);
         });
 
         afterEach(() => {
-            CatalogService['catalogItems'] = new Map();
+            Catalog['catalogItems'] = new Map();
         });
 
         it('requires admin rights', async () => {
@@ -206,7 +206,7 @@ describe('CatalogRouter', () => {
                  'English',
             );
 
-            CatalogService['catalogItems'].set(magazine, []);
+            Catalog['catalogItems'].set(magazine, []);
         });
 
         it('requires admin rights', async () => {
@@ -234,7 +234,7 @@ describe('CatalogRouter', () => {
                 .send()
                 .expect(200);
 
-            expect(CatalogService['catalogItems'].size).toEqual(0);
+            expect(Catalog['catalogItems'].size).toEqual(0);
         });
     });
 
@@ -253,7 +253,7 @@ describe('CatalogRouter', () => {
             new InventoryItem('2', magazine, true),
         ];
         beforeAll(() => {
-            CatalogService['catalogItems'].set(magazine, inventory);
+            Catalog['catalogItems'].set(magazine, inventory);
         });
 
         it('requires admin rights', async () => {
@@ -281,7 +281,7 @@ describe('CatalogRouter', () => {
                 .send()
                 .expect(200);
 
-            expect(CatalogService['catalogItems'].get(magazine).length).toEqual(1);
+            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
         it('will not delete an unavailable inventory item', async (done) => {
@@ -295,7 +295,7 @@ describe('CatalogRouter', () => {
                     done();
                 });
 
-            expect(CatalogService['catalogItems'].get(magazine).length).toEqual(1);
+            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
     });
