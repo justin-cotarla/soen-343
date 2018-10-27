@@ -1,5 +1,5 @@
 import { TableDataGateway } from './TableDataGateway';
-import { User } from '../models';
+import { User, Administrator, Client } from '../models';
 import { register } from '../utility/AuthUtil';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
@@ -9,13 +9,12 @@ interface NewUser {
 }
 
 class UserTDG implements TableDataGateway {
-
     find = async(id: string): Promise<User> => {
         try {
             const query = `
                 SELECT
                 *
-                FROM ACCOUNT
+                FROM USER
                 WHERE ID = ?
             `;
 
@@ -23,20 +22,65 @@ class UserTDG implements TableDataGateway {
             if (!data.rows.length) {
                 return null;
             }
-            const users = data.rows.map(user =>
-                new User(
+            const user = data.rows[0];
+            if (user.ADMIN === 1) {
+                return new Administrator(
                     user.FIRST_NAME,
                     user.LAST_NAME,
                     user.PHONE_NUMBER,
                     user.EMAIL,
                     user.ADDRESS,
-                ));
-            return users[0];
+                );
+            }
+            return new Client(
+                user.FIRST_NAME,
+                user.LAST_NAME,
+                user.PHONE_NUMBER,
+                user.EMAIL,
+                user.ADDRESS,
+            );
         } catch (err) {
-            console.log(`error: ${err}`);
+            console.log(err);
             return null;
         }
     }
+
+    findAll = async(): Promise<User[]> => {
+        try {
+            const query = `
+                SELECT
+                *
+                FROM USER
+            `;
+
+            const data = await DatabaseUtil.sendQuery(query);
+            if (!data.rows.length) {
+                return [];
+            }
+            return data.rows.map((user: any) => {
+                if (user.ADMIN) {
+                    return new Administrator(
+                        user.FIRST_NAME,
+                        user.LAST_NAME,
+                        user.PHONE_NUMBER,
+                        user.EMAIL,
+                        user.ADDRESS,
+                    );
+                }
+                return new User(
+                    user.FIRST_NAME,
+                    user.LAST_NAME,
+                    user.PHONE_NUMBER,
+                    user.EMAIL,
+                    user.ADDRESS,
+                );
+            });
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
     insert = async(item: NewUser): Promise<boolean> => {
         try {
             const registeredUser = await register(item.user, item.password);
@@ -45,15 +89,15 @@ class UserTDG implements TableDataGateway {
             }
             return true;
         } catch (err) {
-            console.log(`error: ${err}`);
+            console.log(err);
             return false;
         }
     }
-    update = async (item: User): Promise<boolean> => {
+    update = async (item: User): Promise<void> => {
         try {
             const query = `
                 UPDATE
-                ACCOUNT
+                USER
                 SET FIRST_NAME = ?,
                 LAST_NAME = ?,
                 PHONE_NUMBER = ?,
@@ -69,28 +113,26 @@ class UserTDG implements TableDataGateway {
                 item.email,
                 item.address,
                 item.id]);
-            return true;
         } catch (err) {
-            console.log(`error: ${err}`);
-            return false;
+            console.log(err);
         }
     }
-    delete = async (id:string): Promise<User> => {
+    delete = async (id:string): Promise<void> => {
         const foundUser = await this.find(id);
         if (foundUser) {
             try {
                 const query = `
                     DELETE
-                    FROM ACCOUNT
+                    FROM USER
                     WHERE ID = ?
                 `;
                 await DatabaseUtil.sendQuery(query, [id]);
-                return foundUser;
             } catch (err) {
-                console.log(`error: ${err}`);
-                return null;
+                console.log(err);
             }
         }
         return null;
     }
 }
+
+export default new UserTDG();

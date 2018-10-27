@@ -1,51 +1,49 @@
 import express, { Request, Response } from 'express';
-import { Administrator, CatalogItem, Book, Magazine, Music, Movie } from '../models';
-import v4 from 'uuid/v4';
 
-import Catalog from '../services/Catalog';
+import { Administrator, Book, Magazine, Music, Movie } from '../models';
+import Catalog, { CatalogItemType } from '../services/Catalog';
 
 const catalogRouter = express.Router();
 
 catalogRouter.get('/', async (req: Request, res: Response) => {
-    // TO DO: Fetch from db
     if (!req.user) {
         return res.status(403).end();
     }
 
     try {
-        const records = await Catalog.viewItems();
-        return res.status(200).json(records);
+        const items = await Catalog.viewItems();
+        return res.status(200).json(items);
     } catch (error) {
-        console.log('error: ${error}');
+        console.log(error);
         return res.status(400).end();
     }
 });
 
 catalogRouter.put('/:type', async (req: Request, res: Response) => {
     // Must be an admin to create catalog items
-    if (!req.user && !(req.user instanceof Administrator)) {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
     // Get the catalogItem type
     const { type } = req.params;
     if (!type) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
     // Response body must have these fields
     const { catalogItem, quantity } = req.body;
     if (!catalogItem || !quantity) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
     // Spec must contain these common attributes
     const { title, date } = catalogItem;
     if (!title || !date) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
-    let record: any = null;
+    let item: any = null;
     switch (type) {
     case 'book': {
         const {
@@ -58,10 +56,10 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         } = catalogItem;
 
         if (isbn10 && isbn13 && author && publisher && format && pages) {
-            catalogItem.id = v4();
             try {
-                record = await Catalog.addItem(catalogItem as Book, quantity);
-            } catch (error) {
+                item = await Catalog.addItem(catalogItem, CatalogItemType.BOOK, quantity);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -75,11 +73,11 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
             language,
         } = catalogItem;
 
-        if (isbn10 && publisher && language) {
-            catalogItem.id = v4();
+        if (isbn10 && isbn13 && publisher && language) {
             try {
-                record = await Catalog.addItem(catalogItem as Magazine, quantity);
-            } catch (error) {
+                item = await Catalog.addItem(catalogItem, CatalogItemType.MAGAZINE, quantity);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -98,10 +96,10 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
 
         if (director && producers && actors && language
             && subtitles && dubbed && runtime) {
-            catalogItem.id = v4();
             try {
-                record = await Catalog.addItem(catalogItem as Movie, quantity);
-            } catch (error) {
+                item = await Catalog.addItem(catalogItem, CatalogItemType.MOVIE, quantity);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -116,10 +114,10 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         } = catalogItem;
 
         if (type && artist && label && asin) {
-            catalogItem.id = v4();
             try {
-                record = await Catalog.addItem(catalogItem as Music, quantity);
-            } catch (error) {
+                item = await Catalog.addItem(catalogItem, CatalogItemType.MUSIC, quantity);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -127,15 +125,15 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         break;
     }
 
-    if (!record) {
-        return res.status(401).end();
+    if (!item) {
+        return res.status(400).end();
     }
 
-    return res.status(200).json(record);
+    return res.status(200).json(item);
 });
 
-catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Response) => {
-    if (!req.user && !(req.user instanceof Administrator)) {
+catalogRouter.put('/:type/:catalogItemId/inventory', async (req: Request, res: Response) => {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
@@ -151,9 +149,9 @@ catalogRouter.put('/:catalogItemId/inventory', async (req: Request, res: Respons
     }
 });
 
-catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response) => {
+catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
     // Must be an admin to modify catalog items
-    if (!req.user && !(req.user instanceof Administrator)) {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
@@ -162,16 +160,16 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
     const catalogItemId = req.params.id;
 
     if (!catalogItemType || !catalogItemId) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
     // Response body must have the new catalog item
     const catalogItem = req.body;
     if (!catalogItem) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
-    let record: any = null;
+    let item: any = null;
     switch (catalogItemType) {
     case 'book': {
         const {
@@ -186,8 +184,9 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
         if (isbn10 && isbn13 && author && publisher && format && pages) {
             catalogItem.id = catalogItemId;
             try {
-                record = await Catalog.updateItem(catalogItem as Book);
-            } catch (error) {
+                item = await Catalog.updateItem(catalogItem, CatalogItemType.BOOK);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -201,11 +200,12 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
             language,
         } = catalogItem;
 
-        if (isbn10 && publisher && language) {
+        if (isbn10 && isbn13 && publisher && language) {
             catalogItem.id = catalogItemId;
             try {
-                record = await Catalog.updateItem(catalogItem as Magazine);
-            } catch (error) {
+                item = await Catalog.updateItem(catalogItem, CatalogItemType.MAGAZINE);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -226,8 +226,9 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
             && subtitles && dubbed && runtime) {
             catalogItem.id = catalogItemId;
             try {
-                record = await Catalog.updateItem(catalogItem as Movie);
-            } catch (error) {
+                item = await Catalog.updateItem(catalogItem, CatalogItemType.MOVIE);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -244,8 +245,9 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
         if (type && artist && label && asin) {
             catalogItem.id = catalogItemId;
             try {
-                record = await Catalog.updateItem(catalogItem as Music);
-            } catch (error) {
+                item = await Catalog.updateItem(catalogItem, CatalogItemType.MUSIC);
+            } catch (err) {
+                console.log(err);
                 return res.status(500).end();
             }
         }
@@ -253,22 +255,22 @@ catalogRouter.post('/api/catalog/:type/:id', async (req: Request, res: Response)
         break;
     }
 
-    if (!record) {
-        return res.status(401).end();
+    if (!item) {
+        return res.status(400).end();
     }
 
-    return res.status(200).json(record);
+    return res.status(200).json(item);
 
 });
 
 catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
-    if (!req.user && !(req.user instanceof Administrator)) {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
     const catalogItemId = req.params.id;
     if (!catalogItemId) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
     if (await Catalog.deleteInventoryItem(catalogItemId)) {
@@ -278,17 +280,18 @@ catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
     return res.status(404).end();
 });
 
-catalogRouter.delete('/:id', async (req: Request, res: Response) => {
-    if (!req.user && !(req.user instanceof Administrator)) {
+catalogRouter.delete('/:type/:id', async (req: Request, res: Response) => {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
-    const catalogItemId = req.params.id;
+    const { catalogItemId, type } = req.params;
+
     if (!catalogItemId) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
-    if (await Catalog.deleteItem(catalogItemId)) {
+    if (await Catalog.deleteItem(catalogItemId, type)) {
         return res.status(200).end();
     }
 

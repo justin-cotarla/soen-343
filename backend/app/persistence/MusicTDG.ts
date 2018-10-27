@@ -49,8 +49,7 @@ class MusicTDG extends CatalogTDG{
                 return [];
             }
 
-            return data.rows.map((music: any) => {
-                new Music(
+            return data.rows.map((music: any) => new Music(
                     music.ID,
                     music.TITLE,
                     music.DATE,
@@ -58,8 +57,7 @@ class MusicTDG extends CatalogTDG{
                     music.ARTIST,
                     music.LABEL,
                     music.ASIN,
-                );
-            });
+                ));
         } catch (err) {
             console.log(err);
         }
@@ -67,7 +65,7 @@ class MusicTDG extends CatalogTDG{
 
     insert = async (item: Music): Promise<Music> => {
         try {
-            const queryMusic  = `
+            const queryMusic = `
             INSERT
             INTO
             MUSIC
@@ -75,13 +73,12 @@ class MusicTDG extends CatalogTDG{
                 TYPE,
                 ARTIST,
                 LABEL,
-                ASIN,
                 CATALOG_ITEM_ID
+                ASIN,
             )
             VALUES
             (?, ?, ?, ?, ?)
             `;
-
             const catalogItem = await super.insert(item);
 
             await DatabaseUtil.sendQuery(queryMusic, [

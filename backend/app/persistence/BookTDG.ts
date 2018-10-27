@@ -51,8 +51,7 @@ class BookTDG extends CatalogTDG{
                 return [];
             }
 
-            return data.rows.map((book: any) => {
-                new Book(
+            return data.rows.map((book: any) => new Book(
                     book.ID,
                     book.TITLE,
                     book.DATE,
@@ -62,8 +61,7 @@ class BookTDG extends CatalogTDG{
                     book.PUBLISHER,
                     book.FORMAT,
                     book.PAGES,
-                );
-            });
+                ));
         } catch (err) {
             console.log(err);
         }

@@ -1,110 +1,130 @@
-import v4 from 'uuid/v4';
-import { Request, Response } from 'express';
 import { CatalogItem, InventoryItem, Book, Magazine, Movie, Music } from '../models';
+import {
+    BookTDG,
+    InventoryTDG,
+    MagazineTDG,
+    MovieTDG,
+    MusicTDG,
+    CatalogTDG,
+ } from '../persistence';
+
+export enum CatalogItemType {
+    MUSIC = 'MUSIC',
+    MOVIE = 'MOVIE',
+    BOOK = 'BOOK',
+    MAGAZINE = 'MAGAZINE',
+}
 
 class Catalog {
-
     viewItems = async () : Promise<CatalogItem[]> => {
-        return await Array.from(this.catalogItems.entries())
-                .reduce((o, [catalogItem, inventory]) => {
-                    const res = {
-                        catalogItem,
-                        inventory,
-                    };
-                    o.push(res);
-                    return o;
-                },      []);
+        console.log(await MovieTDG.findAll());
+        return [
+            ...(await BookTDG.findAll()),
+            ...(await MagazineTDG.findAll()),
+            ...(await MovieTDG.findAll()),
+            ...(await MusicTDG.findAll()),
+        ];
     }
 
-    updateItem = async (record: CatalogItem) : Promise<Boolean> => {
-        if (!record) {
-            throw new Error('Cannot modify null catalog item');
+    updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {
+        switch (type) {
+        case CatalogItemType.BOOK:
+            await BookTDG.update(item as Book);
+            break;
+        case CatalogItemType.MUSIC:
+            await MusicTDG.update(item as Music);
+            break;
+        case CatalogItemType.MAGAZINE:
+            await MagazineTDG.update(item as Magazine);
+            break;
+        case CatalogItemType.MOVIE:
+            await MovieTDG.update(item as Movie);
+            break;
         }
-        switch (record.constructor) {
-        case Book: {
-            return await BookTDG.update(record);
-        }
-        case Music: {
-            return await MusicTDG.update(record);
-        }
-        case Magazine: {
-            return await MagazineTDG.update(record);
-        }
-        case Movie: {
-            return await MovieTDG.update(record);
-        }
-        }
+        return item;
     }
 
-    addItem = async (record: CatalogItem, quantity: number)
-    : Promise<{ catalogItem: CatalogItem, inventory: InventoryItem[] }> => {
-        if (record === null) {
-            throw new Error('Cannot add null catalog item');
+    addItem = async (item: CatalogItem, type: CatalogItemType, quantity: number)
+        : Promise<{ catalogItem: CatalogItem, inventory: InventoryItem[] }> => {
+        let insertedItem: CatalogItem;
+        switch (type) {
+        case CatalogItemType.BOOK:
+            insertedItem = await BookTDG.insert(item as Book);
+            break;
+        case CatalogItemType.MUSIC:
+            insertedItem = await MusicTDG.insert(item as Music);
+            break;
+        case CatalogItemType.MAGAZINE:
+            insertedItem = await MagazineTDG.insert(item as Magazine);
+            break;
+        case CatalogItemType.MOVIE:
+            insertedItem = await MovieTDG.insert(item as Movie);
+            break;
         }
-
-        await CatalogTDG.insert(record);
-
-        let i = 0;
         const inventoryItems = [];
-        for (i; i < quantity; i += 1) {
-            const inventoryItem: InventoryItem = new InventoryItem(v4(), record, true);
-            await InventoryTDG.insert(inventoryItem);
-            inventoryItems.push(inventoryItem);
+        for (let i = 0; i < quantity; i += 1) {
+            const inventoryItem: InventoryItem = new InventoryItem(null, insertedItem.id, true);
+            inventoryItems.push(await InventoryTDG.insert(inventoryItem));
         }
 
-        return await {
-            catalogItem: record,
+        return {
+            catalogItem: insertedItem,
             inventory: inventoryItems,
         };
     }
 
     addInventoryItem = async (catalogItemId: string) : Promise<string> => {
-        const specification = await CatalogTDG.find(catalogItemId);
-
-        if (!specification) {
-            return null;
+        const spec = await CatalogTDG.find(catalogItemId);
+        if (!spec) {
+            throw new Error('Catalog item does not exist');
         }
 
-        const inventoryItemId = v4();
-        const inventoryItem:InventoryItem = new InventoryItem(inventoryItemId, specification, true);
-        await InventoryTDG.insert(inventoryItem);
+        let inventoryItem: InventoryItem = new InventoryItem(null, catalogItemId, true);
+        inventoryItem = await InventoryTDG.insert(inventoryItem);
 
-        return inventoryItemId;
+        return inventoryItem.id;
     }
 
-    deleteItem = async (id: string): Promise<boolean> => {
-        if (id === null) {
-            throw new Error('Cannot delete catalog item of null id');
-        }
-        const result = await CatalogTDG.delete(id);
-        if (result === null) {
-            return false;
+    deleteItem = async (id: string, type: CatalogItemType): Promise<boolean> => {
+        await InventoryTDG.deleteAll(id);
+        switch (type) {
+        case CatalogItemType.BOOK:
+            await BookTDG.delete(id);
+            break;
+        case CatalogItemType.MOVIE:
+            await MovieTDG.delete(id);
+            break;
+        case CatalogItemType.MUSIC:
+            await MusicTDG.delete(id);
+            break;
+        case CatalogItemType.MAGAZINE:
+            await MagazineTDG.delete(id);
+            break;
         }
         return true;
     }
 
     deleteInventoryItem = async (catalogItemId: string) : Promise<boolean> => {
-        const catalogItems = this.catalogItems.keys();
-        let inventoryList = null;
-        for (const catalogItem of catalogItems) {
-            if (catalogItem.id === catalogItemId) {
-                inventoryList = this.catalogItems.get(catalogItem);
+        try {
+            const items = await InventoryTDG.findAll(catalogItemId);
+            let item: InventoryItem;
+            for (let i = 0; i < items.length; i += 1) {
+                if (items[i].available) {
+                    item = items[i];
+                    break;
+                }
             }
-        }
 
-        if (!inventoryList) {
-            return await false;
-        }
-
-        let i = 0;
-        for (i; i < inventoryList.length; i += 1) {
-            if (inventoryList[i].available) {
-                inventoryList.splice(i, 1); // remove one item from inventory
-                return await true;
+            if (item) {
+                return false;
             }
-        }
 
-        return await false; // none of the items are available
+            await InventoryTDG.delete(item.id);
+        } catch (err) {
+            console.log(err);
+            return false;
+        }
+        return true;
     }
 }
 

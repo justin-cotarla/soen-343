@@ -52,20 +52,18 @@ class MovieTDG extends CatalogTDG{
                 return [];
             }
 
-            return data.rows.map((movie: any) => {
-                new Movie(
-                    movie.ID,
-                    movie.TITLE,
-                    movie.DATE,
-                    movie.DIRECTOR,
-                    movie.PRODUCERS,
-                    movie.ACTORS,
-                    movie.LANGUAGE,
-                    movie.SUBTITLES,
-                    movie.DUBBED,
-                    movie.RUNTIME,
-                );
-            });
+            return data.rows.map((movie: any) => new Movie(
+                movie.ID,
+                movie.TITLE,
+                movie.DATE,
+                movie.DIRECTOR,
+                movie.PRODUCERS,
+                movie.ACTORS,
+                movie.LANGUAGE,
+                movie.SUBTITLES,
+                movie.DUBBED,
+                movie.RUNTIME,
+            ));
         } catch (err) {
             console.log(err);
         }
