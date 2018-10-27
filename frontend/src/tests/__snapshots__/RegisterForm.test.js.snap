@@ -33,6 +33,7 @@ exports[`RegisterForm renders correctly 1`] = `
       </Header>
       <Form
         as="form"
+        error={false}
         onSubmit={[Function]}
         size="big"
         success={false}
@@ -46,7 +47,7 @@ exports[`RegisterForm renders correctly 1`] = `
             fluid={true}
             icon="user outline"
             iconPosition="left"
-            name="fname"
+            name="firstName"
             onChange={[Function]}
             placeholder="First Name"
             required={true}
@@ -58,7 +59,7 @@ exports[`RegisterForm renders correctly 1`] = `
             fluid={true}
             icon="user outline"
             iconPosition="left"
-            name="lname"
+            name="lastName"
             onChange={[Function]}
             placeholder="Last Name"
             required={true}
@@ -121,8 +122,18 @@ exports[`RegisterForm renders correctly 1`] = `
                 "children": "This is an administrator account",
               }
             }
-            name="admin"
+            name="isAdmin"
             onChange={[Function]}
+          />
+          <Message
+            content="The account could not be created"
+            error={true}
+            header="Registration failed"
+            style={
+              Object {
+                "textAlign": "left",
+              }
+            }
           />
           <Button
             as="button"

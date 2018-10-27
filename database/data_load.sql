@@ -1,6 +1,6 @@
 USE library_db;
 
-LOAD DATA INFILE '/var/lib/mysql-files/ACCOUNTS.csv' INTO TABLE ACCOUNT
+LOAD DATA INFILE '/var/lib/mysql-files/USER.csv' INTO TABLE USER
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"' 
 LINES TERMINATED BY '\n'

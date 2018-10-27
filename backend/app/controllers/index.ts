@@ -1,6 +1,6 @@
 import express from 'express';
-import { accountRouter } from './AccountRoutes';
-import  { catalogRouter } from './CatalogRoutes';
+import { accountRouter } from './AccountController';
+import  { catalogRouter } from './CatalogController';
 
 const router = express.Router();
 

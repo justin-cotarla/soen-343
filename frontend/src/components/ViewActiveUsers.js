@@ -21,7 +21,7 @@ class ViewActiveUsers extends Component {
             <div style={{ display: 'inline-block', margin: 'auto' }}>
                 <Grid textAlign='center' style={{ margin: '3em 1em' }} >
                     <Grid.Column>
-                        <Header as='h2' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
+                        <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
                             Active Users
                         </Header>
                         <UserList users={this.state.users}/>

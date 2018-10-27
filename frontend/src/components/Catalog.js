@@ -1,7 +1,6 @@
 import React from 'react'
-import { Grid, List, Header, Button } from 'semantic-ui-react'
+import { Grid, List, Header } from 'semantic-ui-react'
 import CatalogItemPreview from "../components/CatalogItemPreview";
-import CatalogForm from '../components/CatalogForm';
 
 import { getCatalog } from "../util/ApiUtil";
 
@@ -11,7 +10,6 @@ class Catalog extends React.Component {
     componentDidMount = async () => {
         try {
             const { data } = await getCatalog();
-            console.log(data)
             this.setState({ catalog: data });
         } catch (err) {
             console.log(err)
@@ -20,21 +18,27 @@ class Catalog extends React.Component {
     
     render() {
         return (
-            <Grid textAlign='center' >
-                <Grid.Column>
-                    <Header as='h1' color='teal' textAlign='left' style={{ margin: '3em auto', marginBottom: '1em', width: '80%' }}>
-                        Catalog
-                    </Header>
-                    <List style={{ width: '80%', margin: '0 auto' }} celled>
-                        {
-                            this.state.catalog && this.state.catalog.map((data, index) => {
-                                const { spec } = data;
-                                return <CatalogItemPreview key={index} title={spec.title} date={spec.date}/>
-                            })
-                        }
-                    </List>
-                </Grid.Column>
-            </Grid>
+            <div style={{ display: 'inline-block', width: '100%', margin: 'auto' }}>
+                <Grid textAlign='center' style={{ margin: '3em 1em' }} >
+                    <Grid.Column>
+                        <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
+                            Catalog
+                        </Header>
+                        <List style={{ width: '80%', margin: '0 auto' }} celled>
+                            {
+                                this.state.catalog && this.state.catalog.map((data, index) => {
+                                    const { catalogItem } = data;
+                                    return <CatalogItemPreview 
+                                                key={index} 
+                                                title={catalogItem.title} 
+                                                date={catalogItem.date}
+                                                author={catalogItem.author}/>
+                                })
+                            }
+                        </List>
+                    </Grid.Column>
+                </Grid>
+            </div>
         );
     }
 }
