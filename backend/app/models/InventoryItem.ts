@@ -2,15 +2,15 @@ import { CatalogItem } from './CatalogItem';
 
 class InventoryItem {
     public id: string;
-    public spec: CatalogItem;
+    public catalogItemId: string;
     public available: boolean;
 
     constructor (
         id: string,
-        spec: CatalogItem,
+        catalogItemId: string,
         available: boolean) {
         this.id = id;
-        this.spec = spec;
+        this.catalogItemId = catalogItemId,
         this.available = available;
     }
 }

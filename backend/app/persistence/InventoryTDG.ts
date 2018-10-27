@@ -3,7 +3,7 @@ import { InventoryItem, CatalogItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class InventoryTDG implements TableDataGateway {
-    find = async (id: string, spec: CatalogItem): Promise<InventoryItem> => {
+    find = async (id: string): Promise<InventoryItem> => {
         const query = `
             SELECT *
             FROM
@@ -17,13 +17,13 @@ class InventoryTDG implements TableDataGateway {
             }
 
             const item = data.rows[0];
-            return new InventoryItem(item.ID, spec, item.AVAILABLE);
+            return new InventoryItem(item.ID, item.CATALOG_ITEM_ID, item.AVAILABLE);
         } catch (err) {
             console.log(err);
         }
     }
 
-    findAll = async (catalogItemId: string, spec: CatalogItem): Promise<InventoryItem[]> => {
+    findAll = async (catalogItemId: string): Promise<InventoryItem[]> => {
         try {
             const query = `
             SELECT
@@ -38,7 +38,7 @@ class InventoryTDG implements TableDataGateway {
             }
 
             return data.rows.map((item: any) => {
-                new InventoryItem(item.ID, spec, item.AVAILABLE);
+                new InventoryItem(item.ID, catalogItemId, item.AVAILABLE);
             });
         } catch (err) {
             console.log(err);
@@ -61,12 +61,12 @@ class InventoryTDG implements TableDataGateway {
 
             const data = await DatabaseUtil.sendQuery(query, [
                 item.available.toString(),
-                item.spec.id,
+                item.catalogItemId,
             ]);
 
             return new InventoryItem(
                 data.rows.insertId,
-                item.spec,
+                item.catalogItemId,
                 item.available,
             );
         } catch (err) {

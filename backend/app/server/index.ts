@@ -14,7 +14,7 @@ app.use(router);
 app.get('/', (req, res) => res.send('Hello World!'));
 
 app.get('/db-test', async (req, res) => {
-    const accounts = await DatabaseUtil.sendQuery('SELECT * FROM ACCOUNT');
+    const accounts = await DatabaseUtil.sendQuery('SELECT * FROM USER');
     return res.send(accounts);
 });
 

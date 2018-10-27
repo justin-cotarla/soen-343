@@ -19,11 +19,11 @@ const register = async (user: User, password: string): Promise<User> => {
     const userQuery = `
         SELECT
         ID
-        FROM ACCOUNT
+        FROM USER
         WHERE EMAIL=?;
     `;
     const registerQuery = `
-        INSERT INTO ACCOUNT
+        INSERT INTO USER
         (EMAIL, FIRST_NAME, LAST_NAME, ADDRESS, PHONE_NUMBER, HASH, ADMIN)
         VALUES
         (?, ?, ?, ?, ?, ?, ?);
@@ -53,7 +53,7 @@ const authenticate = async (email: string, password: string): Promise<User> => {
     const query = `
         SELECT
         *
-        FROM ACCOUNT
+        FROM USER
         WHERE EMAIL=?;
     `;
 
@@ -73,7 +73,7 @@ const authenticate = async (email: string, password: string): Promise<User> => {
         throw new Error('Incorrect email or password');
     }
 
-    const setLoggedInQuery = 'UPDATE ACCOUNT SET LOGGED_IN=? WHERE ID=?;';
+    const setLoggedInQuery = 'UPDATE USER SET LOGGED_IN=? WHERE ID=?;';
     await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', user.ID]);
 
     if (user.ADMIN === 1) {

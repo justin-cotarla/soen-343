@@ -70,12 +70,12 @@ class AccountService {
             const query = `
                 SELECT
                 *
-                FROM ACCOUNT
+                FROM USER
                 WHERE ${req.query.active ? 'LOGGED_IN=1' : 'TRUE'}
             `;
 
             const data = await DatabaseUtil.sendQuery(query);
-            const users = data.rows.map(user =>
+            const users = data.rows.map((user: any) =>
                 new User(
                     user.FIRST_NAME,
                     user.LAST_NAME,

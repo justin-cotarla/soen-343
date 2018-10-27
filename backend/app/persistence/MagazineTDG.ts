@@ -50,8 +50,7 @@ class MagazineTDG extends CatalogTDG {
                 return [];
             }
 
-            return data.rows.map((magazine: any) => {
-                new Magazine(
+            return data.rows.map((magazine: any) => new Magazine(
                 magazine.ID,
                 magazine.TITLE,
                 magazine.DATE,
@@ -59,8 +58,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ISBN_13,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
-                );
-            });
+                ));
         } catch (err) {
             console.log(err);
         }
