@@ -25,9 +25,10 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
-    // Get the catalogItem type
-    const { type } = req.params;
-    if (!type) {
+    const { type:catalogItemType } = req.params;
+
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
         return res.status(400).end();
     }
 
@@ -37,99 +38,46 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
         return res.status(400).end();
     }
 
-    // Spec must contain these common attributes
-    const { title, date } = catalogItem;
-    if (!title || !date) {
+    const {
+        title,
+        date,
+        isbn10,
+        isbn13,
+        author,
+        publisher,
+        format,
+        pages,
+        language,
+        director,
+        producers,
+        actors,
+        subtitles,
+        dubbed,
+        runtime,
+        type,
+        artist,
+        label,
+        asin,
+    } = catalogItem;
+
+    // Must have proper attributes
+    if (
+        !(!title && !date) && // Common
+        !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+        !(isbn10 && isbn13 && publisher && language) && // Magazine
+        !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
+        !(type && artist && label && asin) // Music
+    ) {
         return res.status(400).end();
     }
 
-    let item: any = null;
-    switch (type) {
-    case 'book': {
-        const {
-            isbn10,
-            isbn13,
-            author,
-            publisher,
-            format,
-            pages,
-        } = catalogItem;
-
-        if (isbn10 && isbn13 && author && publisher && format && pages) {
-            try {
-                item = await Catalog.addItem(catalogItem, CatalogItemType.BOOK, quantity);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
+    try {
+        const item = await Catalog.addItem(catalogItem, catalogItemType.toUpperCase(), quantity);
+        return res.status(200).json(item);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).end();
     }
-        break;
-    case 'magazine': {
-        const {
-            isbn10,
-            isbn13,
-            publisher,
-            language,
-        } = catalogItem;
-
-        if (isbn10 && isbn13 && publisher && language) {
-            try {
-                item = await Catalog.addItem(catalogItem, CatalogItemType.MAGAZINE, quantity);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    case 'movie': {
-        const {
-            director,
-            producers,
-            actors,
-            language,
-            subtitles,
-            dubbed,
-            runtime,
-        } = catalogItem;
-
-        if (director && producers && actors && language
-            && subtitles && dubbed && runtime) {
-            try {
-                item = await Catalog.addItem(catalogItem, CatalogItemType.MOVIE, quantity);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    case 'music': {
-        const {
-            type,
-            artist,
-            label,
-            asin,
-        } = catalogItem;
-
-        if (type && artist && label && asin) {
-            try {
-                item = await Catalog.addItem(catalogItem, CatalogItemType.MUSIC, quantity);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    }
-
-    if (!item) {
-        return res.status(400).end();
-    }
-
-    return res.status(200).json(item);
 });
 
 catalogRouter.put('/:type/:catalogItemId/inventory', async (req: Request, res: Response) => {
@@ -156,10 +104,10 @@ catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
     }
 
     //  Get the catalog item type and the id of the item
-    const catalogItemType = req.params.type;
-    const catalogItemId = req.params.id;
+    const { type:catalogItemType, id:catalogItemId } = req.params;
 
-    if (!catalogItemType || !catalogItemId) {
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
         return res.status(400).end();
     }
 
@@ -169,98 +117,48 @@ catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
         return res.status(400).end();
     }
 
-    let item: any = null;
-    switch (catalogItemType) {
-    case 'book': {
-        const {
-            isbn10,
-            isbn13,
-            author,
-            publisher,
-            format,
-            pages,
-        } = catalogItem;
+    const {
+        title,
+        date,
+        isbn10,
+        isbn13,
+        author,
+        publisher,
+        format,
+        pages,
+        language,
+        director,
+        producers,
+        actors,
+        subtitles,
+        dubbed,
+        runtime,
+        type,
+        artist,
+        label,
+        asin,
+    } = catalogItem;
 
-        if (isbn10 && isbn13 && author && publisher && format && pages) {
-            catalogItem.id = catalogItemId;
-            try {
-                item = await Catalog.updateItem(catalogItem, CatalogItemType.BOOK);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    case 'magazine': {
-        const {
-            isbn10,
-            isbn13,
-            publisher,
-            language,
-        } = catalogItem;
+    catalogItem.id = catalogItemId;
 
-        if (isbn10 && isbn13 && publisher && language) {
-            catalogItem.id = catalogItemId;
-            try {
-                item = await Catalog.updateItem(catalogItem, CatalogItemType.MAGAZINE);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    case 'movie': {
-        const {
-            director,
-            producers,
-            actors,
-            language,
-            subtitles,
-            dubbed,
-            runtime,
-        } = catalogItem;
-
-        if (director && producers && actors && language
-            && subtitles && dubbed && runtime) {
-            catalogItem.id = catalogItemId;
-            try {
-                item = await Catalog.updateItem(catalogItem, CatalogItemType.MOVIE);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    case 'music': {
-        const {
-            type,
-            artist,
-            label,
-            asin,
-        } = catalogItem;
-
-        if (type && artist && label && asin) {
-            catalogItem.id = catalogItemId;
-            try {
-                item = await Catalog.updateItem(catalogItem, CatalogItemType.MUSIC);
-            } catch (err) {
-                console.log(err);
-                return res.status(500).end();
-            }
-        }
-    }
-        break;
-    }
-
-    if (!item) {
+    // Must have proper attributes
+    if (
+        !(!title && !date) && // Common
+        !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+        !(isbn10 && isbn13 && publisher && language) && // Magazine
+        !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
+        !(type && artist && label && asin) // Music
+    ) {
         return res.status(400).end();
     }
 
-    return res.status(200).json(item);
-
+    try {
+        const item = await Catalog.updateItem(catalogItem, catalogItemType.toUpperCase());
+        return res.status(200).json(item);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).end();
+    }
 });
 
 catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
@@ -285,7 +183,7 @@ catalogRouter.delete('/:type/:id', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
-    const { catalogItemId, type } = req.params;
+    const { id:catalogItemId, type } = req.params;
 
     if (!catalogItemId) {
         return res.status(400).end();

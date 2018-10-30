@@ -1,9 +1,9 @@
 import { TableDataGateway } from './TableDataGateway';
-import { InventoryItem, CatalogItem } from '../models';
+import { InventoryItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class InventoryTDG implements TableDataGateway {
-    find = async (id: string): Promise<InventoryItem> => {
+    async find(id: string): Promise<InventoryItem> {
         const query = `
             SELECT *
             FROM
@@ -23,7 +23,7 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
-    findAll = async (catalogItemId: string): Promise<InventoryItem[]> => {
+    async findAll(catalogItemId: string): Promise<InventoryItem[]> {
         try {
             const query = `
             SELECT
@@ -37,22 +37,24 @@ class InventoryTDG implements TableDataGateway {
                 return [];
             }
 
-            return data.rows.map((item: any) => {
-                new InventoryItem(item.ID, catalogItemId, item.AVAILABLE);
-            });
+            return data.rows.map((item: any) => new InventoryItem(
+                item.ID,
+                catalogItemId,
+                item.AVAILABLE,
+            ));
         } catch (err) {
             console.log(err);
         }
     }
 
-    insert = async (item: InventoryItem): Promise<InventoryItem> => {
+    async insert(item: InventoryItem): Promise<InventoryItem> {
         try {
             const query = `
                 INSERT
                 INTO
                 INVENTORY_ITEM
                 (
-                    AVAILABLE
+                    AVAILABLE,
                     CATALOG_ITEM_ID
                 )
                 VALUES
@@ -60,7 +62,7 @@ class InventoryTDG implements TableDataGateway {
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [
-                item.available.toString(),
+                item.available ? '1' : '0',
                 item.catalogItemId,
             ]);
 
@@ -74,7 +76,7 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
-    update = async (item: InventoryItem): Promise<void> => {
+    async update(item: InventoryItem): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -93,7 +95,7 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
-    delete = async (id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE
@@ -107,7 +109,7 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
-    deleteAll = async (catalogItemId: string): Promise<void> => {
+    async deleteAll(catalogItemId: string): Promise<void> {
         try {
             const query = `
                 DELETE

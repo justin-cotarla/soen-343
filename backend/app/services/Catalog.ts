@@ -17,7 +17,6 @@ export enum CatalogItemType {
 
 class Catalog {
     viewItems = async () : Promise<CatalogItem[]> => {
-        console.log(await MovieTDG.findAll());
         return [
             ...(await BookTDG.findAll()),
             ...(await MagazineTDG.findAll()),
@@ -87,7 +86,7 @@ class Catalog {
 
     deleteItem = async (id: string, type: CatalogItemType): Promise<boolean> => {
         await InventoryTDG.deleteAll(id);
-        switch (type) {
+        switch (type.toUpperCase()) {
         case CatalogItemType.BOOK:
             await BookTDG.delete(id);
             break;
@@ -115,7 +114,7 @@ class Catalog {
                 }
             }
 
-            if (item) {
+            if (!item) {
                 return false;
             }
 

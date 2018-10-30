@@ -9,7 +9,7 @@ interface NewUser {
 }
 
 class UserTDG implements TableDataGateway {
-    find = async(id: string): Promise<User> => {
+    async find(id: string): Promise<User> {
         try {
             const query = `
                 SELECT
@@ -45,7 +45,7 @@ class UserTDG implements TableDataGateway {
         }
     }
 
-    findAll = async(): Promise<User[]> => {
+    async findAll(): Promise<User[]> {
         try {
             const query = `
                 SELECT
@@ -81,7 +81,7 @@ class UserTDG implements TableDataGateway {
         }
     }
 
-    insert = async(item: NewUser): Promise<boolean> => {
+    async insert(item: NewUser): Promise<boolean> {
         try {
             const registeredUser = await register(item.user, item.password);
             if (!registeredUser) {
@@ -93,7 +93,7 @@ class UserTDG implements TableDataGateway {
             return false;
         }
     }
-    update = async (item: User): Promise<void> => {
+    async update(item: User): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -117,7 +117,7 @@ class UserTDG implements TableDataGateway {
             console.log(err);
         }
     }
-    delete = async (id:string): Promise<void> => {
+    async delete(id:string): Promise<void> {
         const foundUser = await this.find(id);
         if (foundUser) {
             try {
