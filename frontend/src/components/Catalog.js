@@ -27,7 +27,7 @@ class Catalog extends React.Component {
                         <List style={{ width: '80%', margin: '0 auto' }} celled>
                             {
                                 this.state.catalog && this.state.catalog.map((data, index) => {
-                                    const { catalogItem } = data;
+                                    const catalogItem = data;
                                     return <CatalogItemPreview 
                                                 key={index} 
                                                 title={catalogItem.title} 

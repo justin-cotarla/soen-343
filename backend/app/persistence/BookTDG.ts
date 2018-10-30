@@ -3,7 +3,7 @@ import { Book } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class BookTDG extends CatalogTDG{
-    find = async(id: string) : Promise<Book> => {
+    async find(id: string) : Promise<Book> {
         try {
             const query = `
                 SELECT
@@ -36,7 +36,7 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    findAll = async (): Promise<Book[]> => {
+    async findAll(): Promise<Book[]> {
         try {
             const query = `
             SELECT
@@ -67,7 +67,7 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    insert = async (item: Book): Promise<Book> => {
+    async insert(item: Book): Promise<Book> {
         try {
             const queryBook  = `
             INSERT
@@ -114,7 +114,7 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    update = async (item: Book): Promise<void> => {
+    async update(item: Book): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -128,8 +128,8 @@ class BookTDG extends CatalogTDG{
                 AUTHOR = ?,
                 PUBLISHER = ?,
                 FORMAT = ?,
-                PAGES = ?,
-                WHERE CATALOG.ID = ?
+                PAGES = ?
+                WHERE ID = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -148,7 +148,7 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    delete = async (id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE

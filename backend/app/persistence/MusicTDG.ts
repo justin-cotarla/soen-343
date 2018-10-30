@@ -3,7 +3,7 @@ import { Music } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class MusicTDG extends CatalogTDG{
-    find = async(id: string) : Promise<Music> => {
+    async find(id: string) : Promise<Music> {
         try {
             const query = `
                 SELECT
@@ -34,7 +34,7 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    findAll = async (): Promise<Music[]> => {
+    async findAll(): Promise<Music[]> {
         try {
             const query = `
             SELECT
@@ -63,7 +63,7 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    insert = async (item: Music): Promise<Music> => {
+    async insert(item: Music): Promise<Music> {
         try {
             const queryMusic = `
             INSERT
@@ -73,8 +73,8 @@ class MusicTDG extends CatalogTDG{
                 TYPE,
                 ARTIST,
                 LABEL,
-                CATALOG_ITEM_ID
                 ASIN,
+                CATALOG_ITEM_ID
             )
             VALUES
             (?, ?, ?, ?, ?)
@@ -103,7 +103,7 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    update = async (item: Music): Promise<void> => {
+    async update(item: Music): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -115,8 +115,8 @@ class MusicTDG extends CatalogTDG{
                 TYPE = ?,
                 ARTIST = ?,
                 LABEL = ?,
-                ASIN = ?,
-                WHERE CATALOG.ID = ?
+                ASIN = ?
+                WHERE ID = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -133,7 +133,7 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    delete = async (id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE
