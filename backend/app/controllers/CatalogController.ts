@@ -62,11 +62,11 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
 
     // Must have proper attributes
     if (
-        !(!title && !date) && // Common
-        !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+        !(title && date) || // Common
+        (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
         !(isbn10 && isbn13 && publisher && language) && // Magazine
         !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
-        !(type && artist && label && asin) // Music
+        !(type && artist && label && asin)) // Music
     ) {
         return res.status(400).end();
     }
@@ -143,11 +143,11 @@ catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
 
     // Must have proper attributes
     if (
-        !(!title && !date) && // Common
-        !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+        !(title && date) || // Common
+        (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
         !(isbn10 && isbn13 && publisher && language) && // Magazine
         !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
-        !(type && artist && label && asin) // Music
+        !(type && artist && label && asin)) // Music
     ) {
         return res.status(400).end();
     }
