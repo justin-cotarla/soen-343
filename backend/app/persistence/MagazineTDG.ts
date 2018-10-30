@@ -3,8 +3,7 @@ import { Magazine } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class MagazineTDG extends CatalogTDG {
-
-    find = async(id: string): Promise<Magazine> => {
+    async find(id: string): Promise<Magazine> {
         try {
             const query = `
                 SELECT
@@ -35,7 +34,7 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    findAll = async (): Promise<Magazine[]> => {
+    async findAll(): Promise<Magazine[]> {
         try {
             const query = `
             SELECT
@@ -64,7 +63,7 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    insert = async (item: Magazine): Promise<Magazine> => {
+    async insert(item: Magazine): Promise<Magazine> {
 
         try {
             const queryMagazine = `
@@ -106,7 +105,7 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    update = async(item: Magazine): Promise<void> => {
+    async update(item: Magazine): Promise<void> {
 
         try {
             const query = `
@@ -119,8 +118,8 @@ class MagazineTDG extends CatalogTDG {
                 ISBN_10 = ?,
                 ISBN_13 = ?,
                 PUBLISHER = ?,
-                LANGUAGE = ?,
-                WHERE CATALOG.ID = ?
+                LANGUAGE = ?
+                WHERE ID = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -137,7 +136,7 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    delete = async(id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE

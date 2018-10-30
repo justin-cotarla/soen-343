@@ -3,7 +3,7 @@ import { Movie } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class MovieTDG extends CatalogTDG{
-    find = async(id: string) : Promise<Movie> => {
+    async find(id: string) : Promise<Movie> {
         try {
             const query = `
                 SELECT
@@ -37,7 +37,7 @@ class MovieTDG extends CatalogTDG{
         }
     }
 
-    findAll = async (): Promise<Movie[]> => {
+    async findAll(): Promise<Movie[]> {
         try {
             const query = `
             SELECT
@@ -69,7 +69,7 @@ class MovieTDG extends CatalogTDG{
         }
     }
 
-    insert = async (item: Movie): Promise<Movie> => {
+    async insert(item: Movie): Promise<Movie> {
         try {
             const queryMovie  = `
             INSERT
@@ -119,7 +119,7 @@ class MovieTDG extends CatalogTDG{
         }
     }
 
-    update = async (item: Movie): Promise<void> => {
+    async update(item: Movie): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -135,7 +135,7 @@ class MovieTDG extends CatalogTDG{
                 SUBTITLES = ?,
                 DUBBED = ?,
                 RUNTIME = ?
-                WHERE CATALOG.ID = ?
+                WHERE ID = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -155,7 +155,7 @@ class MovieTDG extends CatalogTDG{
         }
     }
 
-    delete = async (id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE

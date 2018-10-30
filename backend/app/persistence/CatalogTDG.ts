@@ -3,7 +3,7 @@ import { CatalogItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 export class CatalogTDG implements TableDataGateway {
-    find = async (id: string) : Promise<CatalogItem> => {
+    async find(id: string) : Promise<CatalogItem> {
         const query = `
             SELECT *
             FROM
@@ -23,7 +23,7 @@ export class CatalogTDG implements TableDataGateway {
         }
     }
 
-    findAll = async (): Promise<CatalogItem[]> => {
+    async findAll(): Promise<CatalogItem[]> {
         try {
             const query = `
             SELECT
@@ -44,7 +44,7 @@ export class CatalogTDG implements TableDataGateway {
         }
     }
 
-    insert = async (item: CatalogItem): Promise<CatalogItem> => {
+    async insert(item: CatalogItem): Promise<CatalogItem> {
         try {
             const query = `
                 INSERT INTO CATALOG_ITEM
@@ -68,7 +68,7 @@ export class CatalogTDG implements TableDataGateway {
         }
     }
 
-    update = async (item: CatalogItem): Promise<void> => {
+    async update(item: CatalogItem): Promise<void> {
         try {
             const query = `
                 UPDATE
@@ -88,7 +88,7 @@ export class CatalogTDG implements TableDataGateway {
         }
     }
 
-    delete = async (id: string): Promise<void> => {
+    async delete(id: string): Promise<void> {
         try {
             const query = `
                 DELETE
