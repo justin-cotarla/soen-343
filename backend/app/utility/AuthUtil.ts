@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import v4 from 'uuid/v4';
+
 import DatabaseUtil from './DatabaseUtil';
 import { User, Client } from '../models';
 import { Administrator } from '../models/Administrator';
@@ -63,9 +65,6 @@ const authenticate = async (email: string, password: string): Promise<User> => {
     }
 
     const user = result.rows[0];
-    if (user.LOGGED_IN === 1) {
-        throw new Error('User already logged in');
-    }
 
     const match = await bcrypt.compare(password, user.HASH);
 
@@ -73,24 +72,36 @@ const authenticate = async (email: string, password: string): Promise<User> => {
         throw new Error('Incorrect email or password');
     }
 
-    const setLoggedInQuery = 'UPDATE USER SET LOGGED_IN=? WHERE ID=?;';
-    await DatabaseUtil.sendQuery(setLoggedInQuery, ['1', user.ID]);
+    const sessionId = v4();
+
+    const setLoggedInQuery = `
+        UPDATE
+        USER
+        SET
+        SESSION_ID=?
+        WHERE ID=?;
+    `;
+    await DatabaseUtil.sendQuery(setLoggedInQuery, [sessionId, user.ID]);
 
     if (user.ADMIN === 1) {
         return new Administrator(
+            user.ID,
             user.FIRST_NAME,
             user.LAST_NAME,
             user.PHONE_NUMBER,
             user.EMAIL,
             user.ADDRESS,
+            sessionId,
         );
     }
     return new Client(
+        user.ID,
         user.FIRST_NAME,
         user.LAST_NAME,
         user.PHONE_NUMBER,
         user.EMAIL,
         user.ADDRESS,
+        sessionId,
     );
 };
 
@@ -125,30 +136,55 @@ const validateToken = (token: string): Promise<any> => {
     });
 };
 
+const validateSession = async (user: User) => {
+    const query = `
+        SELECT
+        *
+        FROM
+        USER
+        WHERE
+            ID=?
+        AND
+            SESSION_ID=?;
+    `;
+
+    const result = await DatabaseUtil.sendQuery(query, [user.id, user.sessionId]);
+    return (result.rows.length === 1);
+
+};
+
 const injectUser = async (req: Request, res: Response, next: NextFunction) => {
     const header: string = req.get('Authorization');
 
     if (header) {
         try {
             const token = header.split(' ')[1];
-            const { profile, isAdmin }: any = await validateToken(token);
+            const { user, isAdmin }: any = await validateToken(token);
 
             if (isAdmin) {
                 req.user = new Administrator(
-                    profile.firstName,
-                    profile.lastName,
-                    profile.phone,
-                    profile.email,
-                    profile.address,
+                    user.id,
+                    user.firstName,
+                    user.lastName,
+                    user.phone,
+                    user.email,
+                    user.address,
+                    user.sessionId,
                 );
             } else {
                 req.user = new Client(
-                    profile.firstName,
-                    profile.lastName,
-                    profile.phone,
-                    profile.email,
-                    profile.address,
+                    user.id,
+                    user.firstName,
+                    user.lastName,
+                    user.phone,
+                    user.email,
+                    user.address,
+                    user.sessionId,
                 );
+            }
+
+            if (!(await validateSession(req.user))) {
+                return res.status(403).end();
             }
         } catch (err) {
             console.log(err);

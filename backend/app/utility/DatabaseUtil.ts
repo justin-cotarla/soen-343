@@ -43,7 +43,7 @@ class DatabaseUtil {
             connection.query(values !== undefined ? query : queryString, (err, rows, fields) => {
                 connection.end();
                 if (err) {
-                    console.log(`Query: ${queryString}\nParams: ${values}`);
+                    console.log(`Query: ${values !== undefined ? query : queryString}`);
                     reject(err);
                     return;
                 }

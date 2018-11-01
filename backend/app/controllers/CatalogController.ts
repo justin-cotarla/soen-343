@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 
-import { Administrator, Book, Magazine, Music, Movie } from '../models';
+import { Administrator } from '../models';
 import Catalog, { CatalogItemType } from '../services/Catalog';
 
-const catalogRouter = express.Router();
+const catalogController = express.Router();
 
-catalogRouter.get('/', async (req: Request, res: Response) => {
+catalogController.get('/', async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(403).end();
     }
@@ -19,7 +19,7 @@ catalogRouter.get('/', async (req: Request, res: Response) => {
     }
 });
 
-catalogRouter.put('/:type', async (req: Request, res: Response) => {
+catalogController.put('/:type', async (req: Request, res: Response) => {
     // Must be an admin to create catalog items
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
@@ -80,7 +80,7 @@ catalogRouter.put('/:type', async (req: Request, res: Response) => {
     }
 });
 
-catalogRouter.put('/:type/:catalogItemId/inventory', async (req: Request, res: Response) => {
+catalogController.put('/:type/:catalogItemId/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
@@ -97,7 +97,7 @@ catalogRouter.put('/:type/:catalogItemId/inventory', async (req: Request, res: R
     }
 });
 
-catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
+catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     // Must be an admin to modify catalog items
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
@@ -161,7 +161,7 @@ catalogRouter.post('/:type/:id', async (req: Request, res: Response) => {
     }
 });
 
-catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
+catalogController.delete('/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
@@ -178,7 +178,7 @@ catalogRouter.delete('/:id/inventory', async (req: Request, res: Response) => {
     return res.status(404).end();
 });
 
-catalogRouter.delete('/:type/:id', async (req: Request, res: Response) => {
+catalogController.delete('/:type/:id', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
@@ -196,4 +196,4 @@ catalogRouter.delete('/:type/:id', async (req: Request, res: Response) => {
     return res.status(404).end();
 });
 
-export { catalogRouter };
+export { catalogController };
