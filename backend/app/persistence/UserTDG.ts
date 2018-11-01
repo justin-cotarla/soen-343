@@ -25,19 +25,23 @@ class UserTDG implements TableDataGateway {
             const user = data.rows[0];
             if (user.ADMIN === 1) {
                 return new Administrator(
+                    user.ID,
                     user.FIRST_NAME,
                     user.LAST_NAME,
                     user.PHONE_NUMBER,
                     user.EMAIL,
                     user.ADDRESS,
+                    user.SESSION_ID,
                 );
             }
             return new Client(
+                user.ID,
                 user.FIRST_NAME,
                 user.LAST_NAME,
                 user.PHONE_NUMBER,
                 user.EMAIL,
                 user.ADDRESS,
+                user.SESSION_ID,
             );
         } catch (err) {
             console.log(err);
@@ -60,19 +64,23 @@ class UserTDG implements TableDataGateway {
             return data.rows.map((user: any) => {
                 if (user.ADMIN) {
                     return new Administrator(
+                        user.ID,
                         user.FIRST_NAME,
                         user.LAST_NAME,
                         user.PHONE_NUMBER,
                         user.EMAIL,
                         user.ADDRESS,
+                        user.SESSION_ID,
                     );
                 }
                 return new User(
+                    user.ID,
                     user.FIRST_NAME,
                     user.LAST_NAME,
                     user.PHONE_NUMBER,
                     user.EMAIL,
                     user.ADDRESS,
+                    user.SESSION_ID,
                 );
             });
         } catch (err) {
@@ -93,29 +101,29 @@ class UserTDG implements TableDataGateway {
             return false;
         }
     }
-    async update(item: User): Promise<void> {
-        try {
-            const query = `
-                UPDATE
-                USER
-                SET FIRST_NAME = ?,
-                LAST_NAME = ?,
-                PHONE_NUMBER = ?,
-                EMAIL = ?,
-                ADDRESS = ?,
-                WHERE ID = ?
-            `;
+    async update(user: User): Promise<void> {
+        const query = `
+            UPDATE
+            USER
+            SET
+                FIRST_NAME=?,
+                LAST_NAME=?,
+                PHONE_NUMBER=?,
+                EMAIL=?,
+                ADDRESS=?,
+                SESSION_ID=?
+            WHERE ID=?
+        `;
 
-            await DatabaseUtil.sendQuery(query, [
-                item.firstName,
-                item.lastName,
-                item.phone.toString(),
-                item.email,
-                item.address,
-                item.id]);
-        } catch (err) {
-            console.log(err);
-        }
+        await DatabaseUtil.sendQuery(query, [
+            user.firstName,
+            user.lastName,
+            user.phone.toString(),
+            user.email,
+            user.address,
+            user.sessionId,
+            user.id,
+        ]);
     }
     async delete(id:string): Promise<void> {
         const foundUser = await this.find(id);

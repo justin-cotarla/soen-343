@@ -1,10 +1,10 @@
 import express from 'express';
-import { accountRouter } from './AccountController';
-import  { catalogRouter } from './CatalogController';
+import { userController } from './UserController';
+import { catalogController } from './CatalogController';
 
 const router = express.Router();
 
-router.use('/accounts', accountRouter);
-router.use('/catalog', catalogRouter);
+router.use('/users', userController);
+router.use('/catalog', catalogController);
 
 export { router };
