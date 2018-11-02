@@ -40,8 +40,11 @@ class UserService {
         return await register(user, password);
     }
 
-    async getActiveUsers() {
-        return await UserTDG.findAllActive();
+    async getUsers(active: boolean) {
+        if (active) {
+            return await UserTDG.findAllActive();
+        }
+        return await UserTDG.findAll();
     }
 }
 

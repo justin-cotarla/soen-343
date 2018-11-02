@@ -61,7 +61,7 @@ userController.get('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const users = await UserService.getActiveUsers();
+        const users = await UserService.getUsers(req.query.active);
         return res.status(200).json(users);
     } catch (err) {
         console.log(err);

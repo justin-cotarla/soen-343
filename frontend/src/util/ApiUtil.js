@@ -89,7 +89,7 @@ export const createMusic = async (catalogItem, quantity) => {
 
 
 export const getActiveUsers = async () => {
-    return await api.get('/users', {
+    return await api.get('/users?active=true', {
         headers: { 
             "Access-Control-Allow-Origin": "*",
             'Authorization': `Bearer ${getToken()}`,
