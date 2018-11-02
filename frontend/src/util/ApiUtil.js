@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 export const login = async (email, password) => {
-    return await api.post('/accounts/login', {
+    return await api.post('/users/login', {
         email,
         password,
     });
@@ -14,8 +14,8 @@ export const login = async (email, password) => {
 
 export const register = async (firstName, lastName, email, address, phone, password, isAdmin) => {
     return await api({
-        method: 'post',
-        url: '/accounts',
+        method: 'put',
+        url: '/users',
         data: {
             firstName,
             lastName,
@@ -89,7 +89,7 @@ export const createMusic = async (catalogItem, quantity) => {
 
 
 export const getActiveUsers = async () => {
-    return await api.get('/accounts?active=true', {
+    return await api.get('/users', {
         headers: { 
             "Access-Control-Allow-Origin": "*",
             'Authorization': `Bearer ${getToken()}`,

@@ -89,6 +89,47 @@ class UserTDG implements TableDataGateway {
         }
     }
 
+    async findAllActive(): Promise<User[]> {
+        try {
+            const query = `
+                SELECT
+                *
+                FROM USER
+                WHERE SESSION_ID<>""
+            `;
+
+            const data = await DatabaseUtil.sendQuery(query);
+            if (!data.rows.length) {
+                return [];
+            }
+            return data.rows.map((user: any) => {
+                if (user.ADMIN) {
+                    return new Administrator(
+                        user.ID,
+                        user.FIRST_NAME,
+                        user.LAST_NAME,
+                        user.PHONE_NUMBER,
+                        user.EMAIL,
+                        user.ADDRESS,
+                        user.SESSION_ID,
+                    );
+                }
+                return new User(
+                    user.ID,
+                    user.FIRST_NAME,
+                    user.LAST_NAME,
+                    user.PHONE_NUMBER,
+                    user.EMAIL,
+                    user.ADDRESS,
+                    user.SESSION_ID,
+                );
+            });
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
     async insert(item: NewUser): Promise<boolean> {
         try {
             const registeredUser = await register(item.user, item.password);
