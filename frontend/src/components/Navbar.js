@@ -2,12 +2,26 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Header, Icon } from "semantic-ui-react"
 
+import { logout } from '../util/ApiUtil';
+import { invalidate } from '../util/AuthUtil';
+
+const handleLogout = async () => {
+    try {
+        await logout();
+        invalidate();
+    } catch (err) {
+        if(err.response.status === 403) {
+            invalidate();
+        }
+    }
+}
+
 const Navbar = (props) => {
-    const { vertical, user } = props;
-    let profile, isAdmin;
-    if (user) {
-        profile = user.profile;
-        isAdmin = user.isAdmin;
+    const { vertical, token } = props;
+    let user, isAdmin;
+    if (token) {
+        user = token.user;
+        isAdmin = token.isAdmin;
     }
     return (
         <Menu vertical={vertical} fixed="top" fluid inverted>
@@ -15,7 +29,7 @@ const Navbar = (props) => {
                 <Header as="h1" style={{ color: 'white' }}>LibManager</Header>
             </Menu.Item>
             {
-                profile && 
+                user && 
                 <Dropdown 
                 item
                 floating
@@ -62,21 +76,22 @@ const Navbar = (props) => {
             }
             <Menu.Menu position="right">
             {
-                profile &&
+                user &&
                 <Dropdown 
                     item
                     floating
                     fluid
-                    text={`${profile.lastName}, ${profile.firstName}`}>
+                    text={`${user.lastName}, ${user.firstName}`}>
                         <Dropdown.Menu>
                             <Dropdown.Item
                                 icon="log out"
-                                content="Log Out"/>
+                                content="Log Out"
+                                onClick={handleLogout}/>
                         </Dropdown.Menu>
                     </Dropdown>
             }
             {
-                !profile &&
+                !user &&
                 <Menu.Item
                     as={Link}
                     to="/login">

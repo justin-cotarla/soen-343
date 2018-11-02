@@ -2,6 +2,8 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Message, Dropdown } from 'semantic-ui-react'
 import { createBook, createMagazine, createMovie, createMusic } from '../util/ApiUtil';
 
+import { invalidate } from '../util/AuthUtil';
+
 const options = [
     { key: 'b', text: 'Book', value: 'Book'},
     { key: 'ma', text: 'Magazine', value: 'Magazine'},
@@ -127,6 +129,9 @@ class CatalogForm extends React.Component {
                 success: true,
             });
         } catch (error) {
+            if(error.response.status === 403) {
+                invalidate();
+            }
             this.setState({
                 submitting: false,
                 error: true,

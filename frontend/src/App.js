@@ -16,14 +16,14 @@ class App extends Component {
         return (
             <BrowserRouter>
                 <div style={{ height: '100%' }}>
-                <Navbar vertical={false} user={getDecodedToken()}/>   
-                <Switch>
-                    <Route path="/login" component={LoginPage}/> 
-                    <ProtectedRoute exact path="/catalog" component={Catalog}/>
-                    <Route path="/catalog/add" component={CatalogForm}/>
-                    <AdminRoute path="/users/active" component={ViewActiveUsers}/>
-                    <AdminRoute path="/users/register" component={RegisterForm}/>
-                </Switch>
+                    <Navbar vertical={false} token={getDecodedToken()}/>   
+                    <Switch>
+                        <Route path="/login" component={LoginPage}/> 
+                        <ProtectedRoute exact path="/catalog" component={Catalog}/>
+                        <AdminRoute path="/catalog/add" component={CatalogForm}/>
+                        <AdminRoute path="/users/active" component={ViewActiveUsers}/>
+                        <AdminRoute path="/users/register" component={RegisterForm}/>
+                    </Switch>
                 </div>
             </BrowserRouter>
         );

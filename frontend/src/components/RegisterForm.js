@@ -1,6 +1,9 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
+
 import { register } from '../util/ApiUtil';
+import { invalidate } from '../util/AuthUtil';
+
 class LoginForm extends React.Component {
     state = {
         firstName: '',
@@ -30,7 +33,10 @@ class LoginForm extends React.Component {
                 submitting: false, 
                 success: true,
             });
-        } catch (err) {
+        } catch (error) {
+            if(error.response.status === 403) {
+                invalidate();
+            }
             this.setState({
                 submitting: false,
                 error: true,

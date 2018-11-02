@@ -2,6 +2,8 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Message } from 'semantic-ui-react'
 import { login } from '../util/ApiUtil'
 
+import { invalidate } from '../util/AuthUtil';
+
 class LoginForm extends React.Component {
     state = { 
         email: '', 
@@ -22,23 +24,14 @@ class LoginForm extends React.Component {
             localStorage.setItem('Authorization', token);
             window.location.reload();
         } catch(error){
-            if(error.response.status === 444) {
-                this.setState({
-                    error: true, 
-                    errorMessage: 'User already logged in',
-                    submitting: false, 
-                });
-            } else {
-                this.setState({ 
-                    error: true, 
-                    submitting: false, 
-                });
+            if(error.response.status === 403) {
+                invalidate();
             }
         }
     }
     
     render() {
-        const { email, password, submitting, redirect, error, errorMessage } = this.state
+        const { email, password, submitting, error, errorMessage } = this.state
 
         return(
             <div style={{ height: '100%' }}>

@@ -38,10 +38,13 @@ export const getDecodedToken = () => {
 }
 
 export const isAuthenticated = () => {
-    const token = getToken();
     try {
-        decode(token);
-        return true;
+        const token = getDecodedToken();
+        if (token) {
+            return true;
+        }
+
+        return false;
     } catch(err) {
         return false;
     }
@@ -49,11 +52,14 @@ export const isAuthenticated = () => {
 
 export const isAdmin = () => {
     try {
-    const token = getToken();
-        const { isAdmin } = decode(token);
+        const { isAdmin } = getDecodedToken();
         return isAdmin;
     } catch (err) {
         return false;
     }
 };
 
+export const invalidate = () => {
+    localStorage.removeItem('Authorization');
+    window.location.reload();
+}
