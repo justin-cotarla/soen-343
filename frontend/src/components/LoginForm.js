@@ -2,8 +2,6 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Message } from 'semantic-ui-react'
 import { login } from '../util/ApiUtil'
 
-import { invalidate } from '../util/AuthUtil';
-
 class LoginForm extends React.Component {
     state = { 
         email: '', 
@@ -11,6 +9,7 @@ class LoginForm extends React.Component {
         submitting: false, 
         error: false, 
         errorMessage: 'Username and password do not match',
+        redirect: false,
     }
     
     handleChange = (e, { name, value }) => this.setState({ [name]: value })
@@ -24,9 +23,10 @@ class LoginForm extends React.Component {
             localStorage.setItem('Authorization', token);
             window.location.reload();
         } catch(error){
-            if(error.response.status === 403) {
-                invalidate();
-            }
+            this.setState({
+                submitting: false,
+                error: true,
+            });
         }
     }
     
@@ -75,7 +75,8 @@ class LoginForm extends React.Component {
                                     color='teal' 
                                     fluid 
                                     size='large' 
-                                    loading={submitting}>
+                                    loading={submitting}
+                                    disabled={submitting}>
                                         Login
                                 </Button>
                             </Segment>

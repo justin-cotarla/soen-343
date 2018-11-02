@@ -2,8 +2,6 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Message, Dropdown } from 'semantic-ui-react'
 import { createBook, createMagazine, createMovie, createMusic } from '../util/ApiUtil';
 
-import { invalidate } from '../util/AuthUtil';
-
 const options = [
     { key: 'b', text: 'Book', value: 'Book'},
     { key: 'ma', text: 'Magazine', value: 'Magazine'},
@@ -124,14 +122,11 @@ class CatalogForm extends React.Component {
                     break;
                 default: 
             }
-            this.setState({ 
-                submitting: false, 
+            this.setState({
+                submitting: false,
                 success: true,
             });
         } catch (error) {
-            if(error.response.status === 403) {
-                invalidate();
-            }
             this.setState({
                 submitting: false,
                 error: true,
@@ -196,7 +191,7 @@ class CatalogForm extends React.Component {
             errorMessage,
         } = this.state;
         return (
-            <div className='login-form' style={{ height: '100%' }}>
+            <div className='catalog-form' style={{ height: '100%' }}>
                 <Grid 
                     textAlign='center' 
                     verticalAlign="middle"
@@ -438,6 +433,7 @@ class CatalogForm extends React.Component {
                                     content={errorMessage}
                                     style={{ textAlign: 'left' }} />
                                 <Button 
+                                    disabled={submitting}
                                     loading={submitting} 
                                     color='teal' 
                                     size='large' 

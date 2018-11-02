@@ -3,7 +3,6 @@ import { Grid, List, Header } from 'semantic-ui-react'
 import CatalogItemPreview from "../components/CatalogItemPreview";
 
 import { getCatalog } from "../util/ApiUtil";
-import { invalidate } from '../util/AuthUtil';
 
 class Catalog extends React.Component {
     state = { catalog: null };
@@ -13,9 +12,7 @@ class Catalog extends React.Component {
             const { data } = await getCatalog();
             this.setState({ catalog: data });
         } catch (error) {
-            if(error.response.status === 403) {
-                invalidate();
-            }
+
         }
     }
     

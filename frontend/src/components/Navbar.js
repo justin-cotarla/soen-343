@@ -10,9 +10,7 @@ const handleLogout = async () => {
         await logout();
         invalidate();
     } catch (err) {
-        if(err.response.status === 403) {
-            invalidate();
-        }
+
     }
 }
 

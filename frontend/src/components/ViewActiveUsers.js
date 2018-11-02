@@ -4,7 +4,6 @@ import { Header, Grid } from 'semantic-ui-react';
 import UserList from './UserList'
 ;
 import { getActiveUsers } from '../util/ApiUtil';
-import { invalidate } from '../util/AuthUtil';
 
 class ViewActiveUsers extends Component {
     state = { users: [] };
@@ -14,9 +13,7 @@ class ViewActiveUsers extends Component {
             const { data } = await getActiveUsers();
             this.setState({ users: data });
         } catch (error) {
-            if(error.response.status === 403) {
-                invalidate();
-            }
+
         }
     }
 

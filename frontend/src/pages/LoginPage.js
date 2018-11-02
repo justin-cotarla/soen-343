@@ -8,7 +8,7 @@ export default class LoginPage extends React.Component {
     render() {
         const { authenticated } = this.state
         if (authenticated === true){
-            return <Redirect to="/" />
+            return <Redirect to="/search" />
         }
 
         return(

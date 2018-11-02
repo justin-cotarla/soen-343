@@ -2,7 +2,6 @@ import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
 
 import { register } from '../util/ApiUtil';
-import { invalidate } from '../util/AuthUtil';
 
 class LoginForm extends React.Component {
     state = {
@@ -34,9 +33,6 @@ class LoginForm extends React.Component {
                 success: true,
             });
         } catch (error) {
-            if(error.response.status === 403) {
-                invalidate();
-            }
             this.setState({
                 submitting: false,
                 error: true,
@@ -144,6 +140,7 @@ class LoginForm extends React.Component {
                                     content={errorMessage}
                                     style={{ textAlign: 'left' }} />
                                 <Button 
+                                    disabled={submitting}
                                     loading={submitting} 
                                     color='teal' 
                                     size='large' 
