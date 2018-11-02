@@ -41,10 +41,7 @@ class UserService {
     }
 
     async getUsers(active: boolean) {
-        if (active) {
-            return await UserTDG.findAllActive();
-        }
-        return await UserTDG.findAll();
+        return await UserTDG.findAll(active);
     }
 }
 

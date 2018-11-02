@@ -43,7 +43,7 @@ userController.put('/', async (req: Request, res: Response) => {
 userController.post('/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res.status(401).end();
+        return res.status(400).end();
     }
 
     try {
@@ -60,8 +60,10 @@ userController.get('/', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
+    const { active } = req.query;
+
     try {
-        const users = await UserService.getUsers(req.query.active);
+        const users = await UserService.getUsers(active);
         return res.status(200).json(users);
     } catch (err) {
         console.log(err);
