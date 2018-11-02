@@ -1,20 +1,30 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
-import AdminDashboard from './pages/AdminDashboard';
+import Navbar from "./components/Navbar";
 import LoginPage from './pages/LoginPage';
 
-import { AdminRoute } from './util/AuthUtil';
+import RegisterForm from "./components/RegisterForm";
+import ViewActiveUsers from "./components/ViewActiveUsers";
+import Catalog from './components/Catalog';
+import CatalogForm from './components/CatalogForm';
+
+import { ProtectedRoute, AdminRoute, getDecodedToken } from './util/AuthUtil';
 
 class App extends Component {
     render() {
         return (
             <BrowserRouter>
+                <div style={{ height: '100%' }}>
+                <Navbar vertical={false} user={getDecodedToken()}/>   
                 <Switch>
-                    <Route exact path="/" render={() => <h1>SOEN 343</h1>}/>
-                    <Route exact path="/login" component={LoginPage}/>
-                    <AdminRoute path="/admin" component={AdminDashboard}/>             
+                    <Route path="/login" component={LoginPage}/> 
+                    <ProtectedRoute exact path="/catalog" component={Catalog}/>
+                    <Route path="/catalog/add" component={CatalogForm}/>
+                    <AdminRoute path="/users/active" component={ViewActiveUsers}/>
+                    <AdminRoute path="/users/register" component={RegisterForm}/>
                 </Switch>
+                </div>
             </BrowserRouter>
         );
     }

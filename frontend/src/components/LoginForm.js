@@ -1,14 +1,12 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Segment, Message } from 'semantic-ui-react'
 import { login } from '../util/ApiUtil'
-import { Redirect } from 'react-router-dom'
 
 class LoginForm extends React.Component {
     state = { 
         email: '', 
         password: '', 
         submitting: false, 
-        redirect: false,
         error: false, 
         errorMessage: 'Username and password do not match',
     }
@@ -22,7 +20,7 @@ class LoginForm extends React.Component {
         try {
             const { data: { token } } = await login(email, password);
             localStorage.setItem('Authorization', token);
-            this.setState({ redirect: true });
+            window.location.reload();
         } catch(error){
             if(error.response.status === 444) {
                 this.setState({
@@ -41,21 +39,13 @@ class LoginForm extends React.Component {
     
     render() {
         const { email, password, submitting, redirect, error, errorMessage } = this.state
-        
-        if (redirect === true){
-            return <Redirect to="/" />
-        }
-        
+
         return(
-            <div>
-                <style>{`
-                body > div,
-                body > div > div,
-                body > div > div > div.login-form {
-                    height: 100%;
-                }
-                `}</style>
-                <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
+            <div style={{ height: '100%' }}>
+                <Grid 
+                    textAlign='center' 
+                    verticalAlign="middle"
+                    style={{ height: '100%' }}>
                     <Grid.Column style={{ maxWidth: 450 }}>
                         <Header as='h2' color='teal' textAlign='left'>
                             Log-in to your account
