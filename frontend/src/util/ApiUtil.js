@@ -10,7 +10,6 @@ api.interceptors.response.use(async (response) => {
     return await response;
 }, async (error) => {
     if(error.response.status === 403) {
-        alert('bye')
         invalidate();
     }
 
