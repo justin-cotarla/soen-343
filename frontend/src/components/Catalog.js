@@ -11,8 +11,8 @@ class Catalog extends React.Component {
         try {
             const { data } = await getCatalog();
             this.setState({ catalog: data });
-        } catch (err) {
-            console.log(err)
+        } catch (error) {
+
         }
     }
     

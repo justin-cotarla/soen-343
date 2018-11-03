@@ -122,8 +122,8 @@ class CatalogForm extends React.Component {
                     break;
                 default: 
             }
-            this.setState({ 
-                submitting: false, 
+            this.setState({
+                submitting: false,
                 success: true,
             });
         } catch (error) {
@@ -191,15 +191,11 @@ class CatalogForm extends React.Component {
             errorMessage,
         } = this.state;
         return (
-            <div className='login-form' >
-                <style>{`
-                body > div,
-                body > div > div,
-                body > div > div > div.login-form {
-                    height: 100%;
-                }
-                `}</style>
-                <Grid textAlign='center' >
+            <div className='catalog-form' style={{ height: '100%' }}>
+                <Grid 
+                    textAlign='center' 
+                    verticalAlign="middle"
+                    style={{ height: '100%' }}>
                     <Grid.Column style={{ width: '80%', maxWidth: '650px' }}>
                         <Header as='h2' color='teal' textAlign='left'>
                         Add a catalog item
@@ -437,6 +433,7 @@ class CatalogForm extends React.Component {
                                     content={errorMessage}
                                     style={{ textAlign: 'left' }} />
                                 <Button 
+                                    disabled={submitting}
                                     loading={submitting} 
                                     color='teal' 
                                     size='large' 

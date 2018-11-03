@@ -1,6 +1,8 @@
 import React from 'react'
 import { Button, Form, Grid, Header, Segment, Checkbox, Message } from 'semantic-ui-react'
+
 import { register } from '../util/ApiUtil';
+
 class LoginForm extends React.Component {
     state = {
         firstName: '',
@@ -30,7 +32,7 @@ class LoginForm extends React.Component {
                 submitting: false, 
                 success: true,
             });
-        } catch (err) {
+        } catch (error) {
             this.setState({
                 submitting: false,
                 error: true,
@@ -66,15 +68,11 @@ class LoginForm extends React.Component {
             errorMessage,
         } = this.state;
         return (
-            <div className='login-form' >
-                <style>{`
-                body > div,
-                body > div > div,
-                body > div > div > div.login-form {
-                    height: 100%;
-                }
-                `}</style>
-                <Grid textAlign='center' >
+            <div className='register-form' style={{ height: '100%' }}>
+                <Grid 
+                    textAlign='center' 
+                    verticalAlign="middle"
+                    style={{ height: '100%' }}>
                     <Grid.Column style={{ width: '80%', maxWidth: '600px' }}>
                         <Header as='h2' color='teal' textAlign='left'>
                         Register a Client
@@ -142,6 +140,7 @@ class LoginForm extends React.Component {
                                     content={errorMessage}
                                     style={{ textAlign: 'left' }} />
                                 <Button 
+                                    disabled={submitting}
                                     loading={submitting} 
                                     color='teal' 
                                     size='large' 
