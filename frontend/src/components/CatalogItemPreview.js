@@ -5,7 +5,7 @@ class CatalogItemPreview extends React.Component {
     
     render() {
         return (
-            <List.Item style={{ padding: '1em 0' }}>
+            <List.Item style={{ padding: '1em 0' }} onClick={this.props.onClick}>
                 <Icon size="big" name="book"/>
                 <List.Content>
                     <List.Header>{this.props.title}, {this.props.author}</List.Header>
