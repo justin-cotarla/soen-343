@@ -49,12 +49,13 @@ class UserTDG implements TableDataGateway {
         }
     }
 
-    async findAll(): Promise<User[]> {
+    async findAll(active: boolean): Promise<User[]> {
         try {
             const query = `
                 SELECT
                 *
                 FROM USER
+                WHERE ${active ? 'SESSION_ID<>""' : 'TRUE'}
             `;
 
             const data = await DatabaseUtil.sendQuery(query);

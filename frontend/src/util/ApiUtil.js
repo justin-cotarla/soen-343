@@ -35,7 +35,7 @@ export const logout = async () => {
 
 export const register = async (firstName, lastName, email, address, phone, password, isAdmin) => {
     return await api({
-        method: 'post',
+        method: 'put',
         url: '/users',
         data: {
             firstName,
