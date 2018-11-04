@@ -1,20 +1,36 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
-import AdminDashboard from './pages/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+
+import Navbar from "./components/Navbar";
 import LoginPage from './pages/LoginPage';
 
-import { AdminRoute } from './util/AuthUtil';
+import RegisterForm from "./components/RegisterForm";
+import ViewActiveUsers from "./components/ViewActiveUsers";
+import Catalog from './components/Catalog';
+import CatalogForm from './components/CatalogForm';
+
+import { getDecodedToken } from './util/AuthUtil';
 
 class App extends Component {
     render() {
+        const token = getDecodedToken();
         return (
             <BrowserRouter>
-                <Switch>
-                    <Route exact path="/" render={() => <h1>SOEN 343</h1>}/>
-                    <Route exact path="/login" component={LoginPage}/>
-                    <AdminRoute path="/admin" component={AdminDashboard}/>             
-                </Switch>
+                <div style={{ height: '100%' }}>
+                    <Navbar vertical={false} token={token}/>   
+                    <Switch>
+                        <Route path="/login" component={LoginPage}/>
+                        <ProtectedRoute path="/search" component={() => <div></div>}/>           
+                        <ProtectedRoute exact path="/catalog" component={Catalog}/>
+                        <AdminRoute path="/catalog/add" component={CatalogForm}/>
+                        <AdminRoute path="/users/active" component={ViewActiveUsers}/>
+                        <AdminRoute path="/users/register" component={RegisterForm}/>
+                        <Redirect from="/" to="/login"/>
+                    </Switch>
+                </div>
             </BrowserRouter>
         );
     }

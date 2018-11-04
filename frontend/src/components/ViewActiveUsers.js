@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Header, Grid } from 'semantic-ui-react';
 
-import UserList from './UserList';
+import UserList from './UserList'
+;
 import { getActiveUsers } from '../util/ApiUtil';
 
 class ViewActiveUsers extends Component {
@@ -11,7 +12,7 @@ class ViewActiveUsers extends Component {
         try {
             const { data } = await getActiveUsers();
             this.setState({ users: data });
-        } catch (err) {
+        } catch (error) {
 
         }
     }
