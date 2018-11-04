@@ -1,5 +1,8 @@
 import React from 'react'
+import { Route } from 'react-router-dom';
 import { Grid, List, Header } from 'semantic-ui-react'
+
+import CatalogItem from '../components/CatalogItem';
 import CatalogItemPreview from "../components/CatalogItemPreview";
 
 import { getCatalog } from "../util/ApiUtil";
@@ -15,27 +18,36 @@ class Catalog extends React.Component {
 
         }
     }
+
+    renderCatalogItem = () => {
+        return <CatalogItem item={this.props.location.state.item}/>
+    }
     
     render() {
+        const { match, location } = this.props;
+        const { catalog } = this.state;
         return (
-            <div style={{ display: 'inline-block', width: '100%', margin: 'auto' }}>
-                <Grid textAlign='center' style={{ margin: '3em 1em' }} >
-                    <Grid.Column>
-                        <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
-                            Catalog
-                        </Header>
-                        <List style={{ width: '80%', margin: '0 auto' }} celled>
+            <div style={{ 
+                display: 'inline-block',
+                width: '100%',
+                marginTop: '4em',
+                padding: '0 1em' }}>
+                <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
+                    Catalog
+                </Header>
+                <Grid textAlign='center' stackable>
+                    <Grid.Column width={location.pathname.match(/^\/catalog\/?$/) ? 16 : 10} floated="left">
+                        <List style={{ margin: '0 auto' }} celled>
                             {
-                                this.state.catalog && this.state.catalog.map((data, index) => {
-                                    const catalogItem = data;
-                                    return <CatalogItemPreview 
-                                                key={index} 
-                                                title={catalogItem.title} 
-                                                date={catalogItem.date}
-                                                author={catalogItem.author}/>
+                                catalog && catalog.map((catalogItem) => {
+                                    catalogItem.date = new Date(catalogItem.date).toLocaleDateString()
+                                    return  <CatalogItemPreview key={catalogItem.id} item={catalogItem}/>
                                 })
                             }
                         </List>
+                    </Grid.Column>
+                    <Grid.Column width={location.pathname.match(/^\/catalog\/\d+$/) ? 6 : null}>
+                            <Route path={`${match.path}/:id(\\d+)`} render={this.renderCatalogItem}/>
                     </Grid.Column>
                 </Grid>
             </div>

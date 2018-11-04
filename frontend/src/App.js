@@ -24,8 +24,8 @@ class App extends Component {
                     <Switch>
                         <Route path="/login" component={LoginPage}/>
                         <ProtectedRoute path="/search" component={() => <div></div>}/>           
-                        <ProtectedRoute exact path="/catalog" component={Catalog}/>
                         <AdminRoute path="/catalog/add" component={CatalogForm}/>
+                        <ProtectedRoute path="/catalog" component={Catalog}/>
                         <AdminRoute path="/users/active" component={ViewActiveUsers}/>
                         <AdminRoute path="/users/register" component={RegisterForm}/>
                         <Redirect from="/" to="/login"/>
