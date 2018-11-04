@@ -6,7 +6,6 @@ export enum BookFormat {
 }
 
 class Book extends CatalogItem {
-    public catalogItemType = 'book';
     public isbn10: number;
     public isbn13: number;
     public author: string;
