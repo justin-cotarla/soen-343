@@ -7,6 +7,7 @@ enum MusicType {
 }
 
 class Music extends CatalogItem {
+    public catalogItemType = 'music';
     public type: MusicType;
     public artist: string;
     public label: string;

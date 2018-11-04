@@ -1,6 +1,7 @@
 import { CatalogItem } from './CatalogItem';
 
 class Magazine extends CatalogItem {
+    public catalogItemType = 'magazine';
     public isbn10: number;
     public isbn13: number;
     public publisher: string;

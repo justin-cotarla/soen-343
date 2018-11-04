@@ -1,6 +1,7 @@
 import { CatalogItem } from './CatalogItem';
 
 class Movie extends CatalogItem {
+    public catalogItemType = 'movie';
     public director: string;
     public producers: string;
     public actors: string;
