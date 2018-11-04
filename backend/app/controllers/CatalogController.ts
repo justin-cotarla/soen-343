@@ -80,14 +80,14 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
     }
 });
 
-catalogController.put('/:type/:catalogItemId/inventory', async (req: Request, res: Response) => {
+catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
 
-    const { catalogItemId } = req.params;
+    const { id } = req.params;
     try {
-        const inventoryItemId = await Catalog.addInventoryItem(catalogItemId);
+        const inventoryItemId = await Catalog.addInventoryItem(id);
         if (inventoryItemId) {
             return res.status(200).json({ id: inventoryItemId });
         }
@@ -161,7 +161,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     }
 });
 
-catalogController.delete('/:id/inventory', async (req: Request, res: Response) => {
+catalogController.delete('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
