@@ -9,7 +9,25 @@ class CatalogItemPreview extends React.Component {
             id,
             title,
             date,
+            catalogItemType,
         } = item;
+
+        let icon;
+        switch (catalogItemType) {
+        case 'book':
+            icon = 'book';
+            break;
+        case 'magazine':
+            icon = 'newspaper';
+            break;
+        case 'movie':
+            icon = 'play circle'
+            break;
+        case 'music':
+            icon = 'music'
+            break;
+            default:
+        }
         return (
             <List.Item
                 as={Link} 
@@ -18,10 +36,10 @@ class CatalogItemPreview extends React.Component {
                     state: { item },
                 }}   
                 style={{ padding: '1em 0', color: 'inherit' }}>
-                <Icon size="big" name="book"/>
+                <Icon size="big" name={icon}/>
                 <List.Content>
                     <List.Header>{title}</List.Header>
-                    {date}
+                    {new Date(date).toLocaleDateString()}
                 </List.Content>
             </List.Item>
         );

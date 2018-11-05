@@ -19,8 +19,20 @@ class Catalog extends React.Component {
         }
     }
 
+    handlePostDelete = (id) => {
+        this.setState(({ catalog }) => ({
+            catalog: catalog.filter(item => item.id !== id)
+        }), () => {
+            this.props.history.push('/catalog');
+        });
+    }
+
     renderCatalogItem = () => {
-        return <CatalogItem item={this.props.location.state.item}/>
+        return (
+            <CatalogItem 
+                item={this.props.location.state.item} 
+                handlePostDelete={this.handlePostDelete}/>
+        );
     }
     
     render() {
@@ -40,7 +52,6 @@ class Catalog extends React.Component {
                         <List style={{ margin: '0 auto' }} celled>
                             {
                                 catalog && catalog.map((catalogItem) => {
-                                    catalogItem.date = new Date(catalogItem.date).toLocaleDateString()
                                     return  <CatalogItemPreview key={catalogItem.id} item={catalogItem}/>
                                 })
                             }

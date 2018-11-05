@@ -128,3 +128,26 @@ export const getCatalog = async () => {
         },
     });
 }
+
+export const editCatalogItem = async (catalogItemType, id, catalogItem) => {
+    const date = new Date(catalogItem.date);
+    catalogItem.date = `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()}`;
+    return await api({
+        method: 'post',
+        url: `/catalog/${catalogItemType}/${id}`,
+        data: { catalogItem },
+        headers: {
+            'Authorization': `Bearer ${token}` 
+        },
+    });
+}
+
+export const deleteCatalogItem = async (catalogItemType, id) => {
+    return await api({
+        method: 'delete',
+        url: `/catalog/${catalogItemType}/${id}`,
+        headers: {
+            'Authorization': `Bearer ${token}` 
+        },
+    });
+}
