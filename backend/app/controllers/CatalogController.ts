@@ -83,6 +83,28 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
     }
 });
 
+catalogController.get('/:type/:id', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(403).end();
+    }
+
+    //  Get the catalog item type and the id of the item
+    const { type:catalogItemType, id:catalogItemId } = req.params;
+
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
+        return res.status(400).end();
+    }
+
+    try {
+        const item = await Catalog.viewItem(catalogItemId, catalogItemType);
+        return res.status(200).json(item);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).end();
+    }
+})
+
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
