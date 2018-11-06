@@ -186,13 +186,18 @@ catalogController.delete('/:type/:id', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
-    const { id:catalogItemId, type } = req.params;
+    const { id:catalogItemId, type:catalogItemType } = req.params;
 
     if (!catalogItemId) {
         return res.status(400).end();
     }
 
-    if (await Catalog.deleteItem(catalogItemId, type)) {
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
+        return res.status(400).end();
+    }
+
+    if (await Catalog.deleteItem(catalogItemId, catalogItemType.toUpperCase())) {
         return res.status(200).end();
     }
 

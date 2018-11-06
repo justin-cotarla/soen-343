@@ -2,7 +2,7 @@ import 'jest';
 import supertest from 'supertest';
 
 import server from '../server';
-import { BookFormat } from '../models/Book';
+import { BookFormat, Book } from '../models/Book';
 import { Administrator, Magazine, InventoryItem } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
@@ -12,16 +12,21 @@ import Catalog from '../services/Catalog';
 let token: string;
 beforeEach(async () => {
     process.env.JWT_KEY = 'test';
-    const profile: Administrator = new Administrator('Test', 'Test', 0, 'Test', 'Test');
+    const profile: Administrator = new Administrator(
+        '1',
+        'Test',
+        'Test',
+        0,
+        'Test',
+        'Test',
+        '12345',
+        );
     token = await generateToken({ profile, isAdmin: true });
+    jest.clearAllMocks();
 });
 
 describe('CatalogRouter', () => {
     describe('PUT /catalog', () => {
-        afterEach(() => {
-            Catalog['catalogItems'] = new Map();
-        });
-
         it('requires admin rights', async () => {
             supertest(server)
                 .put('/catalog')
@@ -79,12 +84,32 @@ describe('CatalogRouter', () => {
                 quantity: 1,
             };
 
+            const insertedItem: Book = {
+                id: '1',
+                title: 'TestBook',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                author: 'TestAuthor',
+                publisher: 'TestPublisher',
+                format: BookFormat.HardCover,
+                pages: 69,
+            };
+
+            Catalog.addItem = jest.fn().mockReturnValueOnce({
+                catalogItem: insertedItem,
+                inventory: [new InventoryItem('1', insertedItem.id, true)],
+            });
+
             const response = await supertest(server)
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .set('Accept', 'application/json')
                 .send(bookRequest)
                 .expect(200);
+
+            expect(response.body.catalogItem).toBe(insertedItem);
+            expect(response.body.inventory.length).toEqual(1);
         });
 
         it('Creates the specified quantity of inventory items', async () => {
@@ -100,6 +125,25 @@ describe('CatalogRouter', () => {
                 quantity: 3,
             };
 
+            const insertedItem: Magazine = {
+                id: '1',
+                title: 'TestMagazine',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                publisher: 'TestPublisher',
+                language: 'English',
+            };
+
+            Catalog.addItem = jest.fn().mockReturnValueOnce({
+                catalogItem: insertedItem,
+                inventory: [
+                    new InventoryItem('1', insertedItem.id, true),
+                    new InventoryItem('2', insertedItem.id, true),
+                    new InventoryItem('3', insertedItem.id, true),
+                ],
+            });
+
             const response = await supertest(server)
                 .put('/catalog/magazine')
                 .send(magazineRequest)
@@ -111,22 +155,18 @@ describe('CatalogRouter', () => {
     });
 
     describe('GET /catalog', () => {
-        beforeEach(() => {
-            const catalogItemId = 'test';
-            const magazine:Magazine = new Magazine(
-                 catalogItemId,
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
-
-            Catalog['catalogItems'].set(magazine, []);
-        });
+        const magazine: Magazine = new Magazine(
+            'test',
+            'Popular Mechanics',
+            'Test Date',
+            123,
+            123,
+            'Test Pub',
+            'English',
+        );
 
         it('Returns a list of all catalog items', async () => {
+            Catalog.viewItems = jest.fn().mockReturnValueOnce([magazine]);
             const response = await supertest(server)
                 .get('/catalog')
                 .set('Authorization', `Bearer ${token}`)
@@ -138,32 +178,6 @@ describe('CatalogRouter', () => {
 
     describe('PUT /catalog/:catalogItemId/inventory', () => {
         const catalogItemId = 'test';
-
-        beforeAll(() => {
-            // jest.mock('uuid');
-            // (uuid.v4 as any).mockResolvedValue('hello');
-            jest.unmock('uuid/v4');
-            let v4 = require.requireActual('uuid/v4');
-            v4 = jest.fn();
-        });
-
-        beforeEach(() => {
-            const magazine:Magazine = new Magazine(
-                 catalogItemId,
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
-
-            Catalog['catalogItems'].set(magazine, []);
-        });
-
-        afterEach(() => {
-            Catalog['catalogItems'] = new Map();
-        });
 
         it('requires admin rights', async () => {
             await supertest(server)
@@ -184,40 +198,28 @@ describe('CatalogRouter', () => {
         });
 
         it('successfully adds an inventory item', async () => {
+            Catalog.addInventoryItem = jest.fn().mockReturnValueOnce(1);
             const response = await supertest(server)
             .put(`/catalog/${catalogItemId}/inventory`)
             .set('Authorization', `Bearer ${token}`)
             .send()
             .expect(200);
 
-            expect(response.body.id).toHaveLength(36);
+            expect(response.body.id).toEqual(1);
         });
     });
 
-    describe('DELETE /catalog/:id', () => {
-        beforeAll(() => {
-            const magazine:Magazine = new Magazine(
-                 '1',
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
-
-            Catalog['catalogItems'].set(magazine, []);
-        });
-
+    describe('DELETE /catalog/:type/:id', () => {
         it('requires admin rights', async () => {
             await supertest(server)
-                .delete('/catalog/1')
+                .delete('/catalog/magazine/1')
                 .expect(403);
         });
 
         it('throws an error if trying to delete a non-existing catalog item', async (done) => {
+            Catalog.deleteItem = jest.fn().mockReturnValueOnce(false);
             supertest(server)
-                .delete('/catalog/dne')
+                .delete('/catalog/magazine/dne')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -228,43 +230,26 @@ describe('CatalogRouter', () => {
         });
 
         it('successfully deletes a catalog item', async () => {
+            Catalog.deleteItem = jest.fn().mockReturnValueOnce(true);
             await supertest(server)
-                .delete('/catalog/1')
+                .delete('/catalog/magazine/1')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(200);
-
-            expect(Catalog['catalogItems'].size).toEqual(0);
         });
     });
 
-    describe('DELETE /catalog/:id/inventory', () => {
-        const magazine:Magazine = new Magazine(
-            '1',
-            'Popular Mechanics',
-            'Test Date',
-            123,
-            123,
-            'Test Pub',
-            'English',
-        );
-        const inventory = [
-            new InventoryItem('1', magazine, false),
-            new InventoryItem('2', magazine, true),
-        ];
-        beforeAll(() => {
-            Catalog['catalogItems'].set(magazine, inventory);
-        });
-
+    describe('DELETE /catalog/:type/:id/inventory', () => {
         it('requires admin rights', async () => {
             await supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .expect(403);
         });
 
         it('throws an error if trying to delete from a non-existing catalog item', async (done) => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(false);
             supertest(server)
-                .delete('/catalog/dne/inventory')
+                .delete('/catalog/magazine/dne/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -275,18 +260,18 @@ describe('CatalogRouter', () => {
         });
 
         it('deletes an available inventory item for a specific catalog item', async () => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(true);
             await supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(200);
-
-            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
         it('will not delete an unavailable inventory item', async (done) => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(false);
             supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -294,8 +279,6 @@ describe('CatalogRouter', () => {
                     if (err) return done(err);
                     done();
                 });
-
-            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
     });
