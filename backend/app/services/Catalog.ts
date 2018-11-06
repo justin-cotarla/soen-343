@@ -25,6 +25,25 @@ class Catalog {
         ];
     }
 
+    viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
+        let item: CatalogItem;
+        switch (type) {
+            case CatalogItemType.BOOK:
+                item = await BookTDG.find(id) as CatalogItem;
+                break;
+            case CatalogItemType.MUSIC:
+                item = await MusicTDG.find(id) as CatalogItem;
+                break;
+            case CatalogItemType.MAGAZINE:
+                item = await MagazineTDG.find(id) as CatalogItem;
+                break;
+            case CatalogItemType.MOVIE:
+                item = await MovieTDG.find(id) as CatalogItem;
+                break;
+        }
+        return item;
+    }
+
     updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {
         switch (type) {
         case CatalogItemType.BOOK:
