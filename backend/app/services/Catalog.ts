@@ -26,22 +26,20 @@ class Catalog {
     }
 
     viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
-        let item: CatalogItem;
         switch (type) {
             case CatalogItemType.BOOK:
-                item = await BookTDG.find(id) as CatalogItem;
-                break;
+                return BookTDG.find(id);
             case CatalogItemType.MUSIC:
-                item = await MusicTDG.find(id) as CatalogItem;
-                break;
+                return MusicTDG.find(id);
             case CatalogItemType.MAGAZINE:
-                item = await MagazineTDG.find(id) as CatalogItem;
-                break;
+                return MagazineTDG.find(id);
             case CatalogItemType.MOVIE:
-                item = await MovieTDG.find(id) as CatalogItem;
-                break;
+                return MovieTDG.find(id);
         }
-        return item;
+    }
+
+    viewInventoryItems = async(id: string) : Promise<InventoryItem[]> => {
+        return InventoryTDG.findAll(id);
     }
 
     updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {

@@ -97,8 +97,12 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const item = await Catalog.viewItem(catalogItemId, catalogItemType);
-        return res.status(200).json(item);
+        const item = await Catalog.viewItem(catalogItemId, catalogItemType.toUpperCase());
+        const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
+        return res.status(200).json({
+            catalogItem: item,
+            inventory: inventoryItems
+        });
     } catch (error) {
         console.log(error);
         return res.status(400).end();
