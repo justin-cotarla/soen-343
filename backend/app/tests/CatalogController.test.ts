@@ -12,7 +12,7 @@ import Catalog from '../services/Catalog';
 let token: string;
 beforeEach(async () => {
     process.env.JWT_KEY = 'test';
-    const profile: Administrator = new Administrator(
+    const user: Administrator = new Administrator(
         '1',
         'Test',
         'Test',
@@ -21,7 +21,7 @@ beforeEach(async () => {
         'Test',
         '12345',
         );
-    token = await generateToken({ profile, isAdmin: true });
+    token = await generateToken({ user, isAdmin: true });
     jest.clearAllMocks();
 });
 
@@ -38,7 +38,7 @@ describe('CatalogRouter', () => {
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .send({})
-                .expect(401)
+                .expect(400)
                 .end((err: any, res: any) => {
                     if (err) return done(err);
                     done();
@@ -62,7 +62,7 @@ describe('CatalogRouter', () => {
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .send(invalidRequest)
-                .expect(401)
+                .expect(400)
                 .end((err: any, res: any) => {
                     if (err) return done(err);
                     done();
@@ -108,7 +108,7 @@ describe('CatalogRouter', () => {
                 .send(bookRequest)
                 .expect(200);
 
-            expect(response.body.catalogItem).toBe(insertedItem);
+            expect(response.body.catalogItem).toEqual(insertedItem);
             expect(response.body.inventory.length).toEqual(1);
         });
 
@@ -176,12 +176,12 @@ describe('CatalogRouter', () => {
         });
     });
 
-    describe('PUT /catalog/:catalogItemId/inventory', () => {
+    describe('PUT /catalog/:type/:catalogItemId/inventory', () => {
         const catalogItemId = 'test';
 
         it('requires admin rights', async () => {
             await supertest(server)
-                .put(`/catalog/${catalogItemId}/inventory`)
+                .put(`/catalog/book/${catalogItemId}/inventory`)
                 .expect(403);
         });
 
@@ -200,7 +200,7 @@ describe('CatalogRouter', () => {
         it('successfully adds an inventory item', async () => {
             Catalog.addInventoryItem = jest.fn().mockReturnValueOnce(1);
             const response = await supertest(server)
-            .put(`/catalog/${catalogItemId}/inventory`)
+            .put(`/catalog/book/${catalogItemId}/inventory`)
             .set('Authorization', `Bearer ${token}`)
             .send()
             .expect(200);
