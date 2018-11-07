@@ -31,10 +31,7 @@ class CatalogItemPreview extends React.Component {
         return (
             <List.Item
                 as={Link} 
-                to={{
-                    pathname: `/catalog/${id}`,
-                    state: { item },
-                }}   
+                to={`/catalog/${catalogItemType}/${id}`} 
                 style={{ padding: '1em 0', color: 'inherit' }}>
                 <Icon size="big" name={icon}/>
                 <List.Content>

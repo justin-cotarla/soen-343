@@ -99,15 +99,20 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     try {
         const item = await Catalog.viewItem(catalogItemId, catalogItemType.toUpperCase());
         const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
+
+        if (!item) {
+            return res.status(404).end();
+        }
+
         return res.status(200).json({
             catalogItem: item,
-            inventory: inventoryItems
+            inventory: inventoryItems,
         });
     } catch (error) {
         console.log(error);
         return res.status(400).end();
     }
-})
+});
 
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {

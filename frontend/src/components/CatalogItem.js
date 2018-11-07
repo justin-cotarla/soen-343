@@ -1,25 +1,55 @@
 import React, { Component } from 'react';
-import { Card, Grid, Divider, Button, Input, Dropdown, Message, Icon, Modal } from 'semantic-ui-react';
+import { Card, Grid, Divider, Button, Input, Dropdown, Message, Icon, Modal, Placeholder, Header } from 'semantic-ui-react';
 
 import { isAdmin } from '../util/AuthUtil';
-import { editCatalogItem, deleteCatalogItem } from '../util/ApiUtil';
+import { getCatalogItem, editCatalogItem, deleteCatalogItem } from '../util/ApiUtil';
 
 class CatalogItem extends Component {
     constructor(props){
         super(props);
         this.state = { 
-            item: { 
+            item: props.item ? { 
                 ...props.item,
                 date: new Date(props.item.date).toLocaleDateString(), 
-            },
+            } : null,
+            inventory: null,
+            loading: true,
             editing: false,
             wasEdited: false,
             updating: false,
-            success: false,
-            updateError: false,
             modalOpen: false,
+            success: false,
+            fetchError: false,
+            fetchErrorMsg: '',
+            updateError: false,
             deleteError: false,
         };
+    }
+
+    async componentDidMount() {
+        const { match: { params: { id, type } } } = this.props;
+        try {
+            const { data: { catalogItem, inventory } } = await getCatalogItem(type, id);
+            this.setState({
+                item: { ...catalogItem, date: new Date(catalogItem.date).toLocaleDateString() },
+                inventory,
+                loading: false,
+            });
+        } catch (error) {
+            if (error.response.status === 404) {
+                this.setState({
+                    loading: false,
+                    fetchError: true,
+                    fetchErrorMsg: 'The requested item does not exist!'
+                });
+            } else {
+                this.setState({ 
+                    loading: false,
+                    fetchError: true,
+                    fetchError: 'There was an error fetching the item\'s information! Please try again.'
+                });
+            }
+        }
     }
 
     handleEditClick = () => {
@@ -42,7 +72,6 @@ class CatalogItem extends Component {
             const { item } = this.state;
             const { catalogItemType, id } = item;
             try {
-                throw Error();
                 await editCatalogItem(catalogItemType, id, item);
                 this.setState({ 
                     updating: false,
@@ -96,6 +125,8 @@ class CatalogItem extends Component {
     render() {
         const {
             item,
+            inventory,
+            loading,
             editing, 
             wasEdited,
             updating,
@@ -103,7 +134,70 @@ class CatalogItem extends Component {
             modalOpen,
             updateError,
             deleteError,
+            fetchError,
+            fetchErrorMsg,
         } = this.state;
+
+        if (loading) {
+            return  (
+                <Card>
+                    <Card.Content>
+                        <Placeholder>
+                            <Placeholder.Header>
+                                <Placeholder.Line length="medium"/>
+                            </Placeholder.Header>
+                        </Placeholder>
+                        <Icon 
+                            name="ellipsis horizontal" 
+                            size="large"
+                            style={{ position: 'absolute', right: '10px', top: '8px' }}/>
+                        <Divider/>
+                        <Placeholder>
+                            <Placeholder.Header>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                                <Placeholder.Line length="full"/>
+                            </Placeholder.Header>
+                        </Placeholder>
+                        <Divider/>
+                        <Placeholder>
+                            <Placeholder.Header>
+                                <Placeholder.Line length="long"/>
+                            </Placeholder.Header>
+                        </Placeholder>
+                        {
+                            isAdmin() && 
+                                <Button.Group fluid size="small" floated="right" style={{ marginTop: '1rem' }}>
+                                    <Button 
+                                        icon 
+                                        labelPosition="left"
+                                        color="teal"
+                                        disabled={true}>
+                                        <Icon name="plus"/>
+                                        Add
+                                    </Button>
+                                    <Button 
+                                        icon 
+                                        labelPosition="left"
+                                        disabled={true}>
+                                        <Icon name="minus"/>
+                                        Remove
+                                    </Button>
+                                </Button.Group>
+                        }
+                    </Card.Content>
+                </Card>
+            )
+        }
+
+        if (fetchError) {
+            return <Header style={{ marginTop: '1em' }}>{fetchErrorMsg}</Header>
+        }
+
         const { id, title } = item;
         return (
             <React.Fragment>
@@ -212,30 +306,39 @@ class CatalogItem extends Component {
                                     <strong>Inventory:</strong>
                                 </Grid.Column>
                                 <Grid.Column width={10} style={{ padding: '0.5rem 0 !important'}}>
-                                    # Available { isAdmin() && '(out of #)' }
+                                    {
+                                        inventory
+                                            .filter((item) => item.available === true).length
+                                    } Available (out of) 
+                                    { 
+                                        isAdmin() 
+                                        && ` ${inventory.length}` 
+                                    }
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
                         <Grid columns="1">
                             <Grid.Row style={{ paddingTop: 0 }}>
-                                {
-                                    isAdmin() && 
-                                    <Grid.Column width={16}>
-                                        <Button.Group fluid size="small" floated="right">
-                                            <Button 
-                                                icon 
-                                                labelPosition="left"
-                                                color="teal">
-                                                <Icon name="plus"/>
-                                                Add
-                                            </Button>
-                                            <Button icon labelPosition="left">
-                                                <Icon name="minus"/>
-                                                Remove
-                                            </Button>
-                                        </Button.Group>
-                                    </Grid.Column> 
-                                }
+                            {
+                                isAdmin() && 
+                                <Grid.Column width={16}>
+                                    <Button.Group fluid size="small" floated="right">
+                                        <Button 
+                                            icon 
+                                            labelPosition="left"
+                                            color="teal">
+                                            <Icon name="plus"/>
+                                            Add
+                                        </Button>
+                                        <Button 
+                                            icon 
+                                            labelPosition="left">
+                                            <Icon name="minus"/>
+                                            Remove
+                                        </Button>
+                                    </Button.Group>
+                                </Grid.Column> 
+                            }
                             </Grid.Row>
                         </Grid>         
                     </Card.Content>

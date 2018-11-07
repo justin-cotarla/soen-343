@@ -129,6 +129,15 @@ export const getCatalog = async () => {
     });
 }
 
+export const getCatalogItem = async (type, catalogItemId) => {
+    return await api.get(`/catalog/${type}/${catalogItemId}`, {
+        headers: { 
+            "Access-Control-Allow-Origin": "*",
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+}
+
 export const editCatalogItem = async (catalogItemType, id, catalogItem) => {
     const date = new Date(catalogItem.date);
     catalogItem.date = `${date.getFullYear()}-${(date.getMonth() + 1)}-${date.getDate()}`;

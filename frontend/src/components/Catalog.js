@@ -27,12 +27,8 @@ class Catalog extends React.Component {
         });
     }
 
-    renderCatalogItem = () => {
-        return (
-            <CatalogItem 
-                item={this.props.location.state.item} 
-                handlePostDelete={this.handlePostDelete}/>
-        );
+    renderCatalogItem = (props) => {
+        return <CatalogItem {...props} handlePostDelete={this.handlePostDelete}/>;
     }
     
     render() {
@@ -57,8 +53,10 @@ class Catalog extends React.Component {
                             }
                         </List>
                     </Grid.Column>
-                    <Grid.Column width={location.pathname.match(/^\/catalog\/\d+$/) ? 6 : null}>
-                            <Route path={`${match.path}/:id(\\d+)`} render={this.renderCatalogItem}/>
+                    <Grid.Column width={location.pathname.match(/^\/catalog\/(book|magazine|movie|music)\/\d+$/) ? 6 : null}>
+                            <Route 
+                                path={`${match.path}/:type(book|magazine|movie|music)/:id(\\d+)`} 
+                                render={this.renderCatalogItem}/>
                     </Grid.Column>
                 </Grid>
             </div>
