@@ -160,3 +160,23 @@ export const deleteCatalogItem = async (catalogItemType, id) => {
         },
     });
 }
+
+export const addInventoryItem = async (catalogItemType, id) => {
+    return await api({
+        method: 'put',
+        url: `/catalog/${catalogItemType}/${id}/inventory`,
+        headers: {
+            'Authorization': `Bearer ${token}` 
+        },
+    })
+}
+
+export const deleteInventoryItem = async (catalogItemType, id) => {
+    return await api({
+        method: 'delete',
+        url: `/catalog/${catalogItemType}/${id}/inventory`,
+        headers: {
+            'Authorization': `Bearer ${token}` 
+        },
+    })
+}

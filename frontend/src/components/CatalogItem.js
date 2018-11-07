@@ -1,28 +1,46 @@
 import React, { Component } from 'react';
-import { Card, Grid, Divider, Button, Input, Dropdown, Message, Icon, Modal, Placeholder, Header } from 'semantic-ui-react';
-
+import { 
+    Card, 
+    Grid,
+    Divider,
+    Button,
+    Input,
+    Dropdown, 
+    Message,
+    Icon,
+    Modal,
+    Placeholder,
+    Header
+} from 'semantic-ui-react';
+import { 
+    getCatalogItem,
+    editCatalogItem,
+    deleteCatalogItem,
+    addInventoryItem,
+    deleteInventoryItem
+} from '../util/ApiUtil';
 import { isAdmin } from '../util/AuthUtil';
-import { getCatalogItem, editCatalogItem, deleteCatalogItem } from '../util/ApiUtil';
 
 class CatalogItem extends Component {
     constructor(props){
         super(props);
         this.state = { 
-            item: props.item ? { 
-                ...props.item,
-                date: new Date(props.item.date).toLocaleDateString(), 
-            } : null,
+            modalOpen: false,
+            originalItem: null,
+            item: null,
             inventory: null,
             loading: true,
             editing: false,
             wasEdited: false,
             updating: false,
-            modalOpen: false,
-            success: false,
+            updatingInventory: false,
+            editSuccess: false,
+            inventorySucess: false,
             fetchError: false,
             fetchErrorMsg: '',
             updateError: false,
             deleteError: false,
+            inventoryError: false,
         };
     }
 
@@ -31,8 +49,19 @@ class CatalogItem extends Component {
         try {
             const { data: { catalogItem, inventory } } = await getCatalogItem(type, id);
             this.setState({
-                item: { ...catalogItem, date: new Date(catalogItem.date).toLocaleDateString() },
-                inventory,
+                originalItem: { 
+                    ...catalogItem, 
+                    date: new Date(catalogItem.date).toLocaleDateString() 
+                },
+                item: { 
+                    ...catalogItem, 
+                    date: new Date(catalogItem.date).toLocaleDateString() 
+                },
+                inventory: {
+                    items: inventory,
+                    available: inventory.filter((item) => item.available === 1).length,
+                    total: inventory.length,
+                },
                 loading: false,
             });
         } catch (error) {
@@ -46,7 +75,7 @@ class CatalogItem extends Component {
                 this.setState({ 
                     loading: false,
                     fetchError: true,
-                    fetchError: 'There was an error fetching the item\'s information! Please try again.'
+                    fetchErrorMsg: 'There was an error fetching the item\'s information! Please try again.'
                 });
             }
         }
@@ -67,12 +96,25 @@ class CatalogItem extends Component {
         });
     }
 
+    wasEdited = () => {;
+        const { item, originalItem } = this.state;
+        let wasEdited = false;
+        for (let key in item) {
+            if (originalItem[key] !== item[key]) {
+                wasEdited = true;
+                break;
+            }
+        }
+
+        return wasEdited;
+    }
+
     handleSave = () => {
         this.setState({ updating: true }, async () => {
             const { item } = this.state;
-            const { catalogItemType, id } = item;
+            const { match: { params: { id, type } } } = this.props;
             try {
-                await editCatalogItem(catalogItemType, id, item);
+                await editCatalogItem(type, id, item);
                 this.setState({ 
                     updating: false,
                     wasEdited: false,
@@ -107,19 +149,50 @@ class CatalogItem extends Component {
         })
     }
 
+    handleAddInventoryItem = () => {
+        this.handleInventoryAction('add');
+    }
 
-    wasEdited = () => {
-        const originalItem = this.props.item;
-        const { item } = this.state;
-        let wasEdited = false;
-        for (let key in item) {
-            if (originalItem[key] !== item[key]) {
-                wasEdited = true;
-                break;
+    handleDeleteInventoryItem = () => {
+        this.handleInventoryAction('delete');
+    }
+
+    handleInventoryAction = (action) => {
+        this.setState({ updating: true }, async () => {
+            try {
+                const { match: { params: { id, type } } } = this.props;
+
+                switch (action) {
+                case 'add': 
+                    await addInventoryItem(type, id);    
+                    break;
+                case 'delete':
+                    await deleteInventoryItem(type, id);
+                    break;
+                default:
+                }
+
+                const { data: { inventory } } = await getCatalogItem(type, id);
+                this.setState({
+                    updating: false,
+                    inventorySucess: true,
+                    inventory: {
+                        items: inventory,
+                        available: inventory.filter((item) => item.available === 1).length,
+                        total: inventory.length,
+                    },
+                })
+            } catch (error) {
+                this.setState({
+                    updating: false,
+                    inventoryError: true,
+                })
             }
-        }
+        });
+    }
 
-        return wasEdited;
+    handleMessageDismiss = () => {
+        this.setState({ inventorySucess: false });
     }
 
     render() {
@@ -130,17 +203,20 @@ class CatalogItem extends Component {
             editing, 
             wasEdited,
             updating,
-            success,
+            updatingInventory,
+            editSuccess,
+            inventorySucess,
             modalOpen,
             updateError,
             deleteError,
             fetchError,
             fetchErrorMsg,
+            inventoryError,
         } = this.state;
 
         if (loading) {
             return  (
-                <Card>
+                <Card fluid>
                     <Card.Content>
                         <Placeholder>
                             <Placeholder.Header>
@@ -273,7 +349,7 @@ class CatalogItem extends Component {
                             }
                         </Grid>
                         {
-                            editing && success &&
+                            editing && editSuccess &&
                             <Message
                                 success
                                 header="Edit successful!"
@@ -306,18 +382,32 @@ class CatalogItem extends Component {
                                     <strong>Inventory:</strong>
                                 </Grid.Column>
                                 <Grid.Column width={10} style={{ padding: '0.5rem 0 !important'}}>
-                                    {
-                                        inventory
-                                            .filter((item) => item.available === true).length
-                                    } Available (out of) 
-                                    { 
-                                        isAdmin() 
-                                        && ` ${inventory.length}` 
-                                    }
+                                { inventory.available } Available { isAdmin() && `(out of ${inventory.total})` }
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
                         <Grid columns="1">
+                            <Grid.Row style={{ paddingTop: 0 }}>
+                                <Grid.Column width={16}>
+                                {
+                                    inventorySucess &&
+                                    <Message 
+                                        success
+                                        header="Inventory update successful" 
+                                        content={`'${title}'s inventory was successfully updated.`}
+                                        style={{ textAlign: 'left' }}
+                                        onDismiss={this.handleMessageDismiss} />
+                                }
+                                {
+                                    inventoryError &&
+                                    <Message 
+                                        error={inventoryError}
+                                        header="Inventory update failed" 
+                                        content="There was an error updating the item's inventory. Please try again later."
+                                        style={{ textAlign: 'left' }} />
+                                }
+                                </Grid.Column>
+                            </Grid.Row>
                             <Grid.Row style={{ paddingTop: 0 }}>
                             {
                                 isAdmin() && 
@@ -326,13 +416,17 @@ class CatalogItem extends Component {
                                         <Button 
                                             icon 
                                             labelPosition="left"
-                                            color="teal">
+                                            color="teal"
+                                            disabled={updatingInventory}
+                                            onClick={this.handleAddInventoryItem}>
                                             <Icon name="plus"/>
                                             Add
                                         </Button>
                                         <Button 
                                             icon 
-                                            labelPosition="left">
+                                            labelPosition="left"
+                                            disabled={inventory.total === 0 || inventory.available === 0 || updatingInventory}
+                                            onClick={this.handleDeleteInventoryItem}>
                                             <Icon name="minus"/>
                                             Remove
                                         </Button>
