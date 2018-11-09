@@ -351,6 +351,7 @@ class CatalogItem extends Component {
                                                 {
                                                     editing ? 
                                                     <Input 
+                                                        style={{ backgroundColor: '#f4f4f4', borderRadius: '3px' }}
                                                         transparent
                                                         fluid
                                                         name={key} 
@@ -369,7 +370,6 @@ class CatalogItem extends Component {
                             <Button 
                                 fluid 
                                 color="teal"
-                                style={{ marginTop: '1em' }}
                                 loading={updating}
                                 disabled={!wasEdited || updating}
                                 onClick={this.handleSave}>
