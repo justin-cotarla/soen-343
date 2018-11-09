@@ -16,14 +16,32 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async (queryParam: string, order: string, direction: string)
+    viewItems = async (queryParam: string, order: string, direction: string, type?: CatalogItemType)
     : Promise<CatalogItem[]> => {
-        const items = [
-            ...(await BookTDG.findAll(queryParam)),
-            ...(await MagazineTDG.findAll(queryParam)),
-            ...(await MovieTDG.findAll(queryParam)),
-            ...(await MusicTDG.findAll(queryParam)),
-        ];
+        
+        let items: CatalogItem[];
+       
+        switch(type) {
+            case CatalogItemType.BOOK:
+                items = await BookTDG.findAll(queryParam);
+                break;
+            case CatalogItemType.MUSIC:
+                items = await MusicTDG.findAll(queryParam);
+                break;
+            case CatalogItemType.MAGAZINE:
+                items = await MagazineTDG.findAll(queryParam);
+                break;
+            case CatalogItemType.MOVIE:
+                items = await MovieTDG.findAll(queryParam);  
+                break;
+            default:
+                items = [
+                    ...(await BookTDG.findAll(queryParam)),
+                    ...(await MagazineTDG.findAll(queryParam)),
+                    ...(await MovieTDG.findAll(queryParam)),
+                    ...(await MusicTDG.findAll(queryParam)),
+                ];
+        }
 
         if (order === 'title' && direction === 'asc') {
             items.sort((a, b) => (a.title > b.title) ? 1 : ((b.title > a.title) ? -1 : 0));
