@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { invalidate } from './AuthUtil';
 
-const token = localStorage.getItem('Authorization');
 const api = axios.create({
     baseURL: `http://${process.env.REACT_APP_IP}/api/`,
 });
@@ -9,7 +8,7 @@ const api = axios.create({
 api.interceptors.response.use(async (response) => {
     return await response;
 }, async (error) => {
-    if(error.response.status === 401 || error.response.status === 401) {
+    if(error.response.status === 401 || error.response.status === 403) {
         invalidate();
     }
 
@@ -28,7 +27,7 @@ export const logout = async () => {
         method: 'post',
         url: '/users/logout',
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         }, 
     });
 }
@@ -47,7 +46,7 @@ export const register = async (firstName, lastName, email, address, phone, passw
             isAdmin,
         }, 
         headers: { 
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -61,7 +60,7 @@ export const createBook = async (catalogItem, quantity) => {
             quantity,
         },
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -75,7 +74,7 @@ export const createMagazine = async (catalogItem, quantity) => {
             quantity,
         },
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -89,7 +88,7 @@ export const createMovie = async (catalogItem, quantity) => {
             quantity,
         },
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -103,7 +102,7 @@ export const createMusic = async (catalogItem, quantity) => {
             quantity,
         },
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -113,7 +112,7 @@ export const getActiveUsers = async () => {
     return await api.get('/users?active=true', {
         headers: { 
             "Access-Control-Allow-Origin": "*",
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
         },
         responseType: 'json',
         crossorigin: true
@@ -124,7 +123,7 @@ export const getCatalog = async () => {
     return await api.get('/catalog', {
         headers: { 
             "Access-Control-Allow-Origin": "*",
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
         },
     });
 }
@@ -133,7 +132,7 @@ export const getCatalogItem = async (type, catalogItemId) => {
     return await api.get(`/catalog/${type}/${catalogItemId}`, {
         headers: { 
             "Access-Control-Allow-Origin": "*",
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
         },
     });
 }
@@ -146,7 +145,7 @@ export const editCatalogItem = async (catalogItemType, id, catalogItem) => {
         url: `/catalog/${catalogItemType}/${id}`,
         data: { catalogItem },
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -156,7 +155,7 @@ export const deleteCatalogItem = async (catalogItemType, id) => {
         method: 'delete',
         url: `/catalog/${catalogItemType}/${id}`,
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     });
 }
@@ -166,7 +165,7 @@ export const addInventoryItem = async (catalogItemType, id) => {
         method: 'put',
         url: `/catalog/${catalogItemType}/${id}/inventory`,
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     })
 }
@@ -176,7 +175,7 @@ export const deleteInventoryItem = async (catalogItemType, id) => {
         method: 'delete',
         url: `/catalog/${catalogItemType}/${id}/inventory`,
         headers: {
-            'Authorization': `Bearer ${token}` 
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     })
 }
