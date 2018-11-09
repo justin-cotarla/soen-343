@@ -1,7 +1,7 @@
 import 'jest';
 import UserService from '../services/UserService';
 import * as AuthUtil from '../utility/AuthUtil';
-import { Administrator, User } from '../models';
+import { Administrator, User, Client } from '../models';
 import { UserTDG } from '../persistence';
 
 const user: Administrator = {
@@ -21,7 +21,7 @@ beforeEach(async () => {
 describe('UserService', () => {
     describe('login', () => {
         const spy = jest.spyOn(AuthUtil, 'authenticate');
-        it('successfully logs in valid credentials', async () => {
+        it('successfully logs in with valid credentials', async () => {
             spy.mockReturnValueOnce(user);
 
             process.env.JWT_KEY = 'test';
@@ -70,7 +70,7 @@ describe('UserService', () => {
             expect(UserTDG.update).toHaveBeenCalledWith(loggedOutUser);
         });
 
-        it('null user passed into logout', async () => {
+        it('handles null user passed into logout', async () => {
             try {
                 await UserService.logout(null);
             } catch (err) {
@@ -82,7 +82,7 @@ describe('UserService', () => {
 
     describe('register', () => {
         const spy = jest.spyOn(AuthUtil, 'register');
-        it('successfully registers a new user', async () => {
+        it('successfully registers a new user (administrator)', async () => {
             const registeredUser = new Administrator(
                 '',
                 user.firstName,
@@ -104,6 +104,29 @@ describe('UserService', () => {
             );
             expect(result).toEqual(registeredUser);
             expect(result instanceof Administrator).toBeTruthy();
+        });
+        it('successfully registers a new user (client)', async () => {
+            const registeredUser = new Client(
+                '',
+                user.firstName,
+                user.lastName,
+                user.phone,
+                user.email,
+                user.address,
+                '',
+            );
+            spy.mockReturnValueOnce(registeredUser);
+            const result = await UserService.register(
+                user.firstName,
+                user.lastName,
+                user.address,
+                user.email,
+                user.phone,
+                'testpassword',
+                false,
+            );
+            expect(result).toEqual(registeredUser);
+            expect(result instanceof Client).toBeTruthy();
         });
 
         it('handles missing parameters for register', async () => {
