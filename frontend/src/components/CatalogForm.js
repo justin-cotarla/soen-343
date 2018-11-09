@@ -100,6 +100,7 @@ class CatalogForm extends React.Component {
                         date,
                         director,
                         producers,
+                        language,
                         actors,
                         subtitles,
                         dubbed,

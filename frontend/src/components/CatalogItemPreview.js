@@ -21,7 +21,7 @@ class CatalogItemPreview extends React.Component {
             icon = 'newspaper';
             break;
         case 'movie':
-            icon = 'video play'
+            icon = 'video'
             break;
         case 'music':
             icon = 'music'

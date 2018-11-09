@@ -344,7 +344,7 @@ class CatalogItem extends Component {
                                     return (
                                         <Grid.Row key={`item-${id}-${key}`} style={{ padding: '0.5rem 0'}}>
                                             <Grid.Column width={6}>
-                                                <strong>{key}:</strong>
+                                                <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong>
                                             </Grid.Column>
                                             <Grid.Column width={10}>
                                                 {
