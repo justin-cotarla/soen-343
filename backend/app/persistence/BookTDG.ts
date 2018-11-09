@@ -36,17 +36,58 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    async findAll(): Promise<Book[]> {
+    async findAll(queryParams: string[]): Promise<Book[]> {
         try {
+            if (queryParams.length === 0) {
+                const query = `
+                    SELECT
+                    *
+                    FROM
+                    CATALOG_ITEM
+                    JOIN BOOK
+                    ON ID = CATALOG_ITEM_ID
+                `;
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+
+                return data.rows.map((book: any) => new Book(
+                        book.ID,
+                        book.TITLE,
+                        book.DATE,
+                        book.ISBN_10,
+                        book.ISBN_13,
+                        book.AUTHOR,
+                        book.PUBLISHER,
+                        book.FORMAT,
+                        book.PAGES,
+                    ));
+            }
+
             const query = `
-            SELECT
-            *
-            FROM
-            CATALOG_ITEM
-            JOIN BOOK
-            ON ID = CATALOG_ITEM_ID
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN BOOK
+                ON ID = CATALOG_ITEM_ID
+                WHERE ISBN_10 LIKE '%?' OR
+                WHERE ISBN_12 LIKE '%?' OR
+                WHERE AUTHOR LIKE '%?' OR
+                WHERE PUBLISHER LIKE '%?' OR
+                WHERE FORMAT LIKE '%?' OR
+                WHERE PAGES LIKE '%?' OR
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const data = await DatabaseUtil.sendQuery(query, [
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+            ]);
             if (!data.rows.length) {
                 return [];
             }

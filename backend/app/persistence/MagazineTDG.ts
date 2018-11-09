@@ -34,17 +34,52 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    async findAll(): Promise<Magazine[]> {
+    async findAll(queryParams: string[]): Promise<Magazine[]> {
         try {
+            if (queryParams.length === 0) {
+                const query = `
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN MAGAZINE
+                ON ID = CATALOG_ITEM_ID
+                `;
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+
+                return data.rows.map((magazine: any) => new Magazine(
+                    magazine.ID,
+                    magazine.TITLE,
+                    magazine.DATE,
+                    magazine.ISBN_10,
+                    magazine.ISBN_13,
+                    magazine.PUBLISHER,
+                    magazine.LANGUAGE,
+                ));
+            }
+
             const query = `
-            SELECT
-            *
-            FROM
-            CATALOG_ITEM
-            JOIN MAGAZINE
-            ON ID = CATALOG_ITEM_ID
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN MAGAZINE
+                ON ID = CATALOG_ITEM_ID
+                WHERE ISBN_10 LIKE '%?%' OR
+                WHERE ISBN_12 LIKE '%?%' OR
+                WHERE PUBLISHER LIKE '%?%' OR
+                WHERE LANGUAGE LIKE '%?%' OR
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const data = await DatabaseUtil.sendQuery(query, [
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+            ]);
             if (!data.rows.length) {
                 return [];
             }
@@ -57,7 +92,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ISBN_13,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
-                ));
+            ));
         } catch (err) {
             console.log(err);
         }

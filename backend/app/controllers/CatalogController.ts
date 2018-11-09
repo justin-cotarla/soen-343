@@ -11,7 +11,7 @@ catalogController.get('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const items = await Catalog.viewItems();
+        const items = await Catalog.viewItems(req.queryParams, req.order, req.direction);
         return res.status(200).json(items.map(item => ({
             catalogItemType: item.constructor.name.toLowerCase(),
             ...item,

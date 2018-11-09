@@ -16,13 +16,50 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async () : Promise<CatalogItem[]> => {
-        return [
-            ...(await BookTDG.findAll()),
-            ...(await MagazineTDG.findAll()),
-            ...(await MovieTDG.findAll()),
-            ...(await MusicTDG.findAll()),
+    viewItems = async (query: string[], order: string, direction: string)
+    : Promise<CatalogItem[]> => {
+
+        let ord;
+        let direc;
+
+        switch (order){
+            case 'title':
+                ord = 0;
+            case 'date':
+                ord = 1;
+            default:
+                ord = -1;
+        }
+        switch (direction){
+            case 'asc':
+                direc = 0;
+            case 'desc':
+                direc = 1;
+            default:
+                direc = -1;
+        }
+
+        const items = [
+            ...(await BookTDG.findAll(query)),
+            ...(await MagazineTDG.findAll(query)),
+            ...(await MovieTDG.findAll(query)),
+            ...(await MusicTDG.findAll(query)),
         ];
+
+        if (ord === 0 && direc === 0) {
+            items.sort((a, b) => (a.title > b.title) ? 1 : ((b.title > a.title) ? -1 : 0));
+        }
+        if (ord === 1 && direc === 0) {
+            items.sort((a, b) => (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0));
+        }
+        if (ord === 0 && direc === 1) {
+            items.sort((a, b) => (a.title < b.title) ? 1 : ((b.title < a.title) ? -1 : 0));
+        }
+        if (ord === 1 && direc === 1) {
+            items.sort((a, b) => (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0));
+        }
+
+        return items;
     }
 
     viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {

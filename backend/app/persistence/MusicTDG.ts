@@ -34,17 +34,51 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    async findAll(): Promise<Music[]> {
+    async findAll(queryParams: string[]) : Promise<Music[]> {
         try {
+            if (queryParams.length === 0) {
+                const query = `
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN MUSIC
+                ON ID = CATALOG_ITEM_ID
+                `;
+
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+                return data.rows.map((music: any) => new Music(
+                    music.ID,
+                    music.TITLE,
+                    music.DATE,
+                    music.TYPE,
+                    music.ARTIST,
+                    music.LABEL,
+                    music.ASIN,
+                ));
+            }
+
             const query = `
             SELECT
             *
             FROM
             CATALOG_ITEM
             JOIN MUSIC
-            ON ID = CATALOG_ITEM_ID
+            ON ID = CATALOG_TTEM_ID
+            WHERE TYPE LIKE '%?%' OR
+            WHERE ARTIST LIKE '%?%' OR
+            WHERE LABEL LIKE '%?%' OR
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const data = await DatabaseUtil.sendQuery(query, [
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+                queryParams[0],
+            ]);
             if (!data.rows.length) {
                 return [];
             }
