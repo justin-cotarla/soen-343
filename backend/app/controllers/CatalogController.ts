@@ -6,9 +6,9 @@ import Catalog, { CatalogItemType } from '../services/Catalog';
 const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
-    // if (!req.user) {
-    //     return res.status(403).end();
-    // }
+    if (!req.user) {
+        return res.status(403).end();
+    }
 
     try {
         const items = await Catalog.viewItems(
@@ -25,9 +25,9 @@ catalogController.get('/', async (req: Request, res: Response) => {
 
 catalogController.put('/:type', async (req: Request, res: Response) => {
     // Must be an admin to create catalog items
-    /*if (!req.user || !(req.user instanceof Administrator)) {
+    if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
-    }*/
+    }
 
     const { type:catalogItemType } = req.params;
 
@@ -102,13 +102,13 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
         const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
         return res.status(200).json({
             catalogItem: item,
-            inventory: inventoryItems
+            inventory: inventoryItems,
         });
     } catch (error) {
         console.log(error);
         return res.status(400).end();
     }
-})
+});
 
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
