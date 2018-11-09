@@ -36,17 +36,58 @@ class BookTDG extends CatalogTDG{
         }
     }
 
-    async findAll(): Promise<Book[]> {
+    async findAll(queryParam: string): Promise<Book[]> {
         try {
+            if (!queryParam) {
+                const query = `
+                    SELECT
+                    *
+                    FROM
+                    CATALOG_ITEM
+                    JOIN BOOK
+                    ON ID = CATALOG_ITEM_ID
+                `;
+
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+
+                return data.rows.map((book: any) => new Book(
+                        book.ID,
+                        book.TITLE,
+                        book.DATE,
+                        book.ISBN_10,
+                        book.ISBN_13,
+                        book.AUTHOR,
+                        book.PUBLISHER,
+                        book.FORMAT,
+                        book.PAGES,
+                    ));
+            }
+
             const query = `
-            SELECT
-            *
-            FROM
-            CATALOG_ITEM
-            JOIN BOOK
-            ON ID = CATALOG_ITEM_ID
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN BOOK
+                ON ID = CATALOG_ITEM_ID
+                WHERE TITLE LIKE ? OR
+                    ISBN_10 LIKE ? OR
+                    ISBN_13 LIKE ? OR
+                    AUTHOR LIKE ? OR
+                    PUBLISHER LIKE ?
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const newQueryParam = `%${queryParam}%`;
+            const data = await DatabaseUtil.sendQuery(query, [
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+            ]);
             if (!data.rows.length) {
                 return [];
             }

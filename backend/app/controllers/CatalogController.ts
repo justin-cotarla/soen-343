@@ -11,7 +11,8 @@ catalogController.get('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const items = await Catalog.viewItems();
+        const items = await Catalog.viewItems(
+            req.query.query, req.query.order, req.query.direction);
         return res.status(200).json(items.map(item => ({
             catalogItemType: item.constructor.name.toLowerCase(),
             ...item,
@@ -101,13 +102,13 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
         const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
         return res.status(200).json({
             catalogItem: item,
-            inventory: inventoryItems
+            inventory: inventoryItems,
         });
     } catch (error) {
         console.log(error);
         return res.status(400).end();
     }
-})
+});
 
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {

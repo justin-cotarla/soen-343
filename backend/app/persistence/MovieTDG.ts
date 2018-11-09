@@ -37,8 +37,37 @@ class MovieTDG extends CatalogTDG{
         }
     }
 
-    async findAll(): Promise<Movie[]> {
+    async findAll(queryParam: string): Promise<Movie[]> {
         try {
+            if (!queryParam) {
+                const query = `
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN MOVIE
+                ON ID = CATALOG_ITEM_ID
+                `;
+
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+
+                return data.rows.map((movie: any) => new Movie(
+                    movie.ID,
+                    movie.TITLE,
+                    movie.DATE,
+                    movie.DIRECTOR,
+                    movie.PRODUCERS,
+                    movie.ACTORS,
+                    movie.LANGUAGE,
+                    movie.SUBTITLES,
+                    movie.DUBBED,
+                    movie.RUNTIME,
+                ));
+            }
+
             const query = `
             SELECT
             *
@@ -46,8 +75,19 @@ class MovieTDG extends CatalogTDG{
             CATALOG_ITEM
             JOIN MOVIE
             ON ID = CATALOG_ITEM_ID
+            WHERE TITLE LIKE ? OR
+                DIRECTOR LIKE ? OR
+                PRODUCERS LIKE ? OR
+                ACTORS LIKE ?
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const newQueryParam = `%${queryParam}%`;
+            const data = await DatabaseUtil.sendQuery(query, [
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+            ]);
             if (!data.rows.length) {
                 return [];
             }
