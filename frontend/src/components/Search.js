@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { Select, Button, Input } from 'semantic-ui-react';
 import { Redirect } from 'react-router-dom';
 
-import { getCatalog } from '../util/ApiUtil';
-
 class Search extends Component {
     
     state = {
@@ -16,15 +14,7 @@ class Search extends Component {
     handleChange = (e, { name, value }) => this.setState({ [name]: value });
 
     handleClick = async () => {
-        this.setState({ submitting: true }, async () => {
-            try {
-                const { query, type, order } = this.state;
-                console.log("Submitting: "+this.state.submitting);
-            } catch (error) {
-
-            }
-        });     
-        console.log("Input: "+this.state.query+" Order: "+this.state.order+" Submitting: "+this.state.submitting);
+        this.setState({ submitting: true });     
     }
     
     render(){
@@ -64,7 +54,7 @@ class Search extends Component {
                 name='type'
                 value={type}
                 options={types} 
-                placeholder='Book'
+                placeholder='Books'
                 required
                 onChange={this.handleChange} />
             <Select  
