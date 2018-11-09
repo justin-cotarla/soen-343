@@ -100,6 +100,11 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     try {
         const item = await Catalog.viewItem(catalogItemId, catalogItemType.toUpperCase());
         const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
+
+        if (!item) {
+            return res.status(404).end();
+        }
+
         return res.status(200).json({
             catalogItem: item,
             inventory: inventoryItems,
@@ -142,7 +147,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     }
 
     // Response body must have the new catalog item
-    const catalogItem = req.body;
+    const { catalogItem } = req.body;
     if (!catalogItem) {
         return res.status(400).end();
     }
@@ -160,8 +165,6 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
         director,
         producers,
         actors,
-        subtitles,
-        dubbed,
         runtime,
         type,
         artist,
@@ -171,13 +174,15 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
 
     catalogItem.id = catalogItemId;
 
-    // Must have proper attributes
+    // Must have proper (non-nullable) attributes
     if (
         !(title && date) || // Common
-        (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-        !(isbn10 && isbn13 && publisher && language) && // Magazine
-        !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
-        !(type && artist && label && asin)) // Music
+        (
+            !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+            !(isbn10 && isbn13 && publisher && language) && // Magazine
+            !(director && producers && actors && language && runtime) && // Movie
+            !(type && artist && label && asin)
+        ) // Music
     ) {
         return res.status(400).end();
     }

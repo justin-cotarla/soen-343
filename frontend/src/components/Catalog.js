@@ -1,8 +1,13 @@
 import React from 'react'
+import { Route } from 'react-router-dom';
 import { Grid, List, Header } from 'semantic-ui-react'
+
+import CatalogItem from '../components/CatalogItem';
 import CatalogItemPreview from "../components/CatalogItemPreview";
 
 import { getCatalog } from "../util/ApiUtil";
+
+import '../styles/Catalog.css';
 
 class Catalog extends React.Component {
     state = { catalog: null };
@@ -15,27 +20,48 @@ class Catalog extends React.Component {
 
         }
     }
+
+    handlePostDelete = (id) => {
+        this.setState(({ catalog }) => ({
+            catalog: catalog.filter(item => item.id !== id)
+        }), () => {
+            this.props.history.push('/catalog');
+        });
+    }
+
+    renderCatalogItem = (props) => {
+        return <CatalogItem {...props} handlePostDelete={this.handlePostDelete}/>;
+    }
     
     render() {
+        const { match, location } = this.props;
+        const { catalog } = this.state;
         return (
-            <div style={{ display: 'inline-block', width: '100%', margin: 'auto' }}>
-                <Grid textAlign='center' style={{ margin: '3em 1em' }} >
-                    <Grid.Column>
-                        <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
-                            Catalog
-                        </Header>
-                        <List style={{ width: '80%', margin: '0 auto' }} celled>
+            <div style={{
+                display: 'inline-block',
+                width: '100%',
+                marginTop: '4em',
+                padding: '0 1em' }}>
+                <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
+                    Catalog
+                </Header>
+                <Grid textAlign='center' stackable>
+                    <Grid.Column width={location.pathname.match(/^\/catalog\/?$/) ? 16 : 10} floated="left">
+                        <List 
+                            className="catalog-list"
+                            style={{ margin: '0 auto', overflowY: 'auto' }} 
+                            celled>
                             {
-                                this.state.catalog && this.state.catalog.map((data, index) => {
-                                    const catalogItem = data;
-                                    return <CatalogItemPreview 
-                                                key={index} 
-                                                title={catalogItem.title} 
-                                                date={catalogItem.date}
-                                                author={catalogItem.author}/>
+                                catalog && catalog.map((catalogItem) => {
+                                    return  <CatalogItemPreview key={catalogItem.id} item={catalogItem}/>
                                 })
                             }
                         </List>
+                    </Grid.Column>
+                    <Grid.Column width={location.pathname.match(/^\/catalog\/(book|magazine|movie|music)\/\d+$/) ? 6 : null}>
+                            <Route 
+                                path={`${match.path}/:type(book|magazine|movie|music)/:id(\\d+)`} 
+                                render={this.renderCatalogItem}/>
                     </Grid.Column>
                 </Grid>
             </div>
