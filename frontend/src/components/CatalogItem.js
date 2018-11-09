@@ -6,7 +6,6 @@ import {
     Button,
     Input,
     Dropdown, 
-    Message,
     Icon,
     Modal,
     Placeholder,
@@ -149,7 +148,7 @@ class CatalogItem extends Component {
             const { item: { id, title } } = this.state;
             const { match: { params: { type } }, toastManager } = this.props;
             try {
-                await deleteCatalogItem(type, id);type
+                await deleteCatalogItem(type, id);
                 this.props.handlePostDelete(id);
                 toastManager.add(`'${title}' was successfully deleted from the catalog.`, { 
                     appearance: 'success',
