@@ -1,0 +1,11 @@
+@media only screen and (max-width: 767px) {
+    .catalog-list {
+        max-height: 25vh;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .catalog-list {
+        max-height: 700px;
+    }
+}

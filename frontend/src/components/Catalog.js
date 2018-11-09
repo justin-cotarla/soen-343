@@ -7,6 +7,8 @@ import CatalogItemPreview from "../components/CatalogItemPreview";
 
 import { getCatalog } from "../util/ApiUtil";
 
+import '../styles/Catalog.css';
+
 class Catalog extends React.Component {
     state = { catalog: null };
 
@@ -35,7 +37,7 @@ class Catalog extends React.Component {
         const { match, location } = this.props;
         const { catalog } = this.state;
         return (
-            <div style={{ 
+            <div style={{
                 display: 'inline-block',
                 width: '100%',
                 marginTop: '4em',
@@ -45,7 +47,10 @@ class Catalog extends React.Component {
                 </Header>
                 <Grid textAlign='center' stackable>
                     <Grid.Column width={location.pathname.match(/^\/catalog\/?$/) ? 16 : 10} floated="left">
-                        <List style={{ margin: '0 auto' }} celled>
+                        <List 
+                            className="catalog-list"
+                            style={{ margin: '0 auto', overflowY: 'auto' }} 
+                            celled>
                             {
                                 catalog && catalog.map((catalogItem) => {
                                     return  <CatalogItemPreview key={catalogItem.id} item={catalogItem}/>

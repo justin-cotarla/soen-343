@@ -12,6 +12,7 @@ import {
     Placeholder,
     Header
 } from 'semantic-ui-react';
+import { withToastManager } from 'react-toast-notifications';
 import { 
     getCatalogItem,
     editCatalogItem,
@@ -34,18 +35,24 @@ class CatalogItem extends Component {
             wasEdited: false,
             updating: false,
             updatingInventory: false,
-            editSuccess: false,
-            inventorySucess: false,
             fetchError: false,
             fetchErrorMsg: '',
-            updateError: false,
-            deleteError: false,
-            inventoryError: false,
         };
     }
 
     async componentDidMount() {
         const { match: { params: { id, type } } } = this.props;
+        await this.getCatalogItem(type, id);
+    }
+
+    componentDidUpdate = async (prevProps) => {
+        const { match: { params: { id, type } } } = this.props;
+        if (id !== prevProps.match.params.id) {
+            this.getCatalogItem(type, id);
+        }
+    }
+
+    getCatalogItem = async (type, id) => {
         try {
             const { data: { catalogItem, inventory } } = await getCatalogItem(type, id);
             this.setState({
@@ -82,10 +89,7 @@ class CatalogItem extends Component {
     }
 
     handleEditClick = () => {
-        this.setState(({ editing }) => ({
-            editing: !editing,
-            updateError: false,
-        }));
+        this.setState(({ editing }) => ({ editing: !editing }));
     }
 
     handleItemEdit = (e, {name, value }) => {
@@ -112,38 +116,54 @@ class CatalogItem extends Component {
     handleSave = () => {
         this.setState({ updating: true }, async () => {
             const { item } = this.state;
-            const { match: { params: { id, type } } } = this.props;
+            const { match: { params: { id, type } }, toastManager } = this.props;
             try {
                 await editCatalogItem(type, id, item);
                 this.setState({ 
                     updating: false,
+                    editing: false,
                     wasEdited: false,
-                    success: true,
-                })
+                }, () => {
+                    toastManager.add(`'${item.title}' was successfully updated with the new information.`, { 
+                        appearance: 'success',
+                        autoDismiss: true,
+                    });
+                });
             } catch (error) {
-                this.setState({
-                    updating: false, 
-                    updateError: true 
+                this.setState({ updating: false }, () => {
+                    toastManager.add(`There was an error updating the information for '${item.title}'. Please try again later.`, { 
+                        appearance: 'error',
+                        autoDismiss: true,
+                    });
                 });
             }
         })
     }
 
     handleModalOpen = () => this.setState({ modalOpen: true });
-    handleCancelDelete = () => this.setState({ modalOpen: false, deleteError: false });
+    handleCancelDelete = () => this.setState({ modalOpen: false });
     handleDeleteConfirmation = () => this.handleDelete();
     
     handleDelete = () => {
         this.setState({ updating: true }, async () => {
-            const { item } = this.state;
-            const { catalogItemType, id } = item;
+            const { item: { id, title } } = this.state;
+            const { match: { params: { type } }, toastManager } = this.props;
             try {
-                await deleteCatalogItem(catalogItemType, id);
-                this.props.handlePostDelete(this.state.item.id);
+                await deleteCatalogItem(type, id);type
+                this.props.handlePostDelete(id);
+                toastManager.add(`'${title}' was successfully deleted from the catalog.`, { 
+                    appearance: 'success',
+                    autoDismiss: true,
+                });
             } catch (error) {
-                this.setState({
-                    updating: false, 
-                    deleteError: true 
+                this.setState({ 
+                    updating: false,
+                    modalOpen: false,
+                }, () => {
+                    toastManager.add('There was an error deleting the catalog item. Please try again later.', { 
+                        appearance: 'error',
+                        autoDismiss: true,
+                    });
                 });
             }
         })
@@ -159,9 +179,9 @@ class CatalogItem extends Component {
 
     handleInventoryAction = (action) => {
         this.setState({ updating: true }, async () => {
+            const { item: { title } } = this.state;
+            const { match: { params: { id, type } }, toastManager } = this.props;
             try {
-                const { match: { params: { id, type } } } = this.props;
-
                 switch (action) {
                 case 'add': 
                     await addInventoryItem(type, id);    
@@ -175,24 +195,26 @@ class CatalogItem extends Component {
                 const { data: { inventory } } = await getCatalogItem(type, id);
                 this.setState({
                     updating: false,
-                    inventorySucess: true,
                     inventory: {
                         items: inventory,
                         available: inventory.filter((item) => item.available === 1).length,
                         total: inventory.length,
                     },
-                })
+                }, () => {
+                    toastManager.add(`'${title}'s inventory was successfully updated.`, { 
+                        appearance: 'success',
+                        autoDismiss: true,
+                    });
+                });
             } catch (error) {
-                this.setState({
-                    updating: false,
-                    inventoryError: true,
-                })
+                this.setState({ updating: false }, () => {
+                    toastManager.add(`There was an error updating the inventory for '${title}'. Please try again later.`, { 
+                        appearance: 'error',
+                        autoDismiss: true, 
+                    });
+                });
             }
         });
-    }
-
-    handleMessageDismiss = () => {
-        this.setState({ inventorySucess: false });
     }
 
     render() {
@@ -204,14 +226,9 @@ class CatalogItem extends Component {
             wasEdited,
             updating,
             updatingInventory,
-            editSuccess,
-            inventorySucess,
             modalOpen,
-            updateError,
-            deleteError,
             fetchError,
             fetchErrorMsg,
-            inventoryError,
         } = this.state;
 
         if (loading) {
@@ -281,7 +298,6 @@ class CatalogItem extends Component {
                     itemName={title}
                     open={modalOpen} 
                     deleting={updating}
-                    error={deleteError}
                     handleCancelDelete={this.handleCancelDelete} 
                     handleDeleteConfirmation={this.handleDeleteConfirmation}/>
                 <Card fluid>
@@ -349,21 +365,6 @@ class CatalogItem extends Component {
                             }
                         </Grid>
                         {
-                            editing && editSuccess &&
-                            <Message
-                                success
-                                header="Edit successful!"
-                                content={`'${title}' was successfully updated with the new information.`}/>
-                        }
-                        {
-                            editing && updateError &&
-                            <Message 
-                                error={updateError}
-                                header="Edit failed" 
-                                content="There was an error updating the catalog item. Please try again later."
-                                style={{ textAlign: 'left' }} />
-                        }
-                        {
                             editing && 
                             <Button 
                                 fluid 
@@ -387,27 +388,6 @@ class CatalogItem extends Component {
                             </Grid.Row>
                         </Grid>
                         <Grid columns="1">
-                            <Grid.Row style={{ paddingTop: 0 }}>
-                                <Grid.Column width={16}>
-                                {
-                                    inventorySucess &&
-                                    <Message 
-                                        success
-                                        header="Inventory update successful" 
-                                        content={`'${title}'s inventory was successfully updated.`}
-                                        style={{ textAlign: 'left' }}
-                                        onDismiss={this.handleMessageDismiss} />
-                                }
-                                {
-                                    inventoryError &&
-                                    <Message 
-                                        error={inventoryError}
-                                        header="Inventory update failed" 
-                                        content="There was an error updating the item's inventory. Please try again later."
-                                        style={{ textAlign: 'left' }} />
-                                }
-                                </Grid.Column>
-                            </Grid.Row>
                             <Grid.Row style={{ paddingTop: 0 }}>
                             {
                                 isAdmin() && 
@@ -442,7 +422,7 @@ class CatalogItem extends Component {
     }
 }
 
-export default CatalogItem;
+export default withToastManager(CatalogItem);
 
 const DeleteModal = (props) => {
     return (
@@ -457,14 +437,6 @@ const DeleteModal = (props) => {
                 <p>
                     Are you sure you want to delete <strong>{props.itemName}</strong> from the catalog?
                 </p>
-                {
-                    props.error && 
-                    <Message 
-                        error={props.error}
-                        header="Delete failed" 
-                        content="There was an error deleting the catalog item. Please try again later."
-                        style={{ textAlign: 'left' }} />
-                }
             </Modal.Content>
             <Modal.Actions>
                 <Button 
