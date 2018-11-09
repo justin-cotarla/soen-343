@@ -6,6 +6,7 @@ import Catalog, { CatalogItemType } from '../services/Catalog';
 const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
+    
     if (!req.user) {
         return res.status(403).end();
     }
@@ -18,6 +19,31 @@ catalogController.get('/', async (req: Request, res: Response) => {
             ...item,
         })));
     } catch (error) {
+        console.log(error);
+        return res.status(400).end();
+    }
+});
+
+catalogController.get('/:type', async (req: Request, res: Response) => {
+    if(!req.user){
+        return res.status(403).end();
+    }
+
+    //  Get the catalog item type
+    const { type:catalogItemType } = req.params;
+
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
+        return res.status(400).end();
+    }
+
+    try {
+        const items = await Catalog.viewItems(req.query.query, req.query.order, req.query.direction, catalogItemType.toUpperCase());
+        return res.status(200).json(items.map(item => ({
+            catalogItemType: item.constructor.name.toLowerCase(),
+            ...item,
+        })));
+    } catch(error) {
         console.log(error);
         return res.status(400).end();
     }
