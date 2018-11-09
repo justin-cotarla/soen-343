@@ -34,9 +34,9 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    async findAll(queryParams: string[]) : Promise<Music[]> {
+    async findAll(queryParam: string) : Promise<Music[]> {
         try {
-            if (queryParams.length === 0) {
+            if (queryParam.length === 0) {
                 const query = `
                 SELECT
                 *
@@ -50,6 +50,7 @@ class MusicTDG extends CatalogTDG{
                 if (!data.rows.length) {
                     return [];
                 }
+
                 return data.rows.map((music: any) => new Music(
                     music.ID,
                     music.TITLE,
@@ -74,10 +75,10 @@ class MusicTDG extends CatalogTDG{
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [
-                queryParams[0],
-                queryParams[0],
-                queryParams[0],
-                queryParams[0],
+                queryParam,
+                queryParam,
+                queryParam,
+                queryParam,
             ]);
             if (!data.rows.length) {
                 return [];

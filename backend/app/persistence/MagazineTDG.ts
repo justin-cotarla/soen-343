@@ -34,9 +34,9 @@ class MagazineTDG extends CatalogTDG {
         }
     }
 
-    async findAll(queryParams: string[]): Promise<Magazine[]> {
+    async findAll(queryParam: string): Promise<Magazine[]> {
         try {
-            if (queryParams.length === 0) {
+            if (queryParam.length === 0) {
                 const query = `
                 SELECT
                 *
@@ -45,6 +45,7 @@ class MagazineTDG extends CatalogTDG {
                 JOIN MAGAZINE
                 ON ID = CATALOG_ITEM_ID
                 `;
+
                 const data = await DatabaseUtil.sendQuery(query);
                 if (!data.rows.length) {
                     return [];
@@ -75,10 +76,10 @@ class MagazineTDG extends CatalogTDG {
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [
-                queryParams[0],
-                queryParams[0],
-                queryParams[0],
-                queryParams[0],
+                queryParam,
+                queryParam,
+                queryParam,
+                queryParam,
             ]);
             if (!data.rows.length) {
                 return [];

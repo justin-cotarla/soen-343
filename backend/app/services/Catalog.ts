@@ -16,46 +16,25 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async (query: string[], order: string, direction: string)
+    viewItems = async (queryParam: string, order: string, direction: string)
     : Promise<CatalogItem[]> => {
-
-        let ord;
-        let direc;
-
-        switch (order){
-            case 'title':
-                ord = 0;
-            case 'date':
-                ord = 1;
-            default:
-                ord = -1;
-        }
-        switch (direction){
-            case 'asc':
-                direc = 0;
-            case 'desc':
-                direc = 1;
-            default:
-                direc = -1;
-        }
-
         const items = [
-            ...(await BookTDG.findAll(query)),
-            ...(await MagazineTDG.findAll(query)),
-            ...(await MovieTDG.findAll(query)),
-            ...(await MusicTDG.findAll(query)),
+            ...(await BookTDG.findAll(queryParam)),
+            ...(await MagazineTDG.findAll(queryParam)),
+            ...(await MovieTDG.findAll(queryParam)),
+            ...(await MusicTDG.findAll(queryParam)),
         ];
 
-        if (ord === 0 && direc === 0) {
+        if (order === 'title' && direction === 'asc') {
             items.sort((a, b) => (a.title > b.title) ? 1 : ((b.title > a.title) ? -1 : 0));
         }
-        if (ord === 1 && direc === 0) {
+        if (order === 'date' && direction === 'asc') {
             items.sort((a, b) => (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0));
         }
-        if (ord === 0 && direc === 1) {
+        if (order === 'title' && direction === 'desc') {
             items.sort((a, b) => (a.title < b.title) ? 1 : ((b.title < a.title) ? -1 : 0));
         }
-        if (ord === 1 && direc === 1) {
+        if (order === 'date' && direction === 'desc') {
             items.sort((a, b) => (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0));
         }
 
@@ -64,14 +43,14 @@ class Catalog {
 
     viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
         switch (type) {
-            case CatalogItemType.BOOK:
-                return BookTDG.find(id);
-            case CatalogItemType.MUSIC:
-                return MusicTDG.find(id);
-            case CatalogItemType.MAGAZINE:
-                return MagazineTDG.find(id);
-            case CatalogItemType.MOVIE:
-                return MovieTDG.find(id);
+        case CatalogItemType.BOOK:
+            return BookTDG.find(id);
+        case CatalogItemType.MUSIC:
+            return MusicTDG.find(id);
+        case CatalogItemType.MAGAZINE:
+            return MagazineTDG.find(id);
+        case CatalogItemType.MOVIE:
+            return MovieTDG.find(id);
         }
     }
 
