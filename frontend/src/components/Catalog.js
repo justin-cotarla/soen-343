@@ -1,6 +1,7 @@
 import React from 'react'
 import { Grid, List, Header } from 'semantic-ui-react'
 import CatalogItemPreview from "../components/CatalogItemPreview";
+import queryString from 'query-string';
 
 import { getCatalog } from "../util/ApiUtil";
 
@@ -9,7 +10,9 @@ class Catalog extends React.Component {
 
     componentDidMount = async () => {
         try {
-            const { data } = await getCatalog();
+            console.log(this.props);
+            const { type, query, order, direction }= queryString.parse(this.props.location.search);
+            const { data } = await getCatalog(type, query, order, direction);
             this.setState({ catalog: data });
         } catch (error) {
 

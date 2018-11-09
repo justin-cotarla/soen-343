@@ -19,12 +19,9 @@ class Search extends Component {
         this.setState({ submitting: true }, async () => {
             try {
                 const { query, type, order } = this.state;
-                const { data } = await getCatalog(type, query, order, 'asc');
+                console.log("Submitting: "+this.state.submitting);
             } catch (error) {
 
-            }
-            if (this.state.submitting) {
-                
             }
         });     
         console.log("Input: "+this.state.query+" Order: "+this.state.order+" Submitting: "+this.state.submitting);
@@ -39,9 +36,17 @@ class Search extends Component {
         const types = [
             { key: 'book', text: 'Books', value: 'book' },
             { key: 'movie', text: 'Movies', value: 'movie' },
-            { key: 'music', text: 'Musics', value: 'music' },
+            { key: 'music', text: 'Music', value: 'music' },
             { key: 'magazine', text: 'Magazines', value: 'magazine' },
         ];
+
+        if (submitting) {
+            const { query, type, order } = this.state;
+            return <Redirect to={{
+                pathname: '/catalog',
+                search: `?query=${query}&type=${type}&order=${order}&direction=asc`,
+            }} />
+        }
 
         return(
             <div style={{ padding: '25%'}}>
