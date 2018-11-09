@@ -36,7 +36,7 @@ class MusicTDG extends CatalogTDG{
 
     async findAll(queryParam: string) : Promise<Music[]> {
         try {
-            if (queryParam.length === 0) {
+            if (!queryParam) {
                 const query = `
                 SELECT
                 *
@@ -68,17 +68,21 @@ class MusicTDG extends CatalogTDG{
             FROM
             CATALOG_ITEM
             JOIN MUSIC
-            ON ID = CATALOG_TTEM_ID
-            WHERE TYPE LIKE '%?%' OR
-            WHERE ARTIST LIKE '%?%' OR
-            WHERE LABEL LIKE '%?%' OR
+            ON ID = CATALOG_ITEM_ID
+            WHERE TITLE LIKE ? OR
+                TYPE LIKE ? OR
+                ARTIST LIKE ? OR
+                LABEL LIKE ? OR
+                ASIN LIKE ?
             `;
 
+            const newQueryParam = `%${queryParam}%`;
             const data = await DatabaseUtil.sendQuery(query, [
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
             ]);
             if (!data.rows.length) {
                 return [];

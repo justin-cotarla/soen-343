@@ -6,13 +6,13 @@ import Catalog, { CatalogItemType } from '../services/Catalog';
 const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(403).end();
-    }
+    // if (!req.user) {
+    //     return res.status(403).end();
+    // }
 
     try {
         const items = await Catalog.viewItems(
-            req.query.queryParam, req.query.order, req.query.direction);
+            req.query.query, req.query.order, req.query.direction);
         return res.status(200).json(items.map(item => ({
             catalogItemType: item.constructor.name.toLowerCase(),
             ...item,
@@ -25,9 +25,9 @@ catalogController.get('/', async (req: Request, res: Response) => {
 
 catalogController.put('/:type', async (req: Request, res: Response) => {
     // Must be an admin to create catalog items
-    if (!req.user || !(req.user instanceof Administrator)) {
+    /*if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
-    }
+    }*/
 
     const { type:catalogItemType } = req.params;
 

@@ -39,7 +39,7 @@ class MovieTDG extends CatalogTDG{
 
     async findAll(queryParam: string): Promise<Movie[]> {
         try {
-            if (queryParam.length === 0) {
+            if (!queryParam) {
                 const query = `
                 SELECT
                 *
@@ -75,23 +75,18 @@ class MovieTDG extends CatalogTDG{
             CATALOG_ITEM
             JOIN MOVIE
             ON ID = CATALOG_ITEM_ID
-            WHERE DIRECTOR LIKE '%?%' OR
-            WHERE PRODUCERS LIKE '%?%' OR
-            WHERE ACTORS LIKE '%?%' OR
-            WHERE LANGUAGE LIKE '%?%' OR
-            WHERE SUBTITLES LIKE '%?%' OR
-            WHERE DUBBED LIKE '%?%' OR
-            WHERE RUNTIME LIKE '%?%'
+            WHERE TITLE LIKE ? OR
+                DIRECTOR LIKE ? OR
+                PRODUCERS LIKE ? OR
+                ACTORS LIKE ?
             `;
 
+            const newQueryParam = `%${queryParam}%`;
             const data = await DatabaseUtil.sendQuery(query, [
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
             ]);
             if (!data.rows.length) {
                 return [];

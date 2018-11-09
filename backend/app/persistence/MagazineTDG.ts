@@ -36,7 +36,7 @@ class MagazineTDG extends CatalogTDG {
 
     async findAll(queryParam: string): Promise<Magazine[]> {
         try {
-            if (queryParam.length === 0) {
+            if (!queryParam) {
                 const query = `
                 SELECT
                 *
@@ -69,17 +69,18 @@ class MagazineTDG extends CatalogTDG {
                 CATALOG_ITEM
                 JOIN MAGAZINE
                 ON ID = CATALOG_ITEM_ID
-                WHERE ISBN_10 LIKE '%?%' OR
-                WHERE ISBN_12 LIKE '%?%' OR
-                WHERE PUBLISHER LIKE '%?%' OR
-                WHERE LANGUAGE LIKE '%?%' OR
+                WHERE TITLE LIKE ? OR
+                    ISBN_10 LIKE ? OR
+                    ISBN_13 LIKE ? OR
+                    PUBLISHER LIKE ?
             `;
 
+            const newQueryParam = `%${queryParam}%`;
             const data = await DatabaseUtil.sendQuery(query, [
-                queryParam,
-                queryParam,
-                queryParam,
-                queryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
             ]);
             if (!data.rows.length) {
                 return [];
