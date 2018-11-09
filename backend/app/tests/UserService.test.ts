@@ -27,7 +27,6 @@ describe('UserService', () => {
             process.env.JWT_KEY = 'test';
             const token = await UserService.login(user.email, 'testpassword');
 
-            expect(spy).toHaveBeenCalled();
             expect(token.length).toBeGreaterThan(0);
         });
 
@@ -38,7 +37,6 @@ describe('UserService', () => {
             try {
                 const token = await UserService.login('', 'testpassword');
             } catch (err) {
-                expect(spy).toBeCalledWith('', 'testpassword');
                 expect(err).toEqual(new Error('User does not exist'));
             }
         });
@@ -50,7 +48,6 @@ describe('UserService', () => {
             try {
                 const token = await UserService.login(user.email, '');
             } catch (err) {
-                expect(spy).toBeCalledWith(user.email, '');
                 expect(err).toEqual(new Error('Incorrect email or password'));
             }
         });
@@ -106,7 +103,6 @@ describe('UserService', () => {
                 true,
             );
             expect(result).toEqual(registeredUser);
-            expect(spy).toBeCalledWith(registeredUser, 'testpassword');
             expect(result instanceof Administrator).toBeTruthy();
         });
 
@@ -124,7 +120,6 @@ describe('UserService', () => {
             } catch (err) {
                 expect(err).toEqual(new Error('Invalid parameters'));
             }
-            expect(spy).not.toBeCalled();
         });
     });
 
