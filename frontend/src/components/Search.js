@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Select, Button, Input } from 'semantic-ui-react';
+import { Select, Button, Input, Grid, Header } from 'semantic-ui-react';
 import { Redirect } from 'react-router-dom';
 
 class Search extends Component {
@@ -33,47 +33,58 @@ class Search extends Component {
         if (submitting) {
             const { query, type, order } = this.state;
             return <Redirect to={{
-                pathname: '/catalog',
-                search: `?query=${query}&type=${type}&order=${order}&direction=asc`,
+                pathname: `/catalog/${type}`,
+                search: `?query=${query}&order=${order}&direction=asc`,
             }} />
         }
 
         return(
-            <div style={{ padding: '25%'}}>
-            <Input 
-                fluid
-                name='query'
-                value={query}
-                type='text' 
-                placeholder='Search...' 
-                onChange={this.handleChange}
-                required
-                action>
-            <input />
-            <Select  
-                name='type'
-                value={type}
-                options={types} 
-                placeholder='Books'
-                required
-                onChange={this.handleChange} />
-            <Select  
-                name='order'
-                value={order}
-                options={options} 
-                placeholder='Title'
-                required
-                compact
-                onChange={this.handleChange} />
-            <Button 
-                type='submit'
-                loading={submitting}
-                disabled={submitting}
-                onClick={this.handleClick}>
-                Search
-            </Button>
-            </Input>
-            </div>
+            <Grid style={{ height: '100%' }}>
+                <Grid.Column verticalAlign="middle" textAlign="center">
+                    <Header 
+                        size="large" 
+                        textAlign="left" 
+                        color="teal" 
+                        style={{ width: '80%', margin: '0.5em auto'}}>
+                        Looking for something?
+                    </Header>
+                    <Input 
+                        fluid
+                        name='query'
+                        value={query}
+                        type='text' 
+                        placeholder='Search...' 
+                        onChange={this.handleChange}
+                        required
+                        action
+                        style={{ width: '80%', margin: '0 auto'}}>
+                        <input />
+                        <Select  
+                            name='type'
+                            value={type}
+                            options={types} 
+                            placeholder='Books'
+                            required
+                            onChange={this.handleChange} 
+                            style={{ minWidth: '110px'}}/>
+                        <Select  
+                            name='order'
+                            value={order}
+                            options={options} 
+                            placeholder='Title'
+                            required
+                            compact
+                            onChange={this.handleChange} />
+                        <Button 
+                            type='submit'
+                            loading={submitting}
+                            disabled={submitting}
+                            onClick={this.handleClick}>
+                            Search
+                        </Button>
+                    </Input>
+                </Grid.Column>
+            </Grid>
         );
     }
 }

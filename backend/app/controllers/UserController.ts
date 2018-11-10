@@ -20,7 +20,7 @@ userController.put('/', async (req: Request, res: Response) => {
         isAdmin,
     } = req.body;
 
-    if (!email || !password || !firstName || !lastName || !address || !phone || !isAdmin) {
+    if (!email || !password || !firstName || !lastName || !address || !phone || isAdmin === null) {
         return res.status(400).end();
     }
     try {

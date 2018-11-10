@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
+import { ToastProvider } from 'react-toast-notifications';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
@@ -19,20 +20,22 @@ class App extends Component {
     render() {
         const token = getDecodedToken();
         return (
-            <BrowserRouter>
-                <div style={{ height: '100%' }}>
-                    <Navbar vertical={false} token={token}/>   
-                    <Switch>
-                        <Route path="/login" component={LoginPage}/>
-                        <ProtectedRoute path="/search" component={Search}/>           
-                        <ProtectedRoute exact path="/catalog" component={Catalog}/>
-                        <AdminRoute path="/catalog/add" component={CatalogForm}/>
-                        <AdminRoute path="/users/active" component={ViewActiveUsers}/>
-                        <AdminRoute path="/users/register" component={RegisterForm}/>
-                        <Redirect from="/" to="/login"/>
-                    </Switch>
-                </div>
-            </BrowserRouter>
+            <ToastProvider placement="bottom-right" autoDismissTimeout={3000}>
+                <BrowserRouter>
+                    <div style={{ height: '100%' }}>
+                        <Navbar vertical={false} token={token}/>   
+                        <Switch>
+                            <Route path="/login" component={LoginPage}/>
+                            <ProtectedRoute exact path="/search" component={Search}/>            
+                            <AdminRoute path="/catalog/add" component={CatalogForm}/>
+                            <ProtectedRoute path="/catalog/:type?" component={Catalog}/>
+                            <AdminRoute path="/users/active" component={ViewActiveUsers}/>
+                            <AdminRoute path="/users/register" component={RegisterForm}/>
+                            <Redirect from="/" to="/login"/>
+                        </Switch>
+                    </div>
+                </BrowserRouter>
+            </ToastProvider>
         );
     }
 }
