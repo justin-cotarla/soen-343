@@ -119,13 +119,15 @@ export const getActiveUsers = async () => {
     });
 }
 
-export const getCatalog = async () => {
-    return await api.get('/catalog', {
+export const getCatalog = async (type='', query='', order='', direction='') => {
+    return await api({
+        method: 'get',
+        url: `/catalog/${type}?query=${query}&order=${order}&direction=${direction}`,
         headers: { 
             "Access-Control-Allow-Origin": "*",
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
         },
-    });
+    })
 }
 
 export const getCatalogItem = async (type, catalogItemId) => {
