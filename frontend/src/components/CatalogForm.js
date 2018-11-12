@@ -100,6 +100,7 @@ class CatalogForm extends React.Component {
                         date,
                         director,
                         producers,
+                        language,
                         actors,
                         subtitles,
                         dubbed,
@@ -112,7 +113,7 @@ class CatalogForm extends React.Component {
                     spec = {
                         title,
                         date,
-                        musicType,
+                        type: musicType,
                         artist,
                         label,
                         asin,
@@ -159,6 +160,7 @@ class CatalogForm extends React.Component {
         admin: false,
         submitting: false,
         success: false,
+        error: false,
         errorMessage: 'The catalog item could not be added',
     });
 

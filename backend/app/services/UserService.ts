@@ -10,6 +10,9 @@ class UserService {
     }
 
     async logout(user: User) {
+        if (!user) {
+            throw new Error('Undefined user');
+        }
         await UserTDG.update(new User(
             user.id,
             user.firstName,
@@ -30,6 +33,16 @@ class UserService {
         password: string,
         isAdmin: boolean,
     ) {
+        if (
+            !firstName ||
+            !lastName ||
+            !address ||
+            !email ||
+            !phone ||
+            !password
+            ) {
+            throw new Error('Invalid parameters');
+        }
         let user : User;
         if (isAdmin) {
             user = new Administrator('', firstName, lastName, phone, email, address, '');

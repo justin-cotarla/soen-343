@@ -24,7 +24,11 @@ const Navbar = (props) => {
     return (
         <Menu vertical={vertical} fixed="top" fluid inverted>
             <Menu.Item>
-                <Header as="h1" style={{ color: 'white' }}>LibManager</Header>
+                <Header as="h1">
+                    <Link style={{ color: 'white' }} to="/search">
+                        LibManager
+                    </Link>
+                </Header>
             </Menu.Item>
             {
                 user && 

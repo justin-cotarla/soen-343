@@ -23,7 +23,7 @@ export class CatalogTDG implements TableDataGateway {
         }
     }
 
-    async findAll(): Promise<CatalogItem[]> {
+    async findAll(queryParam: string): Promise<CatalogItem[]> {
         try {
             const query = `
             SELECT
