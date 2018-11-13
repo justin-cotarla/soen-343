@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 
 import CatalogItem from '../components/CatalogItem';
 import CatalogItemPreview from "../components/CatalogItemPreview";
-import queryString from 'query-string';
 
 import { getCatalog } from "../util/ApiUtil";
 
@@ -20,39 +19,29 @@ class Catalog extends React.Component {
      };
 
     componentDidMount = async () => {
+        const { location: { state } } = this.props;
+
+        let query, type, order;
+        if (state) {
+            query = state.query;
+            type = state.type;
+            order = state.order;
+        }
+
         try {
-            const { match: { params : { type } }, location: { search } } = this.props;
-            const { query, order, direction } = queryString.parse(search);
-            const { data } = await getCatalog(type, query, order, direction);
+            const { data } = await getCatalog(type, query, order, this.state.direction);
             this.setState({ 
                 catalog: data,
-                type: type ? type : '',
-                query: query ? query : '',
-                order: order ? order : 'title',
-                direction: direction ? direction : 'asc',
+                type,
+                query,
+                order,
             });
         } catch (error) {
 
         }
     }
 
-    componentDidUpdate = async (prevProps) => {
-        if (this.props.location.search !== prevProps.location.search) {
-            const { match: { params: { type } }, location: { search } } = this.props;
-            const { query, order, direction } = queryString.parse(search);
-            const { data } = await getCatalog(type, query, order, direction);
-            console.log(data)
-            this.setState({ 
-                catalog: data,
-                type: type ? type : '',
-                query: query ? query : '',
-                order: order ? order : 'title',
-                direction: direction ? direction : 'asc',
-            });
-        }
-    }
-
-    handleDropdownChange = (e, { name, value }) => {
+    handleDropdownChange = async (e, { name, value }) => {
         const { type, query } = this.state;
         let order, direction;
         switch (value) {
@@ -74,8 +63,13 @@ class Catalog extends React.Component {
                 break;
             default:
         }
-        console.log(this.props.location)
-        this.props.history.push(`/catalog/${type}?query=${query}&order=${order}&direction=${direction}`);
+        
+        const { data } = await getCatalog(type, query, order, direction);
+        this.setState({ 
+            catalog: data,
+            order,
+            direction,
+        });
     }
     
     handlePostDelete = (id) => {
@@ -92,7 +86,7 @@ class Catalog extends React.Component {
     
     render() {
         const options = [
-            { text: 'Oldest', value: 'Oldest',  },
+            { text: 'Oldest', value: 'Oldest' },
             { text: 'Newest', value: 'Newest' },
             { text: 'A-Z', value: 'A-Z' },
             { text: 'Z-A', value: 'Z-A' },
@@ -106,19 +100,19 @@ class Catalog extends React.Component {
                 width: '100%',
                 marginTop: '4em',
                 padding: '0 1em' }}>
-                    <Header 
-                        as='h1' 
-                        color='teal' 
-                        textAlign='left' 
-                        style={{ display: 'inline-block', margin: '1em 0', width: 'fit-content'}}>
-                        Catalog
-                    </Header>
-                    <Select  
-                        name='direction'
-                        options={options} 
-                        placeholder='Order By'
-                        onChange={this.handleDropdownChange}
-                        style={{ position: 'absolute', right: 0, margin: '2em'}}/>
+                <Header 
+                    as='h1' 
+                    color='teal' 
+                    textAlign='left' 
+                    style={{ display: 'inline-block', margin: '1em 0', width: 'fit-content'}}>
+                    Catalog
+                </Header>
+                <Select  
+                    name='direction'
+                    options={options} 
+                    placeholder='Order By'
+                    onChange={this.handleDropdownChange}
+                    style={{ position: 'absolute', right: 0, margin: '2em'}}/>
                 <Grid textAlign='center' stackable>
                     <Grid.Column width={location.pathname.match(/^\/catalog(\/(book|magazine|movie|music))?\/?$/) ? 16 : 10} floated="left">
                         <List 

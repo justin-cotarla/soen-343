@@ -99,7 +99,7 @@ class CatalogItem extends Component {
         });
     }
 
-    wasEdited = () => {;
+    wasEdited = () => {
         const { item, originalItem } = this.state;
         let wasEdited = false;
         for (let key in item) {
