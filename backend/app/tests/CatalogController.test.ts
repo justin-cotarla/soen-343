@@ -2,30 +2,69 @@ import 'jest';
 import supertest from 'supertest';
 
 import server from '../server';
-import { BookFormat } from '../models/Book';
+import { BookFormat, Book } from '../models/Book';
 import { Administrator, Magazine, InventoryItem } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
 import Catalog from '../services/Catalog';
 
+jest.mock('../middlewares/injectUser');
+
 // Must create a fake token to pass auth check
 let token: string;
+
+beforeAll(() => {
+    console.log = jest.fn();
+});
+
 beforeEach(async () => {
     process.env.JWT_KEY = 'test';
-    const profile: Administrator = new Administrator('Test', 'Test', 0, 'Test', 'Test');
-    token = await generateToken({ profile, isAdmin: true });
+    const user: Administrator = new Administrator(
+        '1',
+        'Test',
+        'Test',
+        0,
+        'Test',
+        'Test',
+        '12345',
+    );
+    token = await generateToken({ user, isAdmin: true });
+    jest.clearAllMocks();
 });
 
 describe('CatalogRouter', () => {
     describe('PUT /catalog', () => {
-        afterEach(() => {
-            Catalog['catalogItems'] = new Map();
+        it('requires admin rights', async () => {
+            await supertest(server)
+                .put('/catalog/book')
+                .expect(403);
         });
 
-        it('requires admin rights', async () => {
+        it('handles invalid type', async (done) => {
+            const bookRequest = {
+                catalogItem: {
+                    title: 'TestBook',
+                    date: 'TestDate',
+                    isbn10: 1234567890,
+                    isbn13: 123456789012,
+                    author: 'TestAuthor',
+                    publisher: 'TestPublisher',
+                    format: BookFormat.HardCover,
+                    pages: 69,
+                },
+                quantity: 1,
+            };
+
             supertest(server)
-                .put('/catalog')
-                .expect(403);
+                .put('/catalog/invalid')
+                .set('Authorization', `Bearer ${token}`)
+                .set('Accept', 'application/json')
+                .send(bookRequest)
+                .expect(400)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
         });
 
         it('does not accept empty requests', async (done) => {
@@ -33,7 +72,7 @@ describe('CatalogRouter', () => {
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .send({})
-                .expect(401)
+                .expect(400)
                 .end((err: any, res: any) => {
                     if (err) return done(err);
                     done();
@@ -57,7 +96,37 @@ describe('CatalogRouter', () => {
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .send(invalidRequest)
-                .expect(401)
+                .expect(400)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('handles bad request', async (done) => {
+            Catalog.addItem = jest.fn(() => {
+                throw new Error();
+            });
+            const bookRequest = {
+                catalogItem: {
+                    title: 'TestBook',
+                    date: 'TestDate',
+                    isbn10: 1234567890,
+                    isbn13: 123456789012,
+                    author: 'TestAuthor',
+                    publisher: 'TestPublisher',
+                    format: BookFormat.HardCover,
+                    pages: 69,
+                },
+                quantity: 1,
+            };
+
+            supertest(server)
+                .put('/catalog/book')
+                .set('Authorization', `Bearer ${token}`)
+                .set('Accept', 'application/json')
+                .send(bookRequest)
+                .expect(500)
                 .end((err: any, res: any) => {
                     if (err) return done(err);
                     done();
@@ -79,12 +148,32 @@ describe('CatalogRouter', () => {
                 quantity: 1,
             };
 
+            const insertedItem: Book = {
+                id: '1',
+                title: 'TestBook',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                author: 'TestAuthor',
+                publisher: 'TestPublisher',
+                format: BookFormat.HardCover,
+                pages: 69,
+            };
+
+            Catalog.addItem = jest.fn().mockReturnValueOnce({
+                catalogItem: insertedItem,
+                inventory: [new InventoryItem('1', insertedItem.id, true)],
+            });
+
             const response = await supertest(server)
                 .put('/catalog/book')
                 .set('Authorization', `Bearer ${token}`)
                 .set('Accept', 'application/json')
                 .send(bookRequest)
                 .expect(200);
+
+            expect(response.body.catalogItem).toEqual(insertedItem);
+            expect(response.body.inventory.length).toEqual(1);
         });
 
         it('Creates the specified quantity of inventory items', async () => {
@@ -100,6 +189,25 @@ describe('CatalogRouter', () => {
                 quantity: 3,
             };
 
+            const insertedItem: Magazine = {
+                id: '1',
+                title: 'TestMagazine',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                publisher: 'TestPublisher',
+                language: 'English',
+            };
+
+            Catalog.addItem = jest.fn().mockReturnValueOnce({
+                catalogItem: insertedItem,
+                inventory: [
+                    new InventoryItem('1', insertedItem.id, true),
+                    new InventoryItem('2', insertedItem.id, true),
+                    new InventoryItem('3', insertedItem.id, true),
+                ],
+            });
+
             const response = await supertest(server)
                 .put('/catalog/magazine')
                 .send(magazineRequest)
@@ -111,22 +219,23 @@ describe('CatalogRouter', () => {
     });
 
     describe('GET /catalog', () => {
-        beforeEach(() => {
-            const catalogItemId = 'test';
-            const magazine:Magazine = new Magazine(
-                 catalogItemId,
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
+        const magazine: Magazine = new Magazine(
+            'test',
+            'Popular Mechanics',
+            'Test Date',
+            123,
+            123,
+            'Test Pub',
+            'English',
+        );
 
-            Catalog['catalogItems'].set(magazine, []);
+        it('requires authenticated user', async () => {
+            await supertest(server)
+                .get('/catalog')
+                .expect(401);
         });
-
         it('Returns a list of all catalog items', async () => {
+            Catalog.viewItems = jest.fn().mockReturnValueOnce([magazine]);
             const response = await supertest(server)
                 .get('/catalog')
                 .set('Authorization', `Bearer ${token}`)
@@ -134,46 +243,217 @@ describe('CatalogRouter', () => {
 
             expect(response.body.length).toEqual(1);
         });
+        it('handles bad request error', async () => {
+            Catalog.viewItems = jest.fn(() => {
+                throw new Error();
+            });
+            await supertest(server)
+                .get('/catalog')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(400);
+        });
     });
 
-    describe('PUT /catalog/:catalogItemId/inventory', () => {
-        const catalogItemId = 'test';
+    describe('GET /catalog/:type', () => {
+        const magazine: Magazine = new Magazine(
+            'test',
+            'Popular Mechanics',
+            'Test Date',
+            123,
+            123,
+            'Test Pub',
+            'English',
+        );
 
-        beforeAll(() => {
-            // jest.mock('uuid');
-            // (uuid.v4 as any).mockResolvedValue('hello');
-            jest.unmock('uuid/v4');
-            let v4 = require.requireActual('uuid/v4');
-            v4 = jest.fn();
+        it('requires authenticated user', async () => {
+            await supertest(server)
+                .get('/catalog/magazine')
+                .expect(401);
         });
+        it('successfully gets all magazine types', async () => {
+            Catalog.viewItems = jest.fn().mockReturnValueOnce([magazine]);
+            const response = await supertest(server)
+                .get('/catalog/magazine')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(200);
 
-        beforeEach(() => {
-            const magazine:Magazine = new Magazine(
-                 catalogItemId,
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
-
-            Catalog['catalogItems'].set(magazine, []);
+            expect(response.body.length).toEqual(1);
+            expect(response.body[0].catalogItemType).toEqual('magazine');
         });
-
-        afterEach(() => {
-            Catalog['catalogItems'] = new Map();
+        it('handles invalid type', async () => {
+            await supertest(server)
+                .get('/catalog/invalid')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(400);
         });
+        it('handles bad request error', async () => {
+            Catalog.viewItems = jest.fn(() => {
+                throw new Error();
+            });
+            await supertest(server)
+                .get('/catalog/magazine')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(500);
+        });
+    });
+
+    describe('GET /catalog/:type/:id', () => {
+        const magazine: Magazine = new Magazine(
+            'test',
+            'Popular Mechanics',
+            'Test Date',
+            123,
+            123,
+            'Test Pub',
+            'English',
+        );
+
+        it('requires user authentication', async () => {
+            await supertest(server)
+                .get('/catalog/magazine/test')
+                .expect(401);
+        });
+        it('successfully gets the magazine with specified id', async () => {
+            Catalog.viewItem = jest.fn().mockReturnValueOnce(magazine);
+            const response = await supertest(server)
+                .get('/catalog/magazine/test')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(200);
+
+            expect(response.body.catalogItem).toEqual(magazine);
+        });
+        it('handles invalid type', async () => {
+            await supertest(server)
+                .get('/catalog/invalid/test')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(400);
+        });
+        it('handles non-existent catalog item with specified id', async () => {
+            Catalog.viewItem = jest.fn().mockReturnValueOnce(null);
+            await supertest(server)
+                .get('/catalog/magazine/test')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(404);
+        });
+        it('handles bad request error', async () => {
+            Catalog.viewItem = jest.fn(() => {
+                throw new Error();
+            });
+            await supertest(server)
+                .get('/catalog/magazine/test')
+                .set('Authorization', `Bearer ${token}`)
+                .expect(500);
+        });
+    });
+
+    describe('POST /catalog/:type/:id', () => {
+        const bookRequest = {
+            catalogItem: {
+                title: 'TestBook',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                author: 'TestAuthor',
+                publisher: 'TestPublisher',
+                format: BookFormat.HardCover,
+                pages: 69,
+            },
+        };
 
         it('requires admin rights', async () => {
             await supertest(server)
-                .put(`/catalog/${catalogItemId}/inventory`)
+                .post('/catalog/magazine/test')
+                .expect(403);
+        });
+        it('Creates a catalog item of the specified type', async () => {
+            const updatedItem: Book = {
+                id: '1',
+                title: 'TestBook',
+                date: 'TestDate',
+                isbn10: 1234567890,
+                isbn13: 123456789012,
+                author: 'TestAuthor',
+                publisher: 'TestPublisher',
+                format: BookFormat.HardCover,
+                pages: 69,
+            };
+
+            Catalog.updateItem = jest.fn().mockReturnValueOnce(updatedItem);
+
+            const response = await supertest(server)
+                .post('/catalog/book/1')
+                .set('Authorization', `Bearer ${token}`)
+                .set('Accept', 'application/json')
+                .send(bookRequest)
+                .expect(200);
+
+            expect(response.body).toEqual(updatedItem);
+        });
+        it('handles invalid type', async (done) => {
+            supertest(server)
+                .post('/catalog/invalid/test')
+                .set('Authorization', `Bearer ${token}`)
+                .set('Accept', 'application/json')
+                .send(bookRequest)
+                .expect(400)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+        it('throws an error if a single attribute is missing', async (done) => {
+            const invalidRequest = {
+                catalogItem: {
+                    title: 'TestBook',
+                    date: 'TestDate',
+                    isbn10: 1234567890,
+                    isbn13: 123456789012,
+                    author: 'TestAuthor',
+                    publisher: 'TestPublisher',
+                    format: BookFormat.HardCover,
+                },
+            };
+            supertest(server)
+                .post('/catalog/book/test')
+                .set('Authorization', `Bearer ${token}`)
+                .send(invalidRequest)
+                .expect(400)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+        it('handles bad request', async (done) => {
+            Catalog.updateItem = jest.fn(() => {
+                throw new Error();
+            });
+
+            supertest(server)
+                .post('/catalog/book/test')
+                .set('Authorization', `Bearer ${token}`)
+                .set('Accept', 'application/json')
+                .send(bookRequest)
+                .expect(500)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+    });
+
+    describe('PUT /catalog/:type/:catalogItemId/inventory', () => {
+        const catalogItemId = 'test';
+
+        it('requires admin rights', async () => {
+            await supertest(server)
+                .put(`/catalog/book/${catalogItemId}/inventory`)
                 .expect(403);
         });
 
         it('throws an error if a non-existing catalogItem is requested', async (done) => {
+            Catalog.addInventoryItem = jest.fn().mockReturnValueOnce(null);
             supertest(server)
-                .put('/catalog/bad/inventory')
+                .put('/catalog/book/bad/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -183,41 +463,56 @@ describe('CatalogRouter', () => {
                 });
         });
 
+        it('handles bad request', async (done) => {
+            Catalog.addInventoryItem = jest.fn(() => {
+                throw new Error();
+            });
+            supertest(server)
+                .put(`/catalog/book/${catalogItemId}/inventory`)
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(500)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
         it('successfully adds an inventory item', async () => {
+            Catalog.addInventoryItem = jest.fn().mockReturnValueOnce(1);
             const response = await supertest(server)
-            .put(`/catalog/${catalogItemId}/inventory`)
+            .put(`/catalog/book/${catalogItemId}/inventory`)
             .set('Authorization', `Bearer ${token}`)
             .send()
             .expect(200);
 
-            expect(response.body.id).toHaveLength(36);
+            expect(response.body.id).toEqual(1);
         });
     });
 
-    describe('DELETE /catalog/:id', () => {
-        beforeAll(() => {
-            const magazine:Magazine = new Magazine(
-                 '1',
-                 'Popular Mechanics',
-                 'Test Date',
-                 123,
-                 123,
-                 'Test Pub',
-                 'English',
-            );
-
-            Catalog['catalogItems'].set(magazine, []);
-        });
-
+    describe('DELETE /catalog/:type/:id', () => {
         it('requires admin rights', async () => {
             await supertest(server)
-                .delete('/catalog/1')
+                .delete('/catalog/magazine/1')
                 .expect(403);
         });
 
-        it('throws an error if trying to delete a non-existing catalog item', async (done) => {
+        it('handles invalid type', async (done) => {
             supertest(server)
-                .delete('/catalog/dne')
+                .delete('/catalog/invalid/1')
+                .set('Authorization', `Bearer ${token}`)
+                .send()
+                .expect(400)
+                .end((err: any, res: any) => {
+                    if (err) return done(err);
+                    done();
+                });
+        });
+
+        it('throws an error if trying to delete a non-existing catalog item', async (done) => {
+            Catalog.deleteItem = jest.fn().mockReturnValueOnce(false);
+            supertest(server)
+                .delete('/catalog/magazine/dne')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -228,43 +523,26 @@ describe('CatalogRouter', () => {
         });
 
         it('successfully deletes a catalog item', async () => {
+            Catalog.deleteItem = jest.fn().mockReturnValueOnce(true);
             await supertest(server)
-                .delete('/catalog/1')
+                .delete('/catalog/magazine/1')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(200);
-
-            expect(Catalog['catalogItems'].size).toEqual(0);
         });
     });
 
-    describe('DELETE /catalog/:id/inventory', () => {
-        const magazine:Magazine = new Magazine(
-            '1',
-            'Popular Mechanics',
-            'Test Date',
-            123,
-            123,
-            'Test Pub',
-            'English',
-        );
-        const inventory = [
-            new InventoryItem('1', magazine, false),
-            new InventoryItem('2', magazine, true),
-        ];
-        beforeAll(() => {
-            Catalog['catalogItems'].set(magazine, inventory);
-        });
-
+    describe('DELETE /catalog/:type/:id/inventory', () => {
         it('requires admin rights', async () => {
             await supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .expect(403);
         });
 
         it('throws an error if trying to delete from a non-existing catalog item', async (done) => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(false);
             supertest(server)
-                .delete('/catalog/dne/inventory')
+                .delete('/catalog/magazine/dne/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -275,18 +553,18 @@ describe('CatalogRouter', () => {
         });
 
         it('deletes an available inventory item for a specific catalog item', async () => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(true);
             await supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(200);
-
-            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
         it('will not delete an unavailable inventory item', async (done) => {
+            Catalog.deleteInventoryItem = jest.fn().mockReturnValueOnce(false);
             supertest(server)
-                .delete('/catalog/1/inventory')
+                .delete('/catalog/magazine/1/inventory')
                 .set('Authorization', `Bearer ${token}`)
                 .send()
                 .expect(404)
@@ -294,8 +572,6 @@ describe('CatalogRouter', () => {
                     if (err) return done(err);
                     done();
                 });
-
-            expect(Catalog['catalogItems'].get(magazine).length).toEqual(1);
         });
 
     });
