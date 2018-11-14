@@ -33,8 +33,12 @@ class Search extends Component {
         if (submitting) {
             const { query, type, order } = this.state;
             return <Redirect to={{
-                pathname: `/catalog/${type}`,
-                search: `?query=${query}&order=${order}&direction=asc`,
+                pathname: '/catalog',
+                state: {
+                    query,
+                    type,
+                    order,
+                },
             }} />
         }
 
@@ -71,7 +75,7 @@ class Search extends Component {
                             name='order'
                             value={order}
                             options={options} 
-                            placeholder='Title'
+                            placeholder='Order by'
                             required
                             compact
                             onChange={this.handleChange} />
