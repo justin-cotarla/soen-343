@@ -229,10 +229,10 @@ describe('CatalogRouter', () => {
             'English',
         );
 
-        it('requires admin rights', async () => {
+        it('requires authenticated user', async () => {
             await supertest(server)
                 .get('/catalog')
-                .expect(403);
+                .expect(401);
         });
         it('Returns a list of all catalog items', async () => {
             Catalog.viewItems = jest.fn().mockReturnValueOnce([magazine]);
@@ -265,10 +265,10 @@ describe('CatalogRouter', () => {
             'English',
         );
 
-        it('requires admin rights', async () => {
+        it('requires authenticated user', async () => {
             await supertest(server)
                 .get('/catalog/magazine')
-                .expect(403);
+                .expect(401);
         });
         it('successfully gets all magazine types', async () => {
             Catalog.viewItems = jest.fn().mockReturnValueOnce([magazine]);
@@ -308,10 +308,10 @@ describe('CatalogRouter', () => {
             'English',
         );
 
-        it('requires admin rights', async () => {
+        it('requires user authentication', async () => {
             await supertest(server)
                 .get('/catalog/magazine/test')
-                .expect(403);
+                .expect(401);
         });
         it('successfully gets the magazine with specified id', async () => {
             Catalog.viewItem = jest.fn().mockReturnValueOnce(magazine);

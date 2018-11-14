@@ -7,7 +7,7 @@ const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
     const { query, order, direction } = req.query;
@@ -26,7 +26,7 @@ catalogController.get('/', async (req: Request, res: Response) => {
 
 catalogController.get('/:type', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
     //  Get the catalog item type
@@ -119,7 +119,7 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
 
 catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
     //  Get the catalog item type and the id of the item
