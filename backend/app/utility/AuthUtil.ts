@@ -1,19 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import v4 from 'uuid/v4';
 
 import DatabaseUtil from './DatabaseUtil';
-import { User, Client } from '../models';
-import { Administrator } from '../models/Administrator';
-
-declare global {
-    namespace Express {
-        export interface Request {
-            user?: User;
-        }
-    }
-}
+import { User, Client, Administrator } from '../models';
 
 const SALT_ROUNDS = 10;
 
@@ -136,69 +126,9 @@ const validateToken = (token: string): Promise<any> => {
     });
 };
 
-const validateSession = async (user: User) => {
-    const query = `
-        SELECT
-        *
-        FROM
-        USER
-        WHERE
-            ID=?
-        AND
-            SESSION_ID=?;
-    `;
-
-    const result = await DatabaseUtil.sendQuery(query, [user.id, user.sessionId]);
-    return (result.rows.length === 1);
-
-};
-
-const injectUser = async (req: Request, res: Response, next: NextFunction) => {
-    const header: string = req.get('Authorization');
-
-    if (header) {
-        try {
-            const token = header.split(' ')[1];
-            const { user, isAdmin }: any = await validateToken(token);
-
-            if (isAdmin) {
-                req.user = new Administrator(
-                    user.id,
-                    user.firstName,
-                    user.lastName,
-                    user.phone,
-                    user.email,
-                    user.address,
-                    user.sessionId,
-                );
-            } else {
-                req.user = new Client(
-                    user.id,
-                    user.firstName,
-                    user.lastName,
-                    user.phone,
-                    user.email,
-                    user.address,
-                    user.sessionId,
-                );
-            }
-
-            if (!(await validateSession(req.user))) {
-                return res.status(403).end();
-            }
-        } catch (err) {
-            console.log(err);
-            return res.status(401).end();
-        }
-    }
-
-    next();
-};
-
 export {
     register,
     authenticate,
     generateToken,
     validateToken,
-    injectUser,
 };

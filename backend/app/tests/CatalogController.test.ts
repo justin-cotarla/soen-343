@@ -3,13 +3,20 @@ import supertest from 'supertest';
 
 import server from '../server';
 import { BookFormat, Book } from '../models/Book';
-import { Administrator, Magazine, InventoryItem, CatalogItem } from '../models';
+import { Administrator, Magazine, InventoryItem } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
 import Catalog from '../services/Catalog';
 
+jest.mock('../middlewares/injectUser');
+
 // Must create a fake token to pass auth check
 let token: string;
+
+beforeAll(() => {
+    console.log = jest.fn();
+});
+
 beforeEach(async () => {
     process.env.JWT_KEY = 'test';
     const user: Administrator = new Administrator(
