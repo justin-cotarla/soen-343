@@ -41,13 +41,20 @@ class Catalog extends React.Component {
         }
     }
 
-    handleTypeFilterClick = (e, { value }) => this.setState({ type: value }, async () => {
-        const { type, query, order, direction } = this.state;
-        const { data } = await getCatalog(type, query, order, direction);
-        this.setState({ catalog: data });
-    });
+    handleTypeFilterClick = async (e, { value }) => {
+        const { query, order, direction } = this.state;
+        try {
+            const { data } = await getCatalog(value, query, order, direction);
+            this.setState({ 
+                catalog: data,
+                type: value,
+            });
+        } catch (error) {
 
-    handleDropdownChange = async (e, { name, value }) => {
+        }
+    }
+
+    handleDropdownChange = async (e, { value }) => {
         const { type, query } = this.state;
         let order, direction;
         switch (value) {
@@ -69,13 +76,17 @@ class Catalog extends React.Component {
                 break;
             default:
         }
-        
-        const { data } = await getCatalog(type, query, order, direction);
-        this.setState({ 
-            catalog: data,
-            order,
-            direction,
-        });
+
+        try {
+            const { data } = await getCatalog(type, query, order, direction);
+            this.setState({ 
+                catalog: data,
+                order,
+                direction,
+            });
+        } catch (error) {
+
+        }   
     }
     
     handlePostDelete = (id) => {
