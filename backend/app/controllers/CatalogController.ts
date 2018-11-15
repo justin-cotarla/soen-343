@@ -7,11 +7,13 @@ const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
+    const { query, order, direction } = req.query;
+
     try {
-        const items = await Catalog.viewItems();
+        const items = await Catalog.viewItems(query, order, direction);
         return res.status(200).json(items.map(item => ({
             catalogItemType: item.constructor.name.toLowerCase(),
             ...item,
@@ -19,6 +21,38 @@ catalogController.get('/', async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         return res.status(400).end();
+    }
+});
+
+catalogController.get('/:type', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
+
+    //  Get the catalog item type
+    const { type:catalogItemType } = req.params;
+
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
+        return res.status(400).end();
+    }
+
+    const { query, order, direction } = req.query;
+
+    try {
+        const items = await Catalog.viewItems(
+            query,
+            order,
+            direction,
+            catalogItemType.toUpperCase(),
+            );
+        return res.status(200).json(items.map(item => ({
+            catalogItemType: item.constructor.name.toLowerCase(),
+            ...item,
+        })));
+    } catch (error) {
+        console.log(error);
+        return res.status(500).end();
     }
 });
 
@@ -85,7 +119,7 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
 
 catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
     //  Get the catalog item type and the id of the item
@@ -99,15 +133,20 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     try {
         const item = await Catalog.viewItem(catalogItemId, catalogItemType.toUpperCase());
         const inventoryItems = await Catalog.viewInventoryItems(catalogItemId);
+
+        if (!item) {
+            return res.status(404).end();
+        }
+
         return res.status(200).json({
             catalogItem: item,
-            inventory: inventoryItems
+            inventory: inventoryItems,
         });
     } catch (error) {
         console.log(error);
-        return res.status(400).end();
+        return res.status(500).end();
     }
-})
+});
 
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
@@ -122,6 +161,7 @@ catalogController.put('/:type/:id/inventory', async (req: Request, res: Response
         }
         return res.status(404).end();
     } catch (error) {
+        console.log(error);
         return res.status(500).end();
     }
 });
@@ -141,10 +181,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     }
 
     // Response body must have the new catalog item
-    const catalogItem = req.body;
-    if (!catalogItem) {
-        return res.status(400).end();
-    }
+    const { catalogItem } = req.body;
 
     const {
         title,
@@ -159,8 +196,6 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
         director,
         producers,
         actors,
-        subtitles,
-        dubbed,
         runtime,
         type,
         artist,
@@ -170,13 +205,15 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
 
     catalogItem.id = catalogItemId;
 
-    // Must have proper attributes
+    // Must have proper (non-nullable) attributes
     if (
         !(title && date) || // Common
-        (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-        !(isbn10 && isbn13 && publisher && language) && // Magazine
-        !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
-        !(type && artist && label && asin)) // Music
+        (
+            !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
+            !(isbn10 && isbn13 && publisher && language) && // Magazine
+            !(director && producers && actors && language && runtime) && // Movie
+            !(type && artist && label && asin)
+        ) // Music
     ) {
         return res.status(400).end();
     }
@@ -196,9 +233,6 @@ catalogController.delete('/:type/:id/inventory', async (req: Request, res: Respo
     }
 
     const catalogItemId = req.params.id;
-    if (!catalogItemId) {
-        return res.status(400).end();
-    }
 
     if (await Catalog.deleteInventoryItem(catalogItemId)) {
         return res.status(200).end();
@@ -212,13 +246,14 @@ catalogController.delete('/:type/:id', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
-    const { id:catalogItemId, type } = req.params;
+    const { id:catalogItemId, type:catalogItemType } = req.params;
 
-    if (!catalogItemId) {
+    // Must be valid type
+    if (!Object.values(CatalogItemType).includes(catalogItemType.toUpperCase())) {
         return res.status(400).end();
     }
 
-    if (await Catalog.deleteItem(catalogItemId, type)) {
+    if (await Catalog.deleteItem(catalogItemId, catalogItemType.toUpperCase())) {
         return res.status(200).end();
     }
 

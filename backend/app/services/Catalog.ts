@@ -16,25 +16,59 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async () : Promise<CatalogItem[]> => {
-        return [
-            ...(await BookTDG.findAll()),
-            ...(await MagazineTDG.findAll()),
-            ...(await MovieTDG.findAll()),
-            ...(await MusicTDG.findAll()),
-        ];
+    viewItems = async (queryParam: string, order: string, direction: string, type?: CatalogItemType)
+    : Promise<CatalogItem[]> => {
+
+        let items: CatalogItem[];
+
+        switch (type) {
+        case CatalogItemType.BOOK:
+            items = await BookTDG.findAll(queryParam);
+            break;
+        case CatalogItemType.MUSIC:
+            items = await MusicTDG.findAll(queryParam);
+            break;
+        case CatalogItemType.MAGAZINE:
+            items = await MagazineTDG.findAll(queryParam);
+            break;
+        case CatalogItemType.MOVIE:
+            items = await MovieTDG.findAll(queryParam);
+            break;
+        default:
+            items = [
+                ...(await BookTDG.findAll(queryParam)),
+                ...(await MagazineTDG.findAll(queryParam)),
+                ...(await MovieTDG.findAll(queryParam)),
+                ...(await MusicTDG.findAll(queryParam)),
+            ];
+        }
+
+        if (order === 'title' && direction === 'asc') {
+            items.sort((a, b) => (a.title > b.title) ? 1 : ((b.title > a.title) ? -1 : 0));
+        }
+        if (order === 'date' && direction === 'asc') {
+            items.sort((a, b) => (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0));
+        }
+        if (order === 'title' && direction === 'desc') {
+            items.sort((a, b) => (a.title < b.title) ? 1 : ((b.title < a.title) ? -1 : 0));
+        }
+        if (order === 'date' && direction === 'desc') {
+            items.sort((a, b) => (a.date < b.date) ? 1 : ((b.date < a.date) ? -1 : 0));
+        }
+
+        return items;
     }
 
     viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
         switch (type) {
-            case CatalogItemType.BOOK:
-                return BookTDG.find(id);
-            case CatalogItemType.MUSIC:
-                return MusicTDG.find(id);
-            case CatalogItemType.MAGAZINE:
-                return MagazineTDG.find(id);
-            case CatalogItemType.MOVIE:
-                return MovieTDG.find(id);
+        case CatalogItemType.BOOK:
+            return BookTDG.find(id);
+        case CatalogItemType.MUSIC:
+            return MusicTDG.find(id);
+        case CatalogItemType.MAGAZINE:
+            return MagazineTDG.find(id);
+        case CatalogItemType.MOVIE:
+            return MovieTDG.find(id);
         }
     }
 

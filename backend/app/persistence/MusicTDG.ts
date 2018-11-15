@@ -34,8 +34,34 @@ class MusicTDG extends CatalogTDG{
         }
     }
 
-    async findAll(): Promise<Music[]> {
+    async findAll(queryParam: string) : Promise<Music[]> {
         try {
+            if (!queryParam) {
+                const query = `
+                SELECT
+                *
+                FROM
+                CATALOG_ITEM
+                JOIN MUSIC
+                ON ID = CATALOG_ITEM_ID
+                `;
+
+                const data = await DatabaseUtil.sendQuery(query);
+                if (!data.rows.length) {
+                    return [];
+                }
+
+                return data.rows.map((music: any) => new Music(
+                    music.ID,
+                    music.TITLE,
+                    music.DATE,
+                    music.TYPE,
+                    music.ARTIST,
+                    music.LABEL,
+                    music.ASIN,
+                ));
+            }
+
             const query = `
             SELECT
             *
@@ -43,8 +69,21 @@ class MusicTDG extends CatalogTDG{
             CATALOG_ITEM
             JOIN MUSIC
             ON ID = CATALOG_ITEM_ID
+            WHERE TITLE LIKE ? OR
+                TYPE LIKE ? OR
+                ARTIST LIKE ? OR
+                LABEL LIKE ? OR
+                ASIN LIKE ?
             `;
-            const data = await DatabaseUtil.sendQuery(query);
+
+            const newQueryParam = `%${queryParam}%`;
+            const data = await DatabaseUtil.sendQuery(query, [
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+                newQueryParam,
+            ]);
             if (!data.rows.length) {
                 return [];
             }
