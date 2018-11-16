@@ -19,7 +19,7 @@ import {
     addInventoryItem,
     deleteInventoryItem
 } from '../util/ApiUtil';
-import { isAdmin } from '../util/AuthUtil';
+import { isAdmin, isAuthenticated } from '../util/AuthUtil';
 
 class CatalogItem extends Component {
     constructor(props){
@@ -261,26 +261,43 @@ class CatalogItem extends Component {
                                 <Placeholder.Line length="long"/>
                             </Placeholder.Header>
                         </Placeholder>
+                        <Grid.Column width={16} style={{ marginTop: '1em'}}>
                         {
-                            isAdmin() && 
-                                <Button.Group fluid size="small" floated="right" style={{ marginTop: '1rem' }}>
-                                    <Button 
-                                        icon 
+                            isAuthenticated() && (
+                                isAdmin() ? (                                           
+                                    <Button.Group fluid size="small" floated="right">
+                                        <Button 
+                                            icon 
+                                            labelPosition="left"
+                                            color="teal"
+                                            disabled={updatingInventory}
+                                            onClick={this.handleAddInventoryItem}>
+                                            <Icon name="plus"/>
+                                            Add
+                                        </Button>
+                                        <Button 
+                                            icon 
+                                            labelPosition="left"
+                                            disabled={true}
+                                            onClick={this.handleDeleteInventoryItem}>
+                                            <Icon name="minus"/>
+                                            Remove
+                                        </Button>
+                                    </Button.Group>
+                                ) : (                                      
+                                    <Button
+                                        fluid
+                                        icon
                                         labelPosition="left"
                                         color="teal"
                                         disabled={true}>
-                                        <Icon name="plus"/>
-                                        Add
-                                    </Button>
-                                    <Button 
-                                        icon 
-                                        labelPosition="left"
-                                        disabled={true}>
-                                        <Icon name="minus"/>
-                                        Remove
-                                    </Button>
-                                </Button.Group>
+                                        <Icon name="cart"/>
+                                        Add to cart
+                                    </Button>      
+                                )
+                            )
                         }
+                        </Grid.Column>
                     </Card.Content>
                 </Card>
             )
@@ -388,30 +405,44 @@ class CatalogItem extends Component {
                         </Grid>
                         <Grid columns="1">
                             <Grid.Row style={{ paddingTop: 0 }}>
-                            {
-                                isAdmin() && 
                                 <Grid.Column width={16}>
-                                    <Button.Group fluid size="small" floated="right">
-                                        <Button 
-                                            icon 
-                                            labelPosition="left"
-                                            color="teal"
-                                            disabled={updatingInventory}
-                                            onClick={this.handleAddInventoryItem}>
-                                            <Icon name="plus"/>
-                                            Add
-                                        </Button>
-                                        <Button 
-                                            icon 
-                                            labelPosition="left"
-                                            disabled={inventory.total === 0 || inventory.available === 0 || updatingInventory}
-                                            onClick={this.handleDeleteInventoryItem}>
-                                            <Icon name="minus"/>
-                                            Remove
-                                        </Button>
-                                    </Button.Group>
-                                </Grid.Column> 
-                            }
+                                {
+                                    isAuthenticated() && (
+                                        isAdmin() ? (                                           
+                                            <Button.Group fluid size="small" floated="right">
+                                                <Button 
+                                                    icon 
+                                                    labelPosition="left"
+                                                    color="teal"
+                                                    disabled={updatingInventory}
+                                                    onClick={this.handleAddInventoryItem}>
+                                                    <Icon name="plus"/>
+                                                    Add
+                                                </Button>
+                                                <Button 
+                                                    icon 
+                                                    labelPosition="left"
+                                                    disabled={inventory.total === 0 || inventory.available === 0 || updatingInventory}
+                                                    onClick={this.handleDeleteInventoryItem}>
+                                                    <Icon name="minus"/>
+                                                    Remove
+                                                </Button>
+                                            </Button.Group>
+                                        ) : ( 
+                                            (inventory.total !== 0 || inventory.available !== 0) &&                                       
+                                            <Button
+                                                fluid
+                                                icon
+                                                labelPosition="left"
+                                                color="teal"
+                                                disabled={inventory.total === 0 || inventory.available === 0 }>
+                                                <Icon name="cart"/>
+                                                Add to cart
+                                            </Button>      
+                                        )
+                                    )
+                                }
+                                </Grid.Column>
                             </Grid.Row>
                         </Grid>         
                     </Card.Content>
