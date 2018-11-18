@@ -113,7 +113,12 @@ class Catalog {
         }
         const inventoryItems = [];
         for (let i = 0; i < quantity; i += 1) {
-            const inventoryItem: InventoryItem = new InventoryItem(null, insertedItem.id, true);
+            const inventoryItem: InventoryItem = new InventoryItem(
+                null,
+                insertedItem.id,
+                null,
+                null,
+            );
             inventoryItems.push(await InventoryTDG.insert(inventoryItem));
         }
 
@@ -129,7 +134,12 @@ class Catalog {
             throw new Error('Catalog item does not exist');
         }
 
-        let inventoryItem: InventoryItem = new InventoryItem(null, catalogItemId, true);
+        let inventoryItem: InventoryItem = new InventoryItem(
+            null,
+            catalogItemId,
+            null,
+            null,
+        );
         inventoryItem = await InventoryTDG.insert(inventoryItem);
 
         return inventoryItem.id;
@@ -159,7 +169,7 @@ class Catalog {
             const items = await InventoryTDG.findAll(catalogItemId);
             let item: InventoryItem;
             for (let i = 0; i < items.length; i += 1) {
-                if (items[i].available) {
+                if (!items[i].loanedTo) {
                     item = items[i];
                     break;
                 }
