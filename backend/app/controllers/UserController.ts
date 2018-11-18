@@ -73,7 +73,7 @@ userController.get('/', async (req: Request, res: Response) => {
 
 userController.post('/logout', async (req: Request, res: Response) => {
     if (!req.user) {
-        return res.status(403).end();
+        return res.status(401).end();
     }
 
     try {

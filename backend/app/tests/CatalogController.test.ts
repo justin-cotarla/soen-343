@@ -32,7 +32,7 @@ beforeEach(async () => {
     jest.clearAllMocks();
 });
 
-describe('CatalogRouter', () => {
+describe('CatalogController', () => {
     describe('PUT /catalog', () => {
         it('requires admin rights', async () => {
             await supertest(server)
