@@ -7,6 +7,7 @@ import { Magazine } from './Magazine';
 import { Movie } from './Movie';
 import { Music } from './Music';
 import { User } from './User';
+import { Cart } from './Cart';
 
 export {
     Administrator,
@@ -18,4 +19,5 @@ export {
     Movie,
     Music,
     User,
+    Cart,
 };
