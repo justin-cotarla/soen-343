@@ -1,6 +1,6 @@
 import { CatalogItem } from './CatalogItem';
 
-enum MusicType {
+export enum MusicType {
     CD = 'CD',
     VINYL = 'VINYL',
     DIGITIAL = 'DIGITAL',
@@ -27,4 +27,4 @@ class Music extends CatalogItem {
         this.asin = asin;
     }
 }
-export { Music, MusicType };
+export { Music };
