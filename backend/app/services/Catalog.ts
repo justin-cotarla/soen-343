@@ -72,17 +72,22 @@ class Catalog {
         }
     }
     viewItemWithoutType = async(id: string) : Promise<CatalogItem> => {
-        return null;
-        // switch (type) {
-        // case CatalogItemType.BOOK:
-        //     return BookTDG.find(id);
-        // case CatalogItemType.MUSIC:
-        //     return MusicTDG.find(id);
-        // case CatalogItemType.MAGAZINE:
-        //     return MagazineTDG.find(id);
-        // case CatalogItemType.MOVIE:
-        //     return MovieTDG.find(id);
-        // }
+        const bookItem = BookTDG.find(id);
+        if(bookItem!=null){
+            return bookItem;
+        }
+        const musicItem = MusicTDG.find(id);
+        if(musicItem!=null){
+            return musicItem;
+        }
+        const magazingItem = MagazineTDG.find(id);
+        if(magazingItem!=null){
+            return magazingItem;
+        }
+        const movieItem = MovieTDG.find(id);
+        if(movieItem!=null){
+            return movieItem;
+        }
     }
     viewInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
         return InventoryTDG.findAll(catalogItemId);
