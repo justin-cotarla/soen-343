@@ -162,15 +162,19 @@ catalogController.get('/:id', async (req: Request, res: Response) => {
             case CatalogItemType.BOOK:
                 const bookItem = await Catalog.viewBookItem(catalogItemId);
                 inventoryItem = JSON.stringify(bookItem);
+                break;
             case CatalogItemType.MUSIC:
                 const musicItem = await Catalog.viewMusicItem(catalogItemId);
                 inventoryItem = JSON.stringify(musicItem);
+                break;
             case CatalogItemType.MAGAZINE:
                 const MagazineItem = await Catalog.viewMagazingItem(catalogItemId);
                 inventoryItem = JSON.stringify(MagazineItem);
+                break;
             case CatalogItemType.MOVIE:
                 const movieItem = await Catalog.viewMovieItem(catalogItemId);
                 inventoryItem = JSON.stringify(movieItem);
+                break;
             }
         return res.status(200).json({
             item: inventoryItem,
