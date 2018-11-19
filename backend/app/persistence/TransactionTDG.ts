@@ -1,5 +1,5 @@
 import { TableDataGateway } from './TableDataGateway';
-import { Transaction } from '../models';
+import { Transaction, Client, InventoryItem } from '../models';
 import DatabaseUtil, { QueryResponse } from '../utility/DatabaseUtil';
 
 class TransactionTDG implements TableDataGateway {
@@ -9,6 +9,10 @@ class TransactionTDG implements TableDataGateway {
         *
         FROM
         TRANSACTION
+        JOIN USER
+        ON TRANSACTION.USER_ID = USER.ID
+        JOIN INVENTORY_ITEM
+        ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
         WHERE ID = ?
         `;
 
@@ -23,8 +27,21 @@ class TransactionTDG implements TableDataGateway {
                 item.ID,
                 item.TIMESTAMP,
                 item.OPERATION,
-                item.USER_ID,
-                item.INVENTORY_ITEM_ID,
+                new Client(
+                    item.USER_ID,
+                    item.FIRST_NAME,
+                    item.LAST_NAME,
+                    item.PHONE_NUMBER,
+                    item.EMAIL,
+                    item.ADDRESS,
+                    item.SESSION_ID,
+                ),
+                new InventoryItem(
+                    item.ID,
+                    item.CATALOG_ITEM_ID,
+                    item.LOANED_TO,
+                    item.DUE_DATE,
+                ),
             );
         } catch (err) {
             console.log(err);
@@ -42,9 +59,15 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
-                WHERE ID LIKE ? OR
-                    USER_ID LIKE ? OR
-                    INVENTORY_ITEM_ID LIKE ?
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                JOIN CATALOG_ITEM
+                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
+                WHERE USER.FIRST_NAME LIKE ? OR
+                    USER.LAST_NAME LIKE ? OR
+                    CATALOG_ITEM.TITLE LIKE ?
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [
                     query,
@@ -52,13 +75,17 @@ class TransactionTDG implements TableDataGateway {
                     query,
                 ]);
             } else if (!query && timestamp && !operation) {
-                // SEARCHING BY TIMESTAMP WILL RETURN RESULTS ON AND BEFORE THE DATE
+                // SEARCHING BY TIMESTAMP WILL RETURN RESULTS ON THAT DAY
                 queryString = `
                 SELECT
                 *
                 FROM
                 TRANSACTION
-                WHERE TIMESTAMP <= ?
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                WHERE TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [timestamp]);
             } else if (!query && !timestamp && operation) {
@@ -67,6 +94,10 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
                 WHERE OPERATION = ?
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [operation]);
@@ -76,10 +107,16 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
-                WHERE ID LIKE ? OR
-                    USER_ID LIKE ? OR
-                    INVENTORY_ITEM_ID LIKE ? AND
-                    TIMESTAMP <= ?
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                JOIN CATALOG_ITEM
+                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
+                WHERE USER.FIRST_NAME LIKE ? OR
+                    USER.LAST_NAME LIKE ? OR
+                    CATALOG_ITEM.TITLE LIKE ? AND
+                    TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [
                     query,
@@ -93,9 +130,15 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
-                WHERE ID LIKE ? OR
-                    USER_ID LIKE ? OR
-                    INVENTORY_ITEM_ID LIKE ? AND
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                JOIN CATALOG_ITEM
+                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
+                WHERE USER.FIRST_NAME LIKE ? OR
+                    USER.LAST_NAME LIKE ? OR
+                    CATALOG_ITEM.TITLE LIKE ? AND
                     OPERATION = ?
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [
@@ -110,7 +153,11 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
-                WHERE TIMESTAMP <= ? AND
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                WHERE TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0 AND
                     OPERATION = ?
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [
@@ -123,13 +170,19 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
-                WHERE ID LIKE ? OR
-                    USER_ID LIKE ? OR
-                    INVENTORY_ITEM_ID LIKE ? AND
-                    TIMESTAMP <= ? AND
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                JOIN CATALOG_ITEM
+                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
+                WHERE USER.FIRST_NAME LIKE ? OR
+                    USER.LAST_NAME LIKE ? OR
+                    CATALOG_ITEM.TITLE LIKE ? AND
+                    TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0 AND
                     OPERATION = ?
                 `;
-                DatabaseUtil.sendQuery(queryString, [
+                data = await DatabaseUtil.sendQuery(queryString, [
                     query,
                     query,
                     query,
@@ -142,6 +195,10 @@ class TransactionTDG implements TableDataGateway {
                 *
                 FROM
                 TRANSACTION
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
                 `;
                 data = await DatabaseUtil.sendQuery(queryString);
             }
@@ -153,8 +210,21 @@ class TransactionTDG implements TableDataGateway {
                 item.ID,
                 item.TIMESTAMP,
                 item.OPERATION,
-                item.USER_ID,
-                item.INVENTORY_ITEM_ID,
+                new Client(
+                    item.USER_ID,
+                    item.FIRST_NAME,
+                    item.LAST_NAME,
+                    item.PHONE_NUMBER,
+                    item.EMAIL,
+                    item.ADDRESS,
+                    item.SESSION_ID,
+                ),
+                new InventoryItem(
+                    item.ID,
+                    item.CATALOG_ITEM_ID,
+                    item.LOANED_TO,
+                    item.DUE_DATE,
+                ),
             ));
         } catch (err) {
             console.log(err);
@@ -180,16 +250,16 @@ class TransactionTDG implements TableDataGateway {
             const data = await DatabaseUtil.sendQuery(query, [
                 item.timestamp,
                 item.operation.toString(),
-                item.inventoryItemId,
-                item.userId,
+                item.inventoryItem.id,
+                item.user.id,
             ]);
 
             return new Transaction(
                 data.rows.insertId,
                 item.timestamp,
                 item.operation,
-                item.userId,
-                item.inventoryItemId,
+                item.user,
+                item.inventoryItem,
             );
         } catch (err) {
             console.log(err);
@@ -212,8 +282,8 @@ class TransactionTDG implements TableDataGateway {
             await DatabaseUtil.sendQuery(query, [
                 item.timestamp,
                 item.operation.toString(),
-                item.inventoryItemId,
-                item.userId,
+                item.inventoryItem.id,
+                item.user.id,
             ]);
         } catch (err) {
             console.log(err);
