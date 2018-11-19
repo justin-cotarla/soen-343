@@ -6,6 +6,7 @@ import { InventoryItem } from './InventoryItem';
 import { Magazine } from './Magazine';
 import { Movie } from './Movie';
 import { Music } from './Music';
+import { Transaction } from './Transaction';
 import { User } from './User';
 
 export {
@@ -17,5 +18,6 @@ export {
     Magazine,
     Movie,
     Music,
+    Transaction,
     User,
 };
