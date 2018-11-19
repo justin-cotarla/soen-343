@@ -71,23 +71,17 @@ class Catalog {
             return MovieTDG.find(id);
         }
     }
-    viewItemWithoutType = async(id: string) : Promise<CatalogItem> => {
-        const bookItem = BookTDG.find(id);
-        if(bookItem!=null){
-            return bookItem;
-        }
-        const musicItem = MusicTDG.find(id);
-        if(musicItem!=null){
-            return musicItem;
-        }
-        const magazingItem = MagazineTDG.find(id);
-        if(magazingItem!=null){
-            return magazingItem;
-        }
-        const movieItem = MovieTDG.find(id);
-        if(movieItem!=null){
-            return movieItem;
-        }
+    viewBookItem = async(id: string) : Promise<Book> => {
+        return BookTDG.find(id);
+    }
+    viewMusicItem = async(id: string) : Promise<Music> => {
+        return MusicTDG.find(id);
+    }
+    viewMovieItem = async(id: string) : Promise<Movie> => {
+        return MovieTDG.find(id);
+    }
+    viewMagazingItem = async(id: string) : Promise<Magazine> => {
+        return MagazineTDG.find(id);
     }
     viewItemType = async(id: string) : Promise<CatalogItemType> => {
         const bookItem = BookTDG.find(id);
