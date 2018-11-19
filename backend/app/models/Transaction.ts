@@ -7,21 +7,21 @@ class Transaction {
     public id: string;
     public timestamp: string;
     public operation: OperationType;
-    public borrower: string;
-    public inventoryItem: string;
+    public userId: string;
+    public inventoryItemId: string;
 
     constructor(
         id: string,
         timestamp: string,
         operation: OperationType,
-        borrower: string,
-        inventoryItem: string,
+        userId: string,
+        inventoryItemId: string,
     ) {
         this.id = id;
         this.timestamp = timestamp;
         this.operation = operation;
-        this.borrower = borrower;
-        this.inventoryItem = inventoryItem;
+        this.userId = userId;
+        this.inventoryItemId = inventoryItemId;
     }
 }
 

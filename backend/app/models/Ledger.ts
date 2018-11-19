@@ -4,7 +4,7 @@ import { TransactionTDG } from '../persistence';
 class Ledger {
     addTransaction = async (operation: OperationType, userId: string, itemId: string) => {
         const transaction = new Transaction(
-            '',
+            undefined,
             Date.now().toString(),
             operation,
             userId,
