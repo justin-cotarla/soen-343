@@ -8,6 +8,7 @@ import { Movie } from './Movie';
 import { Music } from './Music';
 import { Transaction } from './Transaction';
 import { User } from './User';
+import { Cart } from './Cart';
 
 export {
     Administrator,
@@ -20,4 +21,5 @@ export {
     Music,
     Transaction,
     User,
+    Cart,
 };
