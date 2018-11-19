@@ -91,7 +91,8 @@ class InventoryTDG implements TableDataGateway {
                 UPDATE
                 INVENTORY_ITEM
                 SET
-                AVAILABLE = ?
+                LOANED_TO = ?,
+                DUE_DATE = ?
                 WHERE ID = ?
             `;
 
