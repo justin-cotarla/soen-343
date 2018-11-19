@@ -25,6 +25,12 @@ class TransactionService {
         return cart.getItems();
 
     }
+
+    async cancelTransaction(userId: string) : Promise<boolean> {
+
+        return this.carts.delete(userId);
+
+    }
 }
 
 export default new TransactionService();
