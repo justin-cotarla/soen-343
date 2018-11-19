@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.use('/users', userController);
 router.use('/catalog', catalogController);
-router.use('/cart', cartController);
+router.use('/carts', cartController);
 router.use('/transactions', transactionController);
 
 export { router };

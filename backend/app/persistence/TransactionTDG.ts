@@ -77,8 +77,8 @@ class TransactionTDG implements TableDataGateway {
                 FROM
                 TRANSACTION
                 WHERE ID LIKE ? OR
-                    BORROWER LIKE ? OR
-                    INVENTORY_ITEM LIKE ? AND
+                    USER_ID LIKE ? OR
+                    INVENTORY_ITEM_ID LIKE ? AND
                     TIMESTAMP <= ?
                 `;
                 data = await DatabaseUtil.sendQuery(queryString, [
@@ -169,7 +169,7 @@ class TransactionTDG implements TableDataGateway {
         (
             TIMESTAMP,
             OPERATION,
-            INVENTORY_ITEM,
+            INVENTORY_ITEM_ID,
             USER_ID
         )
         VALUES

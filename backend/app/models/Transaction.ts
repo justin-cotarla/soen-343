@@ -5,14 +5,14 @@ export enum OperationType {
 
 class Transaction {
     public id: string;
-    public timestamp: string;
+    public timestamp: Date;
     public operation: OperationType;
     public userId: string;
     public inventoryItemId: string;
 
     constructor(
         id: string,
-        timestamp: string,
+        timestamp: Date,
         operation: OperationType,
         userId: string,
         inventoryItemId: string,

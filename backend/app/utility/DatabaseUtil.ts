@@ -34,7 +34,7 @@ class DatabaseUtil {
         });
     }
 
-    async sendQuery(queryString: string, values?: string[]): Promise<QueryResponse> {
+    async sendQuery(queryString: string, values?: any[]): Promise<QueryResponse> {
         const query = mysql.format(queryString, values);
 
         const connection = await this.getConnection();
