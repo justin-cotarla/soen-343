@@ -5,7 +5,7 @@ class Ledger {
     addTransaction = async (operation: OperationType, userId: string, itemId: string) => {
         const transaction = new Transaction(
             undefined,
-            new Date(Date.now()),
+            new Date(),
             operation,
             userId,
             itemId,
