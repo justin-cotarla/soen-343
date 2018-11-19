@@ -1,4 +1,4 @@
-import { Cart } from '../models';
+import { Cart, InventoryItem } from '../models';
 
 class TransactionService {
     carts: Map<string, Cart>;
@@ -7,7 +7,7 @@ class TransactionService {
         this.carts = new Map<string, Cart>();
     }
 
-    async viewCart(userId: string) : Promise<Cart> {
+    async viewCart(userId: string) : Promise<InventoryItem[]> {
         // precondition(s):
         //     - a cart corresponding to the userId exists
         // postcondition(s):
@@ -19,7 +19,7 @@ class TransactionService {
             throw Error(`No cart matching user id: ${userId}`);
         }
 
-        return cart;
+        return cart.getItems();
 
     }
 }

@@ -18,22 +18,18 @@ cartController.get('/:id', async (req: Request, res: Response) => {
     }
 
     if (req.user instanceof Administrator) {
-        console.log('admin')
         return res.status(403).end();
     }
 
     const { id } = req.params;
-    if (!id) {
-        return res.status(400).end();
-    }
-
+    // tslint:disable-next-line:triple-equals
     if (req.user.id != id) {
         return res.status(403).end();
     }
 
     try {
         const cart = await TransactionService.viewCart(id);
-        return res.status(200).json(cart);
+        return res.status(200).json({ cart });
     } catch (error) {
         return res.status(400).end();
     }

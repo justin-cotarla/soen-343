@@ -1,16 +1,25 @@
 import { InventoryItem } from './index';
+import { stringify } from 'querystring';
 
 class Cart {
-    public items: InventoryItem[];
+    public items: Map<string, number>;
     public capacity: number;
-    public size: number;
 
     constructor(capacity: number) {
         this.capacity = capacity;
+        this.items = new Map<string, number>();
     }
 
-    public getItems(): InventoryItem[] {
-        return this.items;
+    public getItems(): any {
+        let cart: any = [];
+        this.items.forEach((quantity, catalogItemId) => {
+            cart = cart.concat({
+                catalogItemId,
+                quantity,
+            });
+        });
+
+        return cart;
     }
 }
 
