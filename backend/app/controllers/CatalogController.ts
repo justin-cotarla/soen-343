@@ -148,6 +148,10 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
     }
 });
 
+catalogController.get('/:id', async (req: Request, res: Response) => {
+
+});
+
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
