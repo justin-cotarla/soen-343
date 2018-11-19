@@ -155,10 +155,12 @@ catalogController.get('/:id', async (req: Request, res: Response) => {
 
     const {id:catalogItemId} = req.params;
     try {
-         const inventoryItems = await Catalog.viewItemWithoutType(catalogItemId);
+         const inventoryItem = await Catalog.viewItemWithoutType(catalogItemId);
+         const itemType = await Catalog.viewItemType(catalogItemId);
 
         return res.status(200).json({
-            inventory: inventoryItems,
+            item: inventoryItem,
+            type: itemType,
         });
    
     } catch (error) {
