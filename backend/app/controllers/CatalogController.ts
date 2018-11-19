@@ -149,7 +149,22 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
 });
 
 catalogController.get('/:id', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
 
+    const {id:catalogItemId} = req.params;
+    try {
+         const inventoryItems = await Catalog.viewAllInventoryItems(catalogItemId);
+
+        return res.status(200).json({
+            inventory: inventoryItems,
+        });
+   
+    } catch (error) {
+        console.log(error);
+        return res.status(500).end();
+    }
 });
 
 catalogController.put('/:type/:id/inventory', async (req: Request, res: Response) => {

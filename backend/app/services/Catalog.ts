@@ -76,6 +76,10 @@ class Catalog {
         return InventoryTDG.findAll(catalogItemId);
     }
 
+    viewAllInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
+        return null;
+    }
+
     updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {
         switch (type) {
         case CatalogItemType.BOOK:
