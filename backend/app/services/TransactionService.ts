@@ -27,9 +27,7 @@ class TransactionService {
     }
 
     async cancelTransaction(userId: string) : Promise<boolean> {
-
         return this.carts.delete(userId);
-
     }
 }
 

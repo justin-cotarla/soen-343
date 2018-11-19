@@ -1,8 +1,8 @@
 import 'jest';
-import { Cart, InventoryItem } from '../models';
+import { Cart} from '../models';
 import TransactionService from '../services/TransactionService';
 
-const cart = new Map<string, Cart>();
+const carts = new Map<string, Cart>();
 const userID = '323424';
 
 beforeEach(async () => {
@@ -12,12 +12,12 @@ beforeEach(async () => {
 describe('TransactionService', () => {
     describe('cancelTransaction', () => {
         it('successfully deletes cart', async () => {
-            cart.delete = jest.fn().mockReturnValueOnce(true);
-            const result = await TransactionService.cancelTransaction(userID);
+            TransactionService.carts.delete = jest.fn().mockReturnValueOnce(true);
+            const result = await TransactionService.cancelTransaction('321321');
             expect(result).toBe(true);
         });
         it('does not delete cart', async () => {
-            cart.delete = jest.fn().mockReturnValueOnce(false);
+            TransactionService.carts.delete = jest.fn().mockReturnValueOnce(false);
             const result = await TransactionService.cancelTransaction('3214213');
             expect(result).toBe(false);
         });
