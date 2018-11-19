@@ -1,11 +1,11 @@
-import { Transaction, OperationType } from './Transaction';
+import { Transaction, OperationType } from '../models/Transaction';
 import { TransactionTDG } from '../persistence';
 
 class Ledger {
     addTransaction = async (operation: OperationType, userId: string, itemId: string) => {
         const transaction = new Transaction(
             undefined,
-            Date.now().toString(),
+            new Date(Date.now()).toISOString().slice(0, 19).replace('T', ' '),
             operation,
             userId,
             itemId,

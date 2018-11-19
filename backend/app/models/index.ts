@@ -3,7 +3,6 @@ import { Book } from './Book';
 import { CatalogItem } from './CatalogItem';
 import { Client } from './Client';
 import { InventoryItem } from './InventoryItem';
-import Ledger from './Ledger';
 import { Magazine } from './Magazine';
 import { Movie } from './Movie';
 import { Music } from './Music';
@@ -16,7 +15,6 @@ export {
     CatalogItem,
     Client,
     InventoryItem,
-    Ledger,
     Magazine,
     Movie,
     Music,
