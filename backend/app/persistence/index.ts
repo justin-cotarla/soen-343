@@ -4,6 +4,7 @@ import InventoryTDG from './InventoryTDG';
 import MagazineTDG from './MagazineTDG';
 import MovieTDG from './MovieTDG';
 import MusicTDG from './MusicTDG';
+import TransactionTDG from './TransactionTDG';
 import UserTDG from './UserTDG';
 
 export {
@@ -13,5 +14,6 @@ export {
     MagazineTDG,
     MovieTDG,
     MusicTDG,
+    TransactionTDG,
     UserTDG,
 };

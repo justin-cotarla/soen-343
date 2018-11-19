@@ -3,15 +3,19 @@ import { CatalogItem } from './CatalogItem';
 class InventoryItem {
     public id: string;
     public catalogItemId: string;
-    public available: boolean;
+    public loanedTo: string;
+    public dueDate: string;
 
     constructor (
         id: string,
         catalogItemId: string,
-        available: boolean) {
+        loanedTo: string,
+        dueDate: string,
+    ) {
         this.id = id;
         this.catalogItemId = catalogItemId,
-        this.available = available;
+        this.loanedTo = loanedTo;
+        this.dueDate = dueDate;
     }
 }
 export { InventoryItem };
