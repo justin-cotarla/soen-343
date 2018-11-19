@@ -71,13 +71,21 @@ class Catalog {
             return MovieTDG.find(id);
         }
     }
-
+    viewItemWithoutType = async(id: string) : Promise<CatalogItem> => {
+        return null;
+        // switch (type) {
+        // case CatalogItemType.BOOK:
+        //     return BookTDG.find(id);
+        // case CatalogItemType.MUSIC:
+        //     return MusicTDG.find(id);
+        // case CatalogItemType.MAGAZINE:
+        //     return MagazineTDG.find(id);
+        // case CatalogItemType.MOVIE:
+        //     return MovieTDG.find(id);
+        // }
+    }
     viewInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
         return InventoryTDG.findAll(catalogItemId);
-    }
-
-    viewAllInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
-        return null;
     }
 
     updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {
