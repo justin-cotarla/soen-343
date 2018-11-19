@@ -8,12 +8,12 @@ class TransactionService {
     }
 
     async viewCart(userId: string) : Promise<InventoryItem[]> {
-        // precondition(s):
-        //     - a cart corresponding to the userId exists
-        // postcondition(s):
-        //     - the cart corresponding to the userId is returned
-        //     - cart.getItems() === @precart.getItems()
-
+        // @requires({
+        //     this.carts.get(userId) !== null,
+        // })
+        // @ensures({
+        //     - cart.getItems() === @pre cart.getItems()
+        // })
         const cart = this.carts.get(userId);
         if (cart === undefined) {
             throw Error(`No cart matching user id: ${userId}`);

@@ -4,14 +4,11 @@ import { Administrator } from '../models';
 
 const cartController = express.Router();
 
-// precondition(s):
-//     - the user initiating the request is a Client
-//     - the id of the user initiating the request matches
-//       the id corresponding to the requested cart
-//     - a cart corresponding to the id exists
-// postcondition(s):
-//     - the cart corresponding to the id is returned
-//     - cart items === @pre cart items
+// @requires({
+//     req.user instanceof Client,
+//     req.user.id === req.params.id,
+//     TransactionService.viewCart(req.params.id) !== null,
+// })
 cartController.get('/:id', async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).end();

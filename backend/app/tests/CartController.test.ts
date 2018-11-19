@@ -45,7 +45,7 @@ beforeEach(async () => {
 
 describe('CartController', () => {
     describe('GET /cart/:id', () => {
-        const cart = new Cart(5);
+        const cart = new Cart();
         cart.items.set('1', 3);
 
         beforeAll(() => {
