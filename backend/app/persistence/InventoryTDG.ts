@@ -17,7 +17,12 @@ class InventoryTDG implements TableDataGateway {
             }
 
             const item = data.rows[0];
-            return new InventoryItem(item.ID, item.CATALOG_ITEM_ID, item.AVAILABLE);
+            return new InventoryItem(
+                item.ID,
+                item.CATALOG_ITEM_ID,
+                item.LOANED_TO,
+                item.DUE_DATE,
+            );
         } catch (err) {
             console.log(err);
         }
@@ -40,7 +45,8 @@ class InventoryTDG implements TableDataGateway {
             return data.rows.map((item: any) => new InventoryItem(
                 item.ID,
                 catalogItemId,
-                item.AVAILABLE,
+                item.LOANED_TO,
+                item.DUE_DATE,
             ));
         } catch (err) {
             console.log(err);
@@ -54,22 +60,25 @@ class InventoryTDG implements TableDataGateway {
                 INTO
                 INVENTORY_ITEM
                 (
-                    AVAILABLE,
-                    CATALOG_ITEM_ID
+                    CATALOG_ITEM_ID,
+                    LOANED_TO,
+                    DUE_DATE
                 )
                 VALUES
-                (?, ?);
+                (?, ?, ?);
             `;
 
             const data = await DatabaseUtil.sendQuery(query, [
-                item.available ? '1' : '0',
                 item.catalogItemId,
+                item.loanedTo,
+                item.dueDate,
             ]);
 
             return new InventoryItem(
                 data.rows.insertId,
                 item.catalogItemId,
-                item.available,
+                item.loanedTo,
+                item.dueDate,
             );
         } catch (err) {
             console.log(err);
@@ -82,12 +91,14 @@ class InventoryTDG implements TableDataGateway {
                 UPDATE
                 INVENTORY_ITEM
                 SET
-                AVAILABLE = ?,
+                LOANED_TO = ?,
+                DUE_DATE = ?
                 WHERE ID = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
-                item.available ? '1' : '0',
+                item.loanedTo,
+                item.dueDate,
                 item.id,
             ]);
         } catch (err) {

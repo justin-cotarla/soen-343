@@ -65,7 +65,7 @@ class CatalogItem extends Component {
                 },
                 inventory: {
                     items: inventory,
-                    available: inventory.filter((item) => item.available === 1).length,
+                    available: inventory.filter((item) => item.loanedTo === null).length,
                     total: inventory.length,
                 },
                 loading: false,
@@ -196,7 +196,7 @@ class CatalogItem extends Component {
                     updating: false,
                     inventory: {
                         items: inventory,
-                        available: inventory.filter((item) => item.available === 1).length,
+                        available: inventory.filter((item) => item.loanedTo === null).length,
                         total: inventory.length,
                     },
                 }, () => {
