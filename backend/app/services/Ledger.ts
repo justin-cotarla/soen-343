@@ -1,14 +1,15 @@
 import { Transaction, OperationType } from '../models/Transaction';
+import { Client, InventoryItem } from '../models';
 import { TransactionTDG } from '../persistence';
 
 class Ledger {
-    addTransaction = async (operation: OperationType, userId: string, itemId: string) => {
+    addTransaction = async (operation: OperationType, user: Client, item: InventoryItem) => {
         const transaction = new Transaction(
             undefined,
             new Date(),
             operation,
-            userId,
-            itemId,
+            user,
+            item,
         );
         await TransactionTDG.insert(transaction);
     }

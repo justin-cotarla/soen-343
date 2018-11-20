@@ -1,6 +1,6 @@
 import * as mysql from 'mysql';
 
-export declare interface QueryResponse {
+declare interface QueryResponse {
     rows: any;
     fields?: mysql.FieldInfo[];
 }
