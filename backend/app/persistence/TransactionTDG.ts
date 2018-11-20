@@ -1,6 +1,6 @@
 import { TableDataGateway } from './TableDataGateway';
 import { Transaction, Client, InventoryItem } from '../models';
-import DatabaseUtil, { QueryResponse } from '../utility/DatabaseUtil';
+import DatabaseUtil from '../utility/DatabaseUtil';
 
 class TransactionTDG implements TableDataGateway {
     async find(id: string): Promise<Transaction> {
@@ -13,7 +13,7 @@ class TransactionTDG implements TableDataGateway {
         ON TRANSACTION.USER_ID = USER.ID
         JOIN INVENTORY_ITEM
         ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-        WHERE ID = ?
+        WHERE TRANSACTION.ID = ?
         `;
 
         try {
@@ -34,7 +34,7 @@ class TransactionTDG implements TableDataGateway {
                     item.PHONE_NUMBER,
                     item.EMAIL,
                     item.ADDRESS,
-                    item.SESSION_ID,
+                    null,
                 ),
                 new InventoryItem(
                     item.ID,
@@ -48,161 +48,49 @@ class TransactionTDG implements TableDataGateway {
         }
     }
 
-    async findAll(query?: string, timestamp?: string, operation?: string): Promise<Transaction[]> {
+    async findAll(query?: string, timestamp?: Date, operation?: string): Promise<Transaction[]> {
         try {
-            let data: QueryResponse;
-            let queryString: string;
+            const conditions = [];
+            const values = [];
 
-            if (query && !timestamp && !operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                JOIN CATALOG_ITEM
-                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
-                WHERE USER.FIRST_NAME LIKE ? OR
+            if (query) {
+                conditions.push(`
+                (
+                    USER.FIRST_NAME LIKE ? OR
                     USER.LAST_NAME LIKE ? OR
                     CATALOG_ITEM.TITLE LIKE ?
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [
-                    query,
-                    query,
-                    query,
-                ]);
-            } else if (!query && timestamp && !operation) {
-                // SEARCHING BY TIMESTAMP WILL RETURN RESULTS ON THAT DAY
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                WHERE TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [timestamp]);
-            } else if (!query && !timestamp && operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                WHERE OPERATION = ?
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [operation]);
-            } else if (query && timestamp && !operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                JOIN CATALOG_ITEM
-                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
-                WHERE USER.FIRST_NAME LIKE ? OR
-                    USER.LAST_NAME LIKE ? OR
-                    CATALOG_ITEM.TITLE LIKE ? AND
-                    TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [
-                    query,
-                    query,
-                    query,
-                    timestamp,
-                ]);
-            } else if (query && !timestamp && operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                JOIN CATALOG_ITEM
-                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
-                WHERE USER.FIRST_NAME LIKE ? OR
-                    USER.LAST_NAME LIKE ? OR
-                    CATALOG_ITEM.TITLE LIKE ? AND
-                    OPERATION = ?
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [
-                    query,
-                    query,
-                    query,
-                    operation,
-                ]);
-            } else if (!query && timestamp && operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                WHERE TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0 AND
-                    OPERATION = ?
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [
-                    timestamp,
-                    operation,
-                ]);
-            } else if (query && timestamp && operation) {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                JOIN CATALOG_ITEM
-                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
-                WHERE USER.FIRST_NAME LIKE ? OR
-                    USER.LAST_NAME LIKE ? OR
-                    CATALOG_ITEM.TITLE LIKE ? AND
-                    TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0 AND
-                    OPERATION = ?
-                `;
-                data = await DatabaseUtil.sendQuery(queryString, [
-                    query,
-                    query,
-                    query,
-                    timestamp,
-                    operation,
-                ]);
-            } else {
-                queryString = `
-                SELECT
-                *
-                FROM
-                TRANSACTION
-                JOIN USER
-                ON TRANSACTION.USER_ID = USER.ID
-                JOIN INVENTORY_ITEM
-                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
-                `;
-                data = await DatabaseUtil.sendQuery(queryString);
+                )
+                `);
+                values.push(`%${query}%`, `%${query}%`, `%${query}%`);
+            }
+            if (timestamp) {
+                conditions.push('TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0');
+                values.push(timestamp);
+            }
+            if (operation) {
+                conditions.push('OPERATION = ?');
+                values.push(operation);
             }
 
+            const conditionsString = conditions.length ? conditions.join(' AND ') : 'TRUE';
+            const queryString = `
+                SELECT
+                *
+                FROM
+                TRANSACTION
+                JOIN USER
+                ON TRANSACTION.USER_ID = USER.ID
+                JOIN INVENTORY_ITEM
+                ON TRANSACTION.INVENTORY_ITEM_ID = INVENTORY_ITEM.ID
+                JOIN CATALOG_ITEM
+                ON INVENTORY_ITEM.CATALOG_ITEM_ID = CATALOG_ITEM.ID
+                WHERE ${conditionsString}
+            `;
+
+            const data = await DatabaseUtil.sendQuery(
+                queryString,
+                values,
+            );
             if (!data.rows.length) {
                 return [];
             }
@@ -217,7 +105,7 @@ class TransactionTDG implements TableDataGateway {
                     item.PHONE_NUMBER,
                     item.EMAIL,
                     item.ADDRESS,
-                    item.SESSION_ID,
+                    null,
                 ),
                 new InventoryItem(
                     item.ID,
@@ -269,7 +157,7 @@ class TransactionTDG implements TableDataGateway {
     async update(item: Transaction): Promise<void> {
         const query = `
         UPDATE
-        TRANSACTIONS
+        TRANSACTION
         SET
         TIMESTAMP = ?,
         OPERATION = ?,
@@ -284,6 +172,7 @@ class TransactionTDG implements TableDataGateway {
                 item.operation.toString(),
                 item.inventoryItem.id,
                 item.user.id,
+                item.id,
             ]);
         } catch (err) {
             console.log(err);
