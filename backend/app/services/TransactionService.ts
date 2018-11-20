@@ -1,4 +1,4 @@
-import { Cart, InventoryItem } from '../models';
+import { Cart, InventoryItem, CatalogItem } from '../models';
 
 class TransactionService {
     carts: Map<string, Cart>;
@@ -28,6 +28,31 @@ class TransactionService {
 
     async cancelTransaction(userId: string) : Promise<boolean> {
         return this.carts.delete(userId);
+    }
+
+    async updateCart(items: string[], userId: string) : Promise<string[]> {
+        // @requires({
+        //      items.length <= 5
+        // })
+        // @ensures({
+        //      cart.updateCart === items
+        // })
+        if (items.length > 5) {
+            throw Error('Cart limit exceeded');
+        }
+
+        const result = this.carts.get(userId);
+        let cart: any;
+
+        if (result === undefined) {
+            cart = new Cart(items);
+            this.carts.set(userId, cart);
+            return cart;
+        }
+
+        cart = result;
+        cart.updateCart(items);
+        return cart;
     }
 }
 

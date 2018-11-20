@@ -1,34 +1,33 @@
-import { InventoryItem } from './index';
-import { stringify } from 'querystring';
-
 // @invariant({
 //     this.capacity > 0,
 //     this.items.size() <= this.capacity,
 // })
 class Cart {
-    public items: Map<string, number>;
+    public items: string[];
     public capacity: number = 5;
+    public size: number;
 
     // @ensures({
     //    this.items !== null,
     // })
-    constructor() {
-        this.items = new Map<string, number>();
+    constructor(cartItems: string[]) {
+        this.items = cartItems;
+        this.size = cartItems.length;
     }
 
     // @ensures({
     //     this.items === @pre this.items,
     // })
     public getItems(): any {
-        let cart: any = [];
-        this.items.forEach((quantity, catalogItemId) => {
-            cart = cart.concat({
-                catalogItemId,
-                quantity,
-            });
-        });
+        return this.items;
+    }
 
-        return cart;
+    // @ensures({
+    //      this.items = newItems
+    // })
+    public update(newItems: string[]) {
+        this.items = newItems;
+        this.size = newItems.length;
     }
 }
 
