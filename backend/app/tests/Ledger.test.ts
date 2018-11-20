@@ -39,7 +39,7 @@ describe('Ledger', () => {
     });
     describe('viewTransactions', () => {
         it('successfully views transactions', async () => {
-            Ledger.viewTransactions = jest.fn().
+            TransactionTDG.findAll = jest.fn().
                 mockReturnValueOnce([transactionMock]);
             const result = await Ledger.viewTransactions(
                 'queryType',
@@ -51,7 +51,7 @@ describe('Ledger', () => {
             expect(result).toEqual([transactionMock]);
         });
         it('is unable to find corresponding transactions', async () => {
-            Ledger.viewTransactions = jest.fn().
+            TransactionTDG.findAll = jest.fn().
             mockReturnValueOnce([]);
             const result = await Ledger.viewTransactions(
                 'queryType',
@@ -60,7 +60,7 @@ describe('Ledger', () => {
                 date,
                 'operationtype',
             );
-            expect(result).not.toEqual([transactionMock]);
+            expect(result).toEqual([]);
         });
     });
 });

@@ -21,8 +21,7 @@ class Ledger {
         timestamp: Date,
         operation: string,
     ) : Promise<Transaction[]> {
-        let transactions : Transaction[];
-        transactions = await TransactionTDG.findAll(query, timestamp, operation);
+        const transactions = await TransactionTDG.findAll(query, timestamp, operation);
 
         if (order === 'time' && direction === 'asc') {
             transactions.sort((a, b) =>

@@ -67,7 +67,7 @@ describe('TransactionService', () => {
                 '12332543543',
                 'operationtype',
             );
-            expect(result).not.toEqual([transactionMock]);
+            expect(result).toEqual([]);
         });
     });
 });
