@@ -16,30 +16,30 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async (queryParam: string, order: string, direction: string, type?: CatalogItemType)
+    viewItems = async (query: string, order: string, direction: string, type?: CatalogItemType)
     : Promise<CatalogItem[]> => {
 
         let items: CatalogItem[];
 
         switch (type) {
         case CatalogItemType.BOOK:
-            items = await BookTDG.findAll(queryParam);
+            items = await BookTDG.findAll(query);
             break;
         case CatalogItemType.MUSIC:
-            items = await MusicTDG.findAll(queryParam);
+            items = await MusicTDG.findAll(query);
             break;
         case CatalogItemType.MAGAZINE:
-            items = await MagazineTDG.findAll(queryParam);
+            items = await MagazineTDG.findAll(query);
             break;
         case CatalogItemType.MOVIE:
-            items = await MovieTDG.findAll(queryParam);
+            items = await MovieTDG.findAll(query);
             break;
         default:
             items = [
-                ...(await BookTDG.findAll(queryParam)),
-                ...(await MagazineTDG.findAll(queryParam)),
-                ...(await MovieTDG.findAll(queryParam)),
-                ...(await MusicTDG.findAll(queryParam)),
+                ...(await BookTDG.findAll(query)),
+                ...(await MagazineTDG.findAll(query)),
+                ...(await MovieTDG.findAll(query)),
+                ...(await MusicTDG.findAll(query)),
             ];
         }
 
