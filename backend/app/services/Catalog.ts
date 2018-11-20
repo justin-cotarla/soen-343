@@ -83,24 +83,6 @@ class Catalog {
     viewMagazingItem = async(id: string) : Promise<Magazine> => {
         return MagazineTDG.find(id);
     }
-    viewItemType = async(id: string) : Promise<CatalogItemType> => {
-        const bookItem = BookTDG.find(id);
-        if(bookItem!=null){
-            return CatalogItemType.BOOK;
-        }
-        const musicItem = MusicTDG.find(id);
-        if(musicItem!=null){
-            return CatalogItemType.MUSIC;
-        }
-        const magazingItem = MagazineTDG.find(id);
-        if(magazingItem!=null){
-            return CatalogItemType.MAGAZINE;
-        }
-        const movieItem = MovieTDG.find(id);
-        if(movieItem!=null){
-            return CatalogItemType.MOVIE;
-        }
-    }
     viewInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
         return InventoryTDG.findAll(catalogItemId);
     }

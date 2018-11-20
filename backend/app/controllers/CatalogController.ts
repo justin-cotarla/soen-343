@@ -155,26 +155,23 @@ catalogController.get('/:id', async (req: Request, res: Response) => {
 
     const {id:catalogItemId} = req.params;
     try {
-         var inventoryItem = {};
-         const itemType = await Catalog.viewItemType(catalogItemId);
 
-         switch (itemType) {
-            case CatalogItemType.BOOK:
-                inventoryItem = await Catalog.viewBookItem(catalogItemId);
-                break;
-            case CatalogItemType.MUSIC:
-                inventoryItem = await Catalog.viewMusicItem(catalogItemId);
-                break;
-            case CatalogItemType.MAGAZINE:
-                inventoryItem = await Catalog.viewMagazingItem(catalogItemId);
-                break;
-            case CatalogItemType.MOVIE:
-                inventoryItem = await Catalog.viewMovieItem(catalogItemId);
-                break;
-            }
+         let catalogItem = {};
+
+         const result = await Promise.all([Catalog.viewBookItem(catalogItemId),Catalog.viewMusicItem(catalogItemId),
+            Catalog.viewMagazingItem(catalogItemId),Catalog.viewMovieItem(catalogItemId)])
+            .then((ResultArray)=>{
+                for(let item of ResultArray){
+                    if(item != null){
+                        catalogItem = item;
+                        break;
+                    }
+                }
+            })
+
         return res.status(200).json({
-            item: inventoryItem,
-            type: itemType,
+            ...catalogItem,
+            catalogItemType: catalogItem.constructor.name.toLowerCase(),
         });
    
     } catch (error) {
