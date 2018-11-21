@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { 
     Card, 
     Grid,
@@ -12,6 +13,9 @@ import {
     Header
 } from 'semantic-ui-react';
 import { withToastManager } from 'react-toast-notifications';
+import uuidv4 from 'uuid/v4';
+
+import { cartUpdateAsync } from '../redux/actionCreators'; 
 import { 
     getCatalogItem,
     editCatalogItem,
@@ -171,8 +175,20 @@ class CatalogItem extends Component {
         })
     }
 
-    handleAddInventoryItem = () => {
-        this.handleInventoryAction('add');
+    handleAddInventoryItem = (id, title) => {
+        const {
+            itemList,
+            cartUpdateAsync,
+        } = this.props;
+
+        cartUpdateAsync([
+            ...itemList,
+            {
+                id: uuidv4(),
+                catalogItemId: id,
+                title,
+            }
+        ]);
     }
 
     handleDeleteInventoryItem = () => {
@@ -438,6 +454,7 @@ class CatalogItem extends Component {
                                                 icon
                                                 labelPosition="left"
                                                 color="teal"
+                                                onClick={() => this.handleAddInventoryItem(id, title)}
                                                 disabled={inventory.total === 0 || inventory.available === 0 }>
                                                 <Icon name="cart"/>
                                                 Add to cart
@@ -455,7 +472,14 @@ class CatalogItem extends Component {
     }
 }
 
-export default withToastManager(CatalogItem);
+const mapStateToProps = ({ cart }) => {
+    const { itemList } = cart;
+    return {
+        itemList,
+    };
+  };
+
+export default connect(mapStateToProps, { cartUpdateAsync } )(withToastManager(CatalogItem));
 
 const DeleteModal = (props) => {
     return (

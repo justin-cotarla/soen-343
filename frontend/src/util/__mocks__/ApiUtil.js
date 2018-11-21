@@ -41,3 +41,42 @@ export const getTransactions = async (params) => {
         ],
     });
 };
+export const getCatalogItem = async (catalogItemId) => {
+    console.log(`API: getCatalogItem`);
+    const catalog = {
+        1: {
+            title: 'Edge of Tomorrow',
+        },
+        2: {
+            title: 'Brave New World',
+        },
+    };
+    return Promise.resolve({
+        data: catalog[catalogItemId],
+    });
+}
+
+export const getCart = async () => {
+    console.log(`API: getCart`);
+    return Promise.resolve({
+        data: [
+            1,
+            2,
+        ]
+    });
+}
+
+export const updateCart = async (items) => {
+    console.log(`API: updateCart`);
+    return Promise.resolve();
+}
+
+export const deleteCart = async () => {
+    console.log(`API: deleteCart`);
+    return Promise.resolve();
+}
+
+export const checkout = async (items) => {
+    console.log(`API: checkout`);
+    return Promise.resolve();
+}

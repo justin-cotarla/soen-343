@@ -1,4 +1,6 @@
 import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+
 import { invalidate } from './AuthUtil';
 
 const api = axios.create({
@@ -195,6 +197,64 @@ export const getTransactions = async (params) => {
             timestamp: date,
             query,
             operation,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const getCart = async () => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'get',
+        url: `/carts`,
+        query: {
+            userid: jwtDecode(token).id,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const updateCart = async (items) => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'post',
+        url: `/carts`,
+        query: {
+            userid: jwtDecode(token).id,
+        },
+        data: {
+            items,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const deleteCart = async () => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'delete',
+        url: `/carts`,
+        query: {
+            userid: jwtDecode(token).id,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const checkout = async (items) => {
+    return await api({
+        method: 'put',
+        url: `/transactions`,
+        data: {
+            items,
         },
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
