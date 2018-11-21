@@ -12,7 +12,7 @@ class Book extends CatalogItem {
     public publisher: string;
     public format: BookFormat;
     public pages: number;
-    public timestamp: string;
+    public timestamp: Date;
 
     constructor (
         id: string,
@@ -24,7 +24,7 @@ class Book extends CatalogItem {
         publisher: string,
         format: BookFormat,
         pages: number,
-        timestamp?: string) {
+        timestamp?: Date) {
         super(id, title, date);
         this.isbn10 = isbn10;
         this.isbn13 = isbn13;

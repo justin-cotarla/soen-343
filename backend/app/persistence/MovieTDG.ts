@@ -31,6 +31,7 @@ class MovieTDG extends CatalogTDG{
                 movie.SUBTITLES,
                 movie.DUBBED,
                 movie.RUNTIME,
+                movie.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);
@@ -103,7 +104,6 @@ class MovieTDG extends CatalogTDG{
                 movie.SUBTITLES,
                 movie.DUBBED,
                 movie.RUNTIME,
-                movie.TIMESTAMP,
             ));
         } catch (err) {
             console.log(err);
@@ -179,7 +179,7 @@ class MovieTDG extends CatalogTDG{
                 RUNTIME = ?
                 WHERE ID = ? AND TIMESTAMP = ?
             `;
-
+            //'yyyy-MM-ddTHH:mm:ss.sssZ'
             await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,

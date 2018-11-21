@@ -28,6 +28,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ISBN_13,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
+                magazine.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);
@@ -94,7 +95,6 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ISBN_13,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
-                magazine.TIMESTAMP,
             ));
         } catch (err) {
             console.log(err);

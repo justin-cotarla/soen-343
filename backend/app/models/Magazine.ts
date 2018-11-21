@@ -5,7 +5,7 @@ class Magazine extends CatalogItem {
     public isbn13: number;
     public publisher: string;
     public language: string;
-    public timestamp: string;
+    public timestamp: Date;
 
     constructor (
         id: string,
@@ -15,7 +15,7 @@ class Magazine extends CatalogItem {
         isbn13: number,
         publisher: string,
         language: string,
-        timestamp?: string) {
+        timestamp?: Date) {
         super(id, title, date);
         this.isbn10 = isbn10;
         this.isbn13 = isbn13;

@@ -28,6 +28,7 @@ class MusicTDG extends CatalogTDG{
                 music.ARTIST,
                 music.LABEL,
                 music.ASIN,
+                music.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);
@@ -96,7 +97,6 @@ class MusicTDG extends CatalogTDG{
                     music.ARTIST,
                     music.LABEL,
                     music.ASIN,
-                    music.TIMESTAMP,
                 ));
         } catch (err) {
             console.log(err);
