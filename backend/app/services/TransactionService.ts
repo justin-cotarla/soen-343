@@ -1,4 +1,5 @@
 import { Cart, InventoryItem } from '../models';
+import Catalog from './Catalog';
 
 class TransactionService {
     carts: Map<string, Cart>;
@@ -28,6 +29,10 @@ class TransactionService {
 
     async cancelTransaction(userId: string) : Promise<boolean> {
         return this.carts.delete(userId);
+    }
+
+    async viewLoans(userId: string) : Promise<InventoryItem[]> {
+        return Catalog.viewInventoryItems(null, userId);
     }
 }
 

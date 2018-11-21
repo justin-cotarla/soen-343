@@ -72,8 +72,11 @@ class Catalog {
         }
     }
 
-    viewInventoryItems = async(catalogItemId: string) : Promise<InventoryItem[]> => {
-        return InventoryTDG.findAll(catalogItemId);
+    viewInventoryItems = async(
+        catalogItemId?: string,
+        userId?: string,
+    ) : Promise<InventoryItem[]> => {
+        return InventoryTDG.findAll(catalogItemId, userId);
     }
 
     updateItem = async (item: CatalogItem, type: CatalogItemType) : Promise<CatalogItem> => {
