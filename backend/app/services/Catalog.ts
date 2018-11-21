@@ -59,16 +59,31 @@ class Catalog {
         return items;
     }
 
-    viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
-        switch (type) {
-        case CatalogItemType.BOOK:
-            return BookTDG.find(id);
-        case CatalogItemType.MUSIC:
-            return MusicTDG.find(id);
-        case CatalogItemType.MAGAZINE:
-            return MagazineTDG.find(id);
-        case CatalogItemType.MOVIE:
-            return MovieTDG.find(id);
+    viewItem = async(id: string, type?: CatalogItemType) : Promise<CatalogItem> => {
+        if (type) {
+            switch (type) {
+            case CatalogItemType.BOOK:
+                return BookTDG.find(id);
+            case CatalogItemType.MUSIC:
+                return MusicTDG.find(id);
+            case CatalogItemType.MAGAZINE:
+                return MagazineTDG.find(id);
+            case CatalogItemType.MOVIE:
+                return MovieTDG.find(id);
+            }
+        } else {
+            try {
+                const result = await Promise.all([
+                    BookTDG.find(id),
+                    MagazineTDG.find(id),
+                    MovieTDG.find(id),
+                    MusicTDG.find(id),
+                ]);
+
+                return result.find(data => data !== null);
+            } catch (error) {
+                throw Error;
+            }
         }
     }
 
