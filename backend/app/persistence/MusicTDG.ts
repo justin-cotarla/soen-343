@@ -151,11 +151,12 @@ class MusicTDG extends CatalogTDG{
                 SET
                 TITLE = ?,
                 DATE = ?,
+                TIMESTAMP = CURRENT_TIMESTAMP,
                 TYPE = ?,
                 ARTIST = ?,
                 LABEL = ?,
                 ASIN = ?
-                WHERE ID = ?
+                WHERE ID = ? AND TIMESTAMP = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -166,6 +167,7 @@ class MusicTDG extends CatalogTDG{
                 item.label,
                 item.asin,
                 item.id,
+                item.timestamp,
             ]);
         } catch (err) {
             console.log(err);

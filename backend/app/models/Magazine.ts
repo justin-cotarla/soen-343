@@ -5,6 +5,7 @@ class Magazine extends CatalogItem {
     public isbn13: number;
     public publisher: string;
     public language: string;
+    public timestamp: string;
 
     constructor (
         id: string,

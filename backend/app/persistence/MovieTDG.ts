@@ -168,6 +168,7 @@ class MovieTDG extends CatalogTDG{
                 SET
                 TITLE = ?,
                 DATE = ?,
+                TIMESTAMP = CURRENT_TIMESTAMP,
                 DIRECTOR = ?,
                 PRODUCERS = ?,
                 ACTORS = ?,
@@ -175,7 +176,7 @@ class MovieTDG extends CatalogTDG{
                 SUBTITLES = ?,
                 DUBBED = ?,
                 RUNTIME = ?
-                WHERE ID = ?
+                WHERE ID = ? AND TIMESTAMP = ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -189,6 +190,7 @@ class MovieTDG extends CatalogTDG{
                 item.dubbed,
                 item.runtime.toString(),
                 item.id,
+                item.timestamp,
             ]);
         } catch (err) {
             console.log(err);

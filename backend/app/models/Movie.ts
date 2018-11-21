@@ -8,6 +8,7 @@ class Movie extends CatalogItem {
     public subtitles: string;
     public dubbed: string;
     public runtime: number;
+    public timestamp: string;
 
     constructor (
         id: string,

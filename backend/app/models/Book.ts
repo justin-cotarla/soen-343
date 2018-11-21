@@ -12,6 +12,7 @@ class Book extends CatalogItem {
     public publisher: string;
     public format: BookFormat;
     public pages: number;
+    public timestamp: string;
 
     constructor (
         id: string,

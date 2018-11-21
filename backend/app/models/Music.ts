@@ -11,6 +11,7 @@ class Music extends CatalogItem {
     public artist: string;
     public label: string;
     public asin: string;
+    public timestamp: string;
 
     constructor (
         id: string,

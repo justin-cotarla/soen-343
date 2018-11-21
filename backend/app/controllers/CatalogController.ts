@@ -206,6 +206,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     const {
         title,
         date,
+        timestamp,
         isbn10,
         isbn13,
         author,
@@ -227,7 +228,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
 
     // Must have proper (non-nullable) attributes
     if (
-        !(title && date) || // Common
+        !(title && date && timestamp) || // Common
         (
             !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
             !(isbn10 && isbn13 && publisher && language) && // Magazine
