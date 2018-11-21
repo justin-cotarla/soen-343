@@ -56,6 +56,10 @@ class UserService {
     async getUsers(active: boolean) {
         return await UserTDG.findAll(active);
     }
+
+    async getUser(id: string) {
+        return await UserTDG.find(id);
+    }
 }
 
 export default new UserService();

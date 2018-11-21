@@ -56,7 +56,8 @@ const mockMovie = new Movie(
 const mockInventory = new InventoryItem(
     '10000',
     '12435',
-    true,
+    null,
+    null,
 );
 
 beforeEach(async () => {
@@ -207,41 +208,41 @@ describe('Catalog', () => {
         it('successfully adds book', async () => {
             BookTDG.insert = jest.fn().mockReturnValueOnce(mockBook);
             InventoryTDG.insert = jest.fn()
-            .mockReturnValueOnce(new InventoryItem(null, mockBook.id, true));
+            .mockReturnValueOnce(new InventoryItem(null, mockBook.id, '1', ''));
             const result = await Catalog.addItem(mockBook, CatalogItemType.BOOK, 1);
             expect(result).toEqual({
                 catalogItem: mockBook,
-                inventory: [new InventoryItem(null, mockBook.id, true)],
+                inventory: [new InventoryItem(null, mockBook.id, '1', '')],
             });
         });
         it('successfully adds magazine', async () => {
             MagazineTDG.insert = jest.fn().mockReturnValueOnce(mockMagazine);
             InventoryTDG.insert = jest.fn()
-            .mockReturnValueOnce(new InventoryItem(null, mockMagazine.id, true));
+                .mockReturnValueOnce(new InventoryItem(null, mockMagazine.id, '1', ''));
             const result = await Catalog.addItem(mockMagazine, CatalogItemType.MAGAZINE, 1);
             expect(result).toEqual({
                 catalogItem: mockMagazine,
-                inventory: [new InventoryItem(null, mockMagazine.id, true)],
+                inventory: [new InventoryItem(null, mockMagazine.id, '1', '')],
             });
         });
         it('successfully adds movie', async () => {
             MovieTDG.insert = jest.fn().mockReturnValueOnce(mockMovie);
             InventoryTDG.insert = jest.fn()
-            .mockReturnValueOnce(new InventoryItem(null, mockMovie.id, true));
+                .mockReturnValueOnce(new InventoryItem(null, mockMovie.id, '1', ''));
             const result = await Catalog.addItem(mockMovie, CatalogItemType.MOVIE, 1);
             expect(result).toEqual({
                 catalogItem: mockMovie,
-                inventory: [new InventoryItem(null, mockMovie.id, true)],
+                inventory: [new InventoryItem(null, mockMovie.id, '1', '')],
             });
         });
         it('successfully adds music', async () => {
             MusicTDG.insert = jest.fn().mockReturnValueOnce(mockMusic);
             InventoryTDG.insert = jest.fn()
-            .mockReturnValueOnce(new InventoryItem(null, mockMusic.id, true));
+                .mockReturnValueOnce(new InventoryItem(null, mockMusic.id, '1', ''));
             const result = await Catalog.addItem(mockMusic, CatalogItemType.MUSIC, 1);
             expect(result).toEqual({
                 catalogItem: mockMusic,
-                inventory: [new InventoryItem(null, mockMusic.id, true)],
+                inventory: [new InventoryItem(null, mockMusic.id, '1', '')],
             });
         });
         it('if item is null', async () => {
