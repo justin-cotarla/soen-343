@@ -4,13 +4,6 @@ import { OperationType } from '../models/Transaction';
 import TransactionService from '../services/TransactionService';
 
 const transactionController = express.Router();
-declare global {
-    namespace Express {
-        export interface Request {
-            user?: User;
-        }
-    }
-}
 
 transactionController.delete('/:id', async (req: Request, res: Response) => {
     if (!req.user) {

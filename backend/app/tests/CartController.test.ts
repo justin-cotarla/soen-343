@@ -2,7 +2,7 @@ import 'jest';
 import supertest from 'supertest';
 
 import server from '../server';
-import { Administrator, Client, InventoryItem, Cart } from '../models';
+import { Administrator, Client, Cart } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
 import TransactionService from '../services/TransactionService';
@@ -44,9 +44,8 @@ beforeEach(async () => {
 });
 
 describe('CartController', () => {
-    describe('GET /carts/:id', () => {
-        const cart = new Cart();
-        cart.items = [1, 1, 1];
+    describe('GET /cart/:id', () => {
+        const cart = new Cart([1]);
 
         beforeAll(() => {
             TransactionService['carts'].set('2', cart);
@@ -79,7 +78,7 @@ describe('CartController', () => {
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart.length).toEqual(3);
+            expect(response.body.cart.length).toEqual(1);
         });
 
         it('Does not modify the contents of the requested cart', async () => {
@@ -88,7 +87,7 @@ describe('CartController', () => {
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart).toEqual([1, 1, 1]);
+            expect(response.body.cart).toEqual([1]);
         });
     });
 });

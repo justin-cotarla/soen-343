@@ -25,7 +25,24 @@ class TransactionService {
         }
 
         return cart.getItems();
+    }
 
+    async updateCart(items: number[], userId: string) : Promise<Cart> {
+        // @ensures({
+        //      cart.updateCart === items
+        // })
+        const result = this.carts.get(userId);
+        let cart: Cart;
+
+        if (!result) {
+            cart = new Cart(items);
+            this.carts.set(userId, cart);
+            return cart;
+        }
+
+        cart = result;
+        cart.update(items);
+        return cart;
     }
 
     async viewTransactions(
@@ -59,8 +76,7 @@ class TransactionService {
     //     this.carts.get(userId) === undefined,
     //
     async borrowItems(userId: string): Promise<void> {
-        const j = new Cart();
-        j.items = [1, 1, 2, 1];
+        const j = new Cart([1, 1, 2, 1]);
         this.carts.set('16', j);
         const cart = this.carts.get(userId.toString());
 

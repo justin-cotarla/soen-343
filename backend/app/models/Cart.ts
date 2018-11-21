@@ -4,13 +4,14 @@
 // })
 class Cart {
     public items: number[];
-    private capacity: number = 5;
+    private capacity: number;
 
     // @ensures({
     //    this.items !== null,
     // })
-    constructor() {
-        this.items = [];
+    constructor(cartItems: number[]) {
+        this.items = cartItems;
+        this.capacity = 5;
     }
 
     // @ensures({
@@ -22,6 +23,19 @@ class Cart {
 
     public size(): number {
         return this.items.length;
+    }
+
+    // @requires({
+    //     newItems.length <= 5,
+    // })
+    // @ensures({
+    //      this.items = newItems
+    // })
+    public update(newItems: number[]) {
+        if (newItems.length > this.capacity) {
+            throw Error('Cart limit exceeded');
+        }
+        this.items = newItems;
     }
 }
 
