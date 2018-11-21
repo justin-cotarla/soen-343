@@ -16,30 +16,30 @@ export enum CatalogItemType {
 }
 
 class Catalog {
-    viewItems = async (queryParam: string, order: string, direction: string, type?: CatalogItemType)
+    viewItems = async (query: string, order: string, direction: string, type?: CatalogItemType)
     : Promise<CatalogItem[]> => {
 
         let items: CatalogItem[];
 
         switch (type) {
         case CatalogItemType.BOOK:
-            items = await BookTDG.findAll(queryParam);
+            items = await BookTDG.findAll(query);
             break;
         case CatalogItemType.MUSIC:
-            items = await MusicTDG.findAll(queryParam);
+            items = await MusicTDG.findAll(query);
             break;
         case CatalogItemType.MAGAZINE:
-            items = await MagazineTDG.findAll(queryParam);
+            items = await MagazineTDG.findAll(query);
             break;
         case CatalogItemType.MOVIE:
-            items = await MovieTDG.findAll(queryParam);
+            items = await MovieTDG.findAll(query);
             break;
         default:
             items = [
-                ...(await BookTDG.findAll(queryParam)),
-                ...(await MagazineTDG.findAll(queryParam)),
-                ...(await MovieTDG.findAll(queryParam)),
-                ...(await MusicTDG.findAll(queryParam)),
+                ...(await BookTDG.findAll(query)),
+                ...(await MagazineTDG.findAll(query)),
+                ...(await MovieTDG.findAll(query)),
+                ...(await MusicTDG.findAll(query)),
             ];
         }
 
@@ -59,16 +59,31 @@ class Catalog {
         return items;
     }
 
-    viewItem = async(id: string, type: CatalogItemType) : Promise<CatalogItem> => {
-        switch (type) {
-        case CatalogItemType.BOOK:
-            return BookTDG.find(id);
-        case CatalogItemType.MUSIC:
-            return MusicTDG.find(id);
-        case CatalogItemType.MAGAZINE:
-            return MagazineTDG.find(id);
-        case CatalogItemType.MOVIE:
-            return MovieTDG.find(id);
+    viewItem = async(id: string, type?: CatalogItemType) : Promise<CatalogItem> => {
+        if (type) {
+            switch (type) {
+            case CatalogItemType.BOOK:
+                return BookTDG.find(id);
+            case CatalogItemType.MUSIC:
+                return MusicTDG.find(id);
+            case CatalogItemType.MAGAZINE:
+                return MagazineTDG.find(id);
+            case CatalogItemType.MOVIE:
+                return MovieTDG.find(id);
+            }
+        } else {
+            try {
+                const result = await Promise.all([
+                    BookTDG.find(id),
+                    MagazineTDG.find(id),
+                    MovieTDG.find(id),
+                    MusicTDG.find(id),
+                ]);
+
+                return result.find(data => data !== null);
+            } catch (error) {
+                throw Error;
+            }
         }
     }
 
