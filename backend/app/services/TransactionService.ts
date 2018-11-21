@@ -23,17 +23,13 @@ class TransactionService {
         }
 
         return cart.getItems();
-
     }
 
     async cancelTransaction(userId: string) : Promise<boolean> {
         return this.carts.delete(userId);
     }
 
-    async updateCart(items: string[], userId: string) : Promise<string[]> {
-        // @requires({
-        //      items.length <= 5
-        // })
+    async updateCart(items: string[], userId: string) : Promise<Cart> {
         // @ensures({
         //      cart.updateCart === items
         // })
@@ -42,16 +38,16 @@ class TransactionService {
         }
 
         const result = this.carts.get(userId);
-        let cart: any;
+        let cart: Cart;
 
-        if (result === undefined) {
+        if (!result) {
             cart = new Cart(items);
             this.carts.set(userId, cart);
             return cart;
         }
 
         cart = result;
-        cart.updateCart(items);
+        cart.update(items);
         return cart;
     }
 }

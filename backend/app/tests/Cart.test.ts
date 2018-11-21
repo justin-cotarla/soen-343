@@ -25,7 +25,7 @@ describe('Cart', () => {
         it('successfully view items', async () => {
             const result = await mockCart.getItems();
             expect(result).toEqual(mockCart.items);
-            expect(result.length).toEqual(mockCart.size);
+            expect(result.length).toEqual(mockCart.items.length);
         });
     });
 
@@ -39,7 +39,22 @@ describe('Cart', () => {
                 '1',
             ]);
             expect(mockCart).toEqual(mockNewCart);
-            expect(mockCart.size).toEqual(mockNewCart.size);
+            expect(mockCart.items.length).toEqual(mockNewCart.items.length);
+        });
+
+        it('cart limit exceeds', async () => {
+            try {
+                await mockCart.update([
+                    '5',
+                    '4',
+                    '3',
+                    '2',
+                    '1',
+                    '0',
+                ]);
+            } catch (err) {
+                expect(err).toEqual(new Error('Cart limit exceeded'));
+            }
         });
     });
 });
