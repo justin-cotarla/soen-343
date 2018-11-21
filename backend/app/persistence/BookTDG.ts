@@ -30,6 +30,7 @@ class BookTDG extends CatalogTDG{
                 book.PUBLISHER,
                 book.FORMAT,
                 book.PAGES,
+                book.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);

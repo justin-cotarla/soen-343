@@ -103,6 +103,7 @@ class MovieTDG extends CatalogTDG{
                 movie.SUBTITLES,
                 movie.DUBBED,
                 movie.RUNTIME,
+                movie.TIMESTAMP,
             ));
         } catch (err) {
             console.log(err);

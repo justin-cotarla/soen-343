@@ -14,12 +14,14 @@ class Magazine extends CatalogItem {
         isbn10: number,
         isbn13: number,
         publisher: string,
-        language: string) {
+        language: string,
+        timestamp?: string) {
         super(id, title, date);
         this.isbn10 = isbn10;
         this.isbn13 = isbn13;
         this.publisher = publisher;
         this.language = language;
+        this.timestamp = timestamp;
     }
 }
 export { Magazine };
