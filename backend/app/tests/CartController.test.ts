@@ -44,9 +44,9 @@ beforeEach(async () => {
 });
 
 describe('CartController', () => {
-    describe('GET /cart/:id', () => {
+    describe('GET /carts/:id', () => {
         const cart = new Cart();
-        cart.items.set('1', 3);
+        cart.items = [1, 1, 1];
 
         beforeAll(() => {
             TransactionService['carts'].set('2', cart);
@@ -54,41 +54,41 @@ describe('CartController', () => {
 
         it('Cannot be accessed by administrators', async () => {
             await supertest(server)
-                .get('/cart/1')
+                .get('/carts/1')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(403);
         });
 
         it('Requires the :id param', async () => {
             await supertest(server)
-                .get('/cart')
+                .get('/carts')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(404);
         });
 
         it('Throws an error if a user attempts to access a cart other than their own', async () => {
             await supertest(server)
-                .get('/cart/3')
+                .get('/carts/3')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(403);
         });
 
         it('Returns a list of inventory items', async () => {
             const response = await supertest(server)
-                .get('/cart/2')
+                .get('/carts/2')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart.length).toEqual(1);
+            expect(response.body.cart.length).toEqual(3);
         });
 
         it('Does not modify the contents of the requested cart', async () => {
             const response = await supertest(server)
-                .get('/cart/2')
+                .get('/carts/2')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart).toEqual([{ catalogItemId: '1', quantity: 3 }]);
+            expect(response.body.cart).toEqual([1, 1, 1]);
         });
     });
 });

@@ -1,10 +1,9 @@
 import express, { Request, Response } from 'express';
-import TransactionService from '../services/TransactionService';
-import { User, Administrator } from '../models';
+import { Administrator, User } from '../models';
 import { OperationType } from '../models/Transaction';
+import TransactionService from '../services/TransactionService';
 
 const transactionController = express.Router();
-
 declare global {
     namespace Express {
         export interface Request {
@@ -12,6 +11,25 @@ declare global {
         }
     }
 }
+
+transactionController.delete('/:id', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
+
+    if (req.user instanceof Administrator) {
+        return res.status(403).end();
+    }
+
+    const userId = req.params.id;
+    const cancelled = await TransactionService.cancelTransaction(userId);
+
+    if (cancelled) {
+        return res.status(200).end();
+    }
+    return res.status(400).end();
+
+});
 
 // @requires({
 //     req.user !== null && req.user instanceof Client,

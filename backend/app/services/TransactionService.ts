@@ -1,10 +1,6 @@
-import { Cart, InventoryItem, User } from '../models';
-import UserService from './UserService';
-import Catalog from './Catalog';
 import Ledger from './Ledger';
-import InventoryTDG from '../persistence/InventoryTDG';
-import { OperationType } from '../models/Transaction';
 import TransactionTDG  from '../persistence/TransactionTDG';
+import { Cart, Transaction } from '../models';
 
 class TransactionService {
     public carts: Map<string, Cart>;
@@ -30,6 +26,23 @@ class TransactionService {
 
         return cart.getItems();
 
+    }
+
+    async viewTransactions(
+        query: string,
+        order: string,
+        direction: string,
+        timestamp: string,
+        operation: string,
+    ) : Promise<Transaction[]> {
+        const convertedTimestamp = new Date(timestamp);
+        return await Ledger.viewTransactions(
+            query,
+            order,
+            direction,
+            convertedTimestamp,
+            operation,
+        );
     }
 
     // @requires({ this.carts.get(userId) !== undefined })
