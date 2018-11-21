@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import UserService from '../services/UserService';
+import TransactionService from '../services/TransactionService';
 import { Administrator } from '../models';
 
 const userController = express.Router();
@@ -79,6 +80,20 @@ userController.post('/logout', async (req: Request, res: Response) => {
     try {
         await UserService.logout(req.user);
 
+        return res.status(200).end();
+    } catch (err) {
+        console.log(err);
+        return res.status(500).end();
+    }
+});
+
+userController.get('/:id/loans', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
+
+    try {
+        await TransactionService.viewLoans(req.user.id);
         return res.status(200).end();
     } catch (err) {
         console.log(err);
