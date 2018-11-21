@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import { Administrator } from '../models';
+import { Administrator, User } from '../models';
 import Catalog, { CatalogItemType } from '../services/Catalog';
 
 const catalogController = express.Router();
@@ -21,6 +21,26 @@ catalogController.get('/', async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         return res.status(400).end();
+    }
+});
+
+catalogController.get('/:id(\\d+)', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
+
+    const { id } : { id: string } = req.params;
+    try {
+        const catalogItem = await Catalog.viewItem(id);
+        const inventoryItems = await Catalog.viewInventoryItems(id);
+        return res.status(200).json({
+            ...catalogItem,
+            inventory: inventoryItems,
+            catalogItemType: catalogItem.constructor.name.toLowerCase(),
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).end();
     }
 });
 
@@ -142,38 +162,6 @@ catalogController.get('/:type/:id', async (req: Request, res: Response) => {
             catalogItem: item,
             inventory: inventoryItems,
         });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).end();
-    }
-});
-
-catalogController.get('/:id', async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).end();
-    }
-
-    const {id:catalogItemId} = req.params;
-    try {
-
-         let catalogItem = {};
-
-         const result = await Promise.all([Catalog.viewBookItem(catalogItemId),Catalog.viewMusicItem(catalogItemId),
-            Catalog.viewMagazingItem(catalogItemId),Catalog.viewMovieItem(catalogItemId)])
-            .then((ResultArray)=>{
-                for(let item of ResultArray){
-                    if(item != null){
-                        catalogItem = item;
-                        break;
-                    }
-                }
-            })
-
-        return res.status(200).json({
-            ...catalogItem,
-            catalogItemType: catalogItem.constructor.name.toLowerCase(),
-        });
-   
     } catch (error) {
         console.log(error);
         return res.status(500).end();
