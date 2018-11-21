@@ -33,10 +33,6 @@ class TransactionService {
         // @ensures({
         //      cart.updateCart === items
         // })
-        if (items.length > 5) {
-            throw Error('Cart limit exceeded');
-        }
-
         const result = this.carts.get(userId);
         let cart: Cart;
 
