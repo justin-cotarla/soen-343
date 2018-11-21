@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import { Administrator, User } from '../models';
+import { Administrator } from '../models';
 import Catalog, { CatalogItemType } from '../services/Catalog';
 
 const catalogController = express.Router();
