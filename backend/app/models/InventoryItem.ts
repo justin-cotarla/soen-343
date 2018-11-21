@@ -4,13 +4,13 @@ class InventoryItem {
     public id: string;
     public catalogItemId: string;
     public loanedTo: string;
-    public dueDate: string;
+    public dueDate: Date;
 
     constructor (
         id: string,
         catalogItemId: string,
         loanedTo: string,
-        dueDate: string,
+        dueDate: Date,
     ) {
         this.id = id;
         this.catalogItemId = catalogItemId,
