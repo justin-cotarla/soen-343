@@ -106,6 +106,30 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
+    async loan(items: InventoryItem[]): Promise<void> {
+        try {
+            let itemIds = '';
+            items.forEach((_, i) => {
+                return i === items.length - 1 ?
+                    itemIds += 'ID = ?' :
+                    itemIds += 'ID = ? AND ';
+            });
+
+            const query = `
+                UPDATE
+                INVENTORY_ITEM
+                SET
+                LOANED_TO = ?
+                WHERE ${itemIds}
+            `;
+
+            await DatabaseUtil.sendQuery(query, [items[0].loanedTo, ...items.map(i => i.id)]);
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     async delete(id: string): Promise<void> {
         try {
             const query = `

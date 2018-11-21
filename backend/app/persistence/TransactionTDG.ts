@@ -1,5 +1,5 @@
 import { TableDataGateway } from './TableDataGateway';
-import { Transaction, Client, InventoryItem } from '../models';
+import { Transaction, Client, InventoryItem, Cart } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
 class TransactionTDG implements TableDataGateway {
@@ -191,6 +191,92 @@ class TransactionTDG implements TableDataGateway {
             await DatabaseUtil.sendQuery(query, [id]);
         } catch (err) {
             console.log(err);
+        }
+    }
+
+    async processLoan(userId: string, cart: Cart): Promise<void> {
+        const items: number[] = cart.getItems();
+
+        let values: any = [userId];
+        let tQuery: string = '';
+        items.forEach((catalogItemId) => {
+            values = [...values, catalogItemId];
+            tQuery += `
+            SELECT
+            @INV_ID := MIN(ID)
+            FROM
+                INVENTORY_ITEM
+            WHERE
+                CATALOG_ITEM_ID = ?
+            AND
+                LOANED_TO IS NULL;
+
+            UPDATE
+                INVENTORY_ITEM
+            SET
+                LOANED_TO = @USER_ID
+            WHERE ID=@INV_ID;
+
+            INSERT INTO
+            \`TRANSACTION\`
+            (OPERATION, INVENTORY_ITEM_ID, USER_ID)
+            VALUES
+            ('LOAN', @INV_ID, @USER_ID);
+            `;
+        });
+
+        const query = `
+        SET @USER_ID = ?;
+
+        START TRANSACTION;
+
+        ${tQuery}
+
+        COMMIT;
+        `;
+
+        try {
+            await DatabaseUtil.sendQuery(query, values);
+        } catch (error) {
+            console.log(error);
+            throw Error('Could not complete loan');
+        }
+    }
+
+    async processReturn(userId: string, inventoryItemId: number) {
+        const query = `
+        SET @USER_ID = ?;
+        SET @INV_ID = ?;
+
+        START TRANSACTION;
+
+        SELECT
+            ID = @INV_ID
+        FROM
+            INVENTORY_ITEM
+        WHERE
+            LOANED_TO = @USER_ID;
+
+        UPDATE
+            INVENTORY_ITEM
+        SET
+        LOANED_TO = NULL
+        WHERE ID=@INV_ID;
+
+        INSERT INTO
+        \`TRANSACTION\`
+        (OPERATION, INVENTORY_ITEM_ID, USER_ID)
+        VALUES
+        ('RETURN', @INV_ID, @USER_ID);
+
+        COMMIT;
+        `;
+
+        try {
+            await DatabaseUtil.sendQuery(query, [userId, inventoryItemId]);
+        } catch (error) {
+            console.log(error);
+            throw Error('Could not complete return');
         }
     }
 }
