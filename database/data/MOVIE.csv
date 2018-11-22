@@ -1,2 +1,4 @@
-CATALOG_ITEM_ID,DIRECTOR,PRODUCERS,ACTORS,LANGUAGE,SUBTITLES,DUBBED,RUNTIM
-1,"Doug Liman","David Bartis, Bruce Berman","Tom Cruise, Emily Blunt","English, French",null,null,113
+CATALOG_ITEM_ID,DIRECTOR,PRODUCERS,ACTORS,LANGUAGE,SUBTITLES,DUBBED,RUNTIME
+1,Doug Liman,"David Bartis, Bruce Berman","Tom Cruise, Emily Blunt","English, French",null,null,113
+2,Christopher Nolan,"Emma Thomas, Christopher Nolan","Leondardo Dicaprio, Ken Watanabe, Joseph Gordon-Levitt, Marion Cotillard, Ellen Page, Tom Hardy, Cillian Murphy, Tom Berenger, Michael Caine",English,null,null,148
+3,Brett Ratner,"Roger Birnbaum, Jonathan Glickman, Arthur M. Sarkissian, Jay Stern","Jackie Chan, Chris Tucker",English,null,null,90

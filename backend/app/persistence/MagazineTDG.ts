@@ -24,8 +24,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ID,
                 magazine.TITLE,
                 magazine.DATE,
-                magazine.ISBN_10,
-                magazine.ISBN_13,
+                magazine.ASIN,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
             );
@@ -55,8 +54,7 @@ class MagazineTDG extends CatalogTDG {
                     magazine.ID,
                     magazine.TITLE,
                     magazine.DATE,
-                    magazine.ISBN_10,
-                    magazine.ISBN_13,
+                    magazine.ASIN,
                     magazine.PUBLISHER,
                     magazine.LANGUAGE,
                 ));
@@ -70,8 +68,7 @@ class MagazineTDG extends CatalogTDG {
                 JOIN MAGAZINE
                 ON ID = CATALOG_ITEM_ID
                 WHERE TITLE LIKE ? OR
-                    ISBN_10 LIKE ? OR
-                    ISBN_13 LIKE ? OR
+                    ASIN ? OR
                     PUBLISHER LIKE ?
             `;
 
@@ -90,8 +87,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ID,
                 magazine.TITLE,
                 magazine.DATE,
-                magazine.ISBN_10,
-                magazine.ISBN_13,
+                magazine.ASIN,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
             ));
@@ -108,8 +104,7 @@ class MagazineTDG extends CatalogTDG {
                 INTO
                 MAGAZINE
                 (
-                    ISBN_10,
-                    ISBN_13,
+                    ASIN,
                     PUBLISHER,
                     LANGUAGE,
                     CATALOG_ITEM_ID
@@ -121,8 +116,7 @@ class MagazineTDG extends CatalogTDG {
             const catalogItem = await super.insert(item);
 
             await DatabaseUtil.sendQuery(queryMagazine, [
-                item.isbn10.toString(),
-                item.isbn13.toString(),
+                item.asin,
                 item.publisher,
                 item.language,
                 catalogItem.id,
@@ -132,8 +126,7 @@ class MagazineTDG extends CatalogTDG {
                 catalogItem.id,
                 catalogItem.title,
                 catalogItem.date,
-                item.isbn10,
-                item.isbn13,
+                item.asin,
                 item.publisher,
                 item.language,
             );
@@ -152,8 +145,7 @@ class MagazineTDG extends CatalogTDG {
                 SET
                 TITLE = ?,
                 DATE = ?,
-                ISBN_10 = ?,
-                ISBN_13 = ?,
+                ASIN = ?,
                 PUBLISHER = ?,
                 LANGUAGE = ?
                 WHERE ID = ?
@@ -162,8 +154,7 @@ class MagazineTDG extends CatalogTDG {
             await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,
-                item.isbn10.toString(),
-                item.isbn13.toString(),
+                item.asin,
                 item.publisher,
                 item.language,
                 item.id,
