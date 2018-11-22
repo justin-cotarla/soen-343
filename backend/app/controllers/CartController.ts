@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import TransactionService from '../services/TransactionService';
 import { Administrator, Transaction } from '../models';
-import { catalogController } from '../controllers/CatalogController';
 
 const cartController = express.Router();
 

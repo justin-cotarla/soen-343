@@ -53,7 +53,9 @@ class CatalogItem extends Component {
 
     getCatalogItem = async (type, id) => {
         try {
-            const { data: { catalogItem, inventory } } = await getCatalogItem(type, id);
+            const { data } = await getCatalogItem(id);
+            const { inventory, ...catalogItem } = data;
+
             this.setState({
                 originalItem: { 
                     ...catalogItem, 
@@ -71,6 +73,7 @@ class CatalogItem extends Component {
                 loading: false,
             });
         } catch (error) {
+            console.log(error)
             if (error.response.status === 404) {
                 this.setState({
                     loading: false,
@@ -191,7 +194,7 @@ class CatalogItem extends Component {
                 default:
                 }
 
-                const { data: { inventory } } = await getCatalogItem(type, id);
+                const { data: { inventory } } = await getCatalogItem(id);
                 this.setState({
                     updating: false,
                     inventory: {

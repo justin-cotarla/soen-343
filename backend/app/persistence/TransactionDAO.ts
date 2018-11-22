@@ -1,8 +1,9 @@
 import { TableDataGateway } from './TableDataGateway';
 import { Transaction, Client, InventoryItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
+import { OperationType } from '../models/Transaction';
 
-class TransactionTDG implements TableDataGateway {
+class TransactionDAO implements TableDataGateway {
     async find(id: string): Promise<Transaction> {
         const query = `
         SELECT
@@ -64,10 +65,10 @@ class TransactionTDG implements TableDataGateway {
                 values.push(`%${query}%`, `%${query}%`, `%${query}%`);
             }
             if (timestamp) {
-                conditions.push('TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0');
+                conditions.push('TIMESTAMPDIFF(DAY, TRANSACTION.TIMESTAMP, ?) = 0');
                 values.push(timestamp);
             }
-            if (operation) {
+            if (operation && Object.values(OperationType).includes(operation.toUpperCase())) {
                 conditions.push('OPERATION = ?');
                 values.push(operation);
             }
@@ -193,6 +194,93 @@ class TransactionTDG implements TableDataGateway {
             console.log(err);
         }
     }
+
+    async processLoan(userId: string, cartItems: any[]): Promise<void> {
+        let values: any = [userId];
+        let tQuery: string = '';
+        cartItems.forEach((cartItem) => {
+            const { catalogItemId, catalogItemType } = cartItem;
+
+            let dueDate: string = '';
+            if (catalogItemType === 'music' || catalogItemType === 'movie') {
+                dueDate = 'DATE_ADD(NOW(), INTERVAL 2 DAY)';
+            } else {
+                dueDate = 'DATE_ADD(NOW(), INTERVAL 1 WEEK)';
+            }
+
+            values = [...values, catalogItemId];
+            tQuery += `
+            SELECT
+            @INV_ID := MIN(ID)
+            FROM
+                INVENTORY_ITEM
+            WHERE
+                CATALOG_ITEM_ID = ?
+            AND
+                LOANED_TO IS NULL;
+
+            UPDATE
+                INVENTORY_ITEM
+            SET
+                LOANED_TO = @USER_ID, DUE_DATE = ${dueDate}
+            WHERE ID=@INV_ID;
+
+            INSERT INTO
+            \`TRANSACTION\`
+            (OPERATION, INVENTORY_ITEM_ID, USER_ID)
+            VALUES
+            ('LOAN', @INV_ID, @USER_ID);
+            `;
+        });
+
+        const query = `
+        SET @USER_ID = ?;
+
+        ${tQuery}
+
+        `;
+
+        try {
+            await DatabaseUtil.doTransaction(query, values);
+        } catch (error) {
+            console.log(error);
+            throw Error('Could not complete loan');
+        }
+    }
+
+    async processReturn(userId: string, inventoryItemId: number) {
+        const query = `
+        SET @USER_ID := ?;
+        SET @INV_ID := ?;
+
+        SELECT
+            ID = @INV_ID
+        FROM
+            INVENTORY_ITEM
+        WHERE
+            LOANED_TO = @USER_ID;
+
+        UPDATE
+            INVENTORY_ITEM
+        SET
+            LOANED_TO = NULL, DUE_DATE = NULL
+        WHERE
+            ID=@INV_ID;
+
+        INSERT INTO
+        \`TRANSACTION\`
+        (OPERATION, INVENTORY_ITEM_ID, USER_ID)
+        VALUES
+        ('RETURN', @INV_ID, @USER_ID);
+        `;
+
+        try {
+            await DatabaseUtil.doTransaction(query, [userId, inventoryItemId]);
+        } catch (error) {
+            console.log(error);
+            throw Error('Could not complete return');
+        }
+    }
 }
 
-export default new TransactionTDG();
+export default new TransactionDAO();

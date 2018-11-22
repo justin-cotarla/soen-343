@@ -1,6 +1,6 @@
 import { Transaction, OperationType } from '../models/Transaction';
 import { Client, InventoryItem } from '../models';
-import { TransactionTDG } from '../persistence';
+import { TransactionDAO } from '../persistence';
 
 class Ledger {
     addTransaction = async (operation: OperationType, user: Client, item: InventoryItem) => {
@@ -11,7 +11,7 @@ class Ledger {
             user,
             item,
         );
-        await TransactionTDG.insert(transaction);
+        await TransactionDAO.insert(transaction);
     }
 
     async viewTransactions(
@@ -21,7 +21,7 @@ class Ledger {
         timestamp: Date,
         operation: string,
     ) : Promise<Transaction[]> {
-        const transactions = await TransactionTDG.findAll(query, timestamp, operation);
+        const transactions = await TransactionDAO.findAll(query, timestamp, operation);
 
         if (order === 'time' && direction === 'asc') {
             transactions.sort((a, b) =>

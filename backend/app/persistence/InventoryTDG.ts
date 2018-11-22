@@ -28,26 +28,46 @@ class InventoryTDG implements TableDataGateway {
         }
     }
 
-    async findAll(catalogItemId: string): Promise<InventoryItem[]> {
+    async findAll(catalogItemId?: string, userId?: string): Promise<InventoryItem[]> {
+
         try {
-            const query = `
-            SELECT
-            *
-            FROM
-            INVENTORY_ITEM
-            WHERE CATALOG_ITEM_ID = ?
-            `;
-            const data = await DatabaseUtil.sendQuery(query, [catalogItemId]);
+            const conditions = [];
+            const values = [];
+
+            if (catalogItemId) {
+                conditions.push('CATALOG_ITEM_ID = ?');
+                values.push(catalogItemId);
+            }
+
+            if (userId) {
+                conditions.push('LOANED_TO = ?');
+                values.push(userId);
+            }
+
+            const conditionString = conditions.length ? conditions.join(' AND ') : 'TRUE';
+            const queryString = `
+                SELECT
+                *
+                FROM
+                INVENTORY_ITEM
+                WHERE ${conditionString}
+                `;
+
+            const data = await DatabaseUtil.sendQuery(
+                queryString,
+                values,
+            );
             if (!data.rows.length) {
                 return [];
             }
 
             return data.rows.map((item: any) => new InventoryItem(
                 item.ID,
-                catalogItemId,
+                item.CATALOG_ITEM_ID,
                 item.LOANED_TO,
                 item.DUE_DATE,
             ));
+
         } catch (err) {
             console.log(err);
         }
