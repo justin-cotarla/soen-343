@@ -91,10 +91,18 @@ userController.get('/:id/loans', async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).end();
     }
+    if (!(req.user instanceof Administrator)) {
+        return res.status(403).end();
+    }
+
+    const { id } = req.params;
+    if (req.user.id !== id) {
+        return res.status(403).end();
+    }
 
     try {
-        await TransactionService.viewLoans(req.user.id);
-        return res.status(200).end();
+        const loans = await TransactionService.viewLoans(req.user.id);
+        return res.status(200).json({ loans });
     } catch (err) {
         console.log(err);
         return res.status(500).end();
