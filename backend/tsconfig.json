@@ -18,9 +18,6 @@
         "typeRoots": [
             "./node_modules/@types"
           ],
-        "types": ["node"],
-        "files": [
-            "user.d.ts"
-        ]
+        "types": ["node"]
     }
 }

@@ -39,9 +39,15 @@ transactionController.put('/', async (req: Request, res: Response) => {
         return res.status(403).end();
     }
 
-    const { operation }: { operation: string } = req.body;
+    const {
+        operation,
+        inventoryItemId,
+    }: { operation: string, inventoryItemId: number } = req.body;
 
-    if (!operation) {
+    if (
+        (!operation) ||
+        (operation.toLowerCase() === 'return' && !inventoryItemId)
+    ) {
         return res.status(400).end();
     }
 
@@ -51,16 +57,15 @@ transactionController.put('/', async (req: Request, res: Response) => {
             await TransactionService.borrowItems(req.user.id);
             break;
         case OperationType.RETURN:
-            const { inventoryItemId } : { inventoryItemId: number } = req.body;
             await TransactionService.returnItem(req.user.id, inventoryItemId);
             break;
         default:
             return res.status(400).end();
         }
 
-        return res.status(200).send('success');
+        return res.status(200).end();
     } catch (error) {
-        return res.status(400).send('fail');
+        return res.status(400).end();
     }
 });
 

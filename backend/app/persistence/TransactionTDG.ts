@@ -194,12 +194,19 @@ class TransactionTDG implements TableDataGateway {
         }
     }
 
-    async processLoan(userId: string, cart: Cart): Promise<void> {
-        const items: number[] = cart.getItems();
-
+    async processLoan(userId: string, cartItems: any[]): Promise<void> {
         let values: any = [userId];
         let tQuery: string = '';
-        items.forEach((catalogItemId) => {
+        cartItems.forEach((cartItem) => {
+            const { catalogItemId, catalogItemType } = cartItem;
+
+            let dueDate: string = '';
+            if (catalogItemType === 'music' || catalogItemType === 'movie') {
+                dueDate = 'DATE_ADD(NOW(), INTERVAL 2 DAY)';
+            } else {
+                dueDate = 'DATE_ADD(NOW(), INTERVAL 1 WEEK)';
+            }
+
             values = [...values, catalogItemId];
             tQuery += `
             SELECT
@@ -214,7 +221,7 @@ class TransactionTDG implements TableDataGateway {
             UPDATE
                 INVENTORY_ITEM
             SET
-                LOANED_TO = @USER_ID
+                LOANED_TO = @USER_ID, DUE_DATE = ${dueDate}
             WHERE ID=@INV_ID;
 
             INSERT INTO
@@ -228,15 +235,12 @@ class TransactionTDG implements TableDataGateway {
         const query = `
         SET @USER_ID = ?;
 
-        START TRANSACTION;
-
         ${tQuery}
 
-        COMMIT;
         `;
 
         try {
-            await DatabaseUtil.sendQuery(query, values);
+            await DatabaseUtil.doTransaction(query, values);
         } catch (error) {
             console.log(error);
             throw Error('Could not complete loan');
@@ -245,10 +249,8 @@ class TransactionTDG implements TableDataGateway {
 
     async processReturn(userId: string, inventoryItemId: number) {
         const query = `
-        SET @USER_ID = ?;
-        SET @INV_ID = ?;
-
-        START TRANSACTION;
+        SET @USER_ID := ?;
+        SET @INV_ID := ?;
 
         SELECT
             ID = @INV_ID
@@ -260,20 +262,19 @@ class TransactionTDG implements TableDataGateway {
         UPDATE
             INVENTORY_ITEM
         SET
-        LOANED_TO = NULL
-        WHERE ID=@INV_ID;
+            LOANED_TO = NULL, DUE_DATE = NULL
+        WHERE
+            ID=@INV_ID;
 
         INSERT INTO
         \`TRANSACTION\`
         (OPERATION, INVENTORY_ITEM_ID, USER_ID)
         VALUES
         ('RETURN', @INV_ID, @USER_ID);
-
-        COMMIT;
         `;
 
         try {
-            await DatabaseUtil.sendQuery(query, [userId, inventoryItemId]);
+            await DatabaseUtil.doTransaction(query, [userId, inventoryItemId]);
         } catch (error) {
             console.log(error);
             throw Error('Could not complete return');
