@@ -5,8 +5,9 @@ import { ToastProvider } from 'react-toast-notifications';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 
-import Navbar from "./components/Navbar";
+import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
+import TransactionPage from './pages/TransactionPage';
 
 import RegisterForm from "./components/RegisterForm";
 import ViewActiveUsers from "./components/ViewActiveUsers";
@@ -31,6 +32,7 @@ class App extends Component {
                             <ProtectedRoute path="/catalog" component={Catalog}/>
                             <AdminRoute path="/users/active" component={ViewActiveUsers}/>
                             <AdminRoute path="/users/register" component={RegisterForm}/>
+                            <AdminRoute path="/transactions" component={TransactionPage}/>
                             <Redirect from="/" to="/login"/>
                         </Switch>
                     </div>
