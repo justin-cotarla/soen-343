@@ -24,6 +24,26 @@ catalogController.get('/', async (req: Request, res: Response) => {
     }
 });
 
+catalogController.get('/:id(\\d+)', async (req: Request, res: Response) => {
+    if (!req.user) {
+        return res.status(401).end();
+    }
+
+    const { id } : { id: string } = req.params;
+    try {
+        const catalogItem = await Catalog.viewItem(id);
+        const inventoryItems = await Catalog.viewInventoryItems(id);
+        return res.status(200).json({
+            ...catalogItem,
+            inventory: inventoryItems,
+            catalogItemType: catalogItem.constructor.name.toLowerCase(),
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).end();
+    }
+});
+
 catalogController.get('/:type', async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).end();

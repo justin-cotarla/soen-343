@@ -1,5 +1,8 @@
-import { Cart, InventoryItem } from '../models';
+import { Cart, InventoryItem, Transaction, Client } from '../models';
+import { TransactionTDG } from '../persistence';
+import Ledger from './Ledger';
 import Catalog from './Catalog';
+
 
 class TransactionService {
     carts: Map<string, Cart>;
@@ -24,15 +27,50 @@ class TransactionService {
         }
 
         return cart.getItems();
-
     }
 
     async cancelTransaction(userId: string) : Promise<boolean> {
         return this.carts.delete(userId);
     }
 
+
     async viewLoans(userId: string) : Promise<InventoryItem[]> {
         return Catalog.viewInventoryItems(null, userId);
+    }
+      
+    async updateCart(items: string[], userId: string) : Promise<Cart> {
+        // @ensures({
+        //      cart.updateCart === items
+        // })
+        const result = this.carts.get(userId);
+        let cart: Cart;
+
+        if (!result) {
+            cart = new Cart(items);
+            this.carts.set(userId, cart);
+            return cart;
+        }
+
+        cart = result;
+        cart.update(items);
+        return cart;
+    }
+
+    async viewTransactions(
+            query: string,
+            order: string,
+            direction: string,
+            timestamp: string,
+            operation: string,
+        ) : Promise<Transaction[]> {
+        const convertedTimestamp = new Date(timestamp);
+        return await Ledger.viewTransactions(
+            query,
+            order,
+            direction,
+            convertedTimestamp,
+            operation,
+        );
     }
 }
 

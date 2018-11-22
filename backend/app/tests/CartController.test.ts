@@ -45,8 +45,8 @@ beforeEach(async () => {
 
 describe('CartController', () => {
     describe('GET /cart/:id', () => {
-        const cart = new Cart();
-        cart.items.set('1', 3);
+
+        const cart = new Cart(['1']);
 
         beforeAll(() => {
             TransactionService['carts'].set('2', cart);
@@ -88,7 +88,7 @@ describe('CartController', () => {
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart).toEqual([{ catalogItemId: '1', quantity: 3 }]);
+            expect(response.body.cart).toEqual(['1']);
         });
     });
 });

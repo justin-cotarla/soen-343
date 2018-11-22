@@ -1,34 +1,40 @@
-import { InventoryItem } from './index';
-import { stringify } from 'querystring';
-
 // @invariant({
 //     this.capacity > 0,
 //     this.items.size() <= this.capacity,
 // })
 class Cart {
-    public items: Map<string, number>;
-    public capacity: number = 5;
+    public items: string[];
+    private capacity: number;
+    private size: number;
 
     // @ensures({
     //    this.items !== null,
     // })
-    constructor() {
-        this.items = new Map<string, number>();
+    constructor(cartItems: string[]) {
+        this.items = cartItems;
+        this.capacity = 5;
+        this.size = cartItems.length;
     }
 
     // @ensures({
     //     this.items === @pre this.items,
     // })
     public getItems(): any {
-        let cart: any = [];
-        this.items.forEach((quantity, catalogItemId) => {
-            cart = cart.concat({
-                catalogItemId,
-                quantity,
-            });
-        });
+        return this.items;
+    }
 
-        return cart;
+    // @requires({
+    //     newItems.length <= 5,
+    // })
+    // @ensures({
+    //      this.items = newItems
+    // })
+    public update(newItems: string[]) {
+        if (newItems.length > 5) {
+            throw Error('Cart limit exceeded');
+        }
+        this.items = newItems;
+        this.size = newItems.length;
     }
 }
 
