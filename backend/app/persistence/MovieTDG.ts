@@ -177,7 +177,7 @@ class MovieTDG extends CatalogTDG{
                 SUBTITLES = ?,
                 DUBBED = ?,
                 RUNTIME = ?
-                WHERE ID = ? AND TIMESTAMP = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
             //'yyyy-MM-ddTHH:mm:ss.sssZ'
             await DatabaseUtil.sendQuery(query, [

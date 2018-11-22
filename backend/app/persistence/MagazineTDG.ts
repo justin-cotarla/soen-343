@@ -158,7 +158,7 @@ class MagazineTDG extends CatalogTDG {
                 ISBN_13 = ?,
                 PUBLISHER = ?,
                 LANGUAGE = ?
-                WHERE ID = ? AND TIMESTAMP = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
 
             await DatabaseUtil.sendQuery(query, [

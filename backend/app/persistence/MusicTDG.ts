@@ -157,7 +157,7 @@ class MusicTDG extends CatalogTDG{
                 ARTIST = ?,
                 LABEL = ?,
                 ASIN = ?
-                WHERE ID = ? AND TIMESTAMP = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
 
             await DatabaseUtil.sendQuery(query, [

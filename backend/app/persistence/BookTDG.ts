@@ -172,7 +172,7 @@ class BookTDG extends CatalogTDG{
                 PUBLISHER = ?,
                 FORMAT = ?,
                 PAGES = ?
-                WHERE ID = ? AND TIMESTAMP = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
