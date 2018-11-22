@@ -65,7 +65,8 @@ transactionController.put('/', async (req: Request, res: Response) => {
 
         return res.status(200).end();
     } catch (error) {
-        return res.status(400).end();
+        console.log(error.message);
+        return res.status(400).json({ error: error.message });
     }
 });
 

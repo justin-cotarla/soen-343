@@ -28,6 +28,10 @@ class TransactionService {
         return cart.getItems();
     }
 
+    async viewLoans(userId: string) : Promise<InventoryItem[]> {
+        return Catalog.viewInventoryItems(null, userId);
+    }
+
     async updateCart(items: number[], userId: string) : Promise<Cart> {
         // @ensures({
         //      cart.updateCart === items
@@ -78,8 +82,6 @@ class TransactionService {
     //     this.carts.get(userId) === undefined,
     //
     async borrowItems(userId: string): Promise<void> {
-        const j = new Cart([1]);
-        this.carts.set('16', j);
         const cart = this.carts.get(userId.toString());
 
         // User's cart must exist
@@ -92,10 +94,17 @@ class TransactionService {
             throw Error('Cart is empty');
         }
 
-        // USer cannot have more than 5 total items on loan
-        // if (this.viewLoans(user).length + cart.size()) {
-        //     throw Error('Cannot have more than 5 items on loan');
-        // }
+        // User cannot have more than 5 total items on loan
+        let itemsOnLoan: InventoryItem[];
+        try {
+            itemsOnLoan = await this.viewLoans(userId);
+        } catch (error) {
+            throw error;
+        }
+
+        if (itemsOnLoan.length + cart.size() > 5) {
+            throw Error('Cannot have more than 5 items on loan');
+        }
 
         // get type of item to determine due date later
         let cartItems: any[] = cart.getItems();
