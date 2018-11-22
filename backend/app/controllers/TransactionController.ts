@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { Administrator } from '../models';
+import { OperationType, Transaction } from '../models/Transaction';
 import TransactionService from '../services/TransactionService';
 
 const transactionController = express.Router();
