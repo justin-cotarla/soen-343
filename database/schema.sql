@@ -71,8 +71,7 @@ ENGINE = InnoDB;
 -- Table `library_db`.`MAGAZINE`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `library_db`.`MAGAZINE` (
-  `ISBN_10` CHAR(10) NOT NULL,
-  `ISBN_13` CHAR(13) NOT NULL,
+  `ASIN` VARCHAR(45) NOT NULL,
   `PUBLISHER` VARCHAR(45) NOT NULL,
   `LANGUAGE` VARCHAR(45) NOT NULL,
   `CATALOG_ITEM_ID` INT NOT NULL,
