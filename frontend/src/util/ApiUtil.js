@@ -130,8 +130,8 @@ export const getCatalog = async (type='', query='', order='', direction='') => {
     })
 }
 
-export const getCatalogItem = async (type, catalogItemId) => {
-    return await api.get(`/catalog/${type}/${catalogItemId}`, {
+export const getCatalogItem = async (catalogItemId) => {
+    return await api.get(`/catalog/${catalogItemId}`, {
         headers: { 
             "Access-Control-Allow-Origin": "*",
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
