@@ -208,12 +208,9 @@ export const getCart = async () => {
     const token = localStorage.getItem('Authorization');
     return await api({
         method: 'get',
-        url: `/carts`,
-        query: {
-            userid: jwtDecode(token).id,
-        },
+        url: `/carts/${jwtDecode(token).user.id}`,
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+            'Authorization': `Bearer ${token}` 
         },
     })
 }
@@ -222,10 +219,7 @@ export const updateCart = async (items) => {
     const token = localStorage.getItem('Authorization');
     return await api({
         method: 'post',
-        url: `/carts`,
-        query: {
-            userid: jwtDecode(token).id,
-        },
+        url: `/carts/${jwtDecode(token).user.id}`,
         data: {
             items,
         },
@@ -239,22 +233,19 @@ export const deleteCart = async () => {
     const token = localStorage.getItem('Authorization');
     return await api({
         method: 'delete',
-        url: `/carts`,
-        query: {
-            userid: jwtDecode(token).id,
-        },
+        url: `/carts/${jwtDecode(token).user.id}`,
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
     })
 }
 
-export const checkout = async (items) => {
+export const checkout = async () => {
     return await api({
         method: 'put',
         url: `/transactions`,
         data: {
-            items,
+            operation: 'loan',
         },
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 

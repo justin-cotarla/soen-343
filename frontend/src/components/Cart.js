@@ -25,7 +25,7 @@ class Cart extends Component {
     onCheckoutClick = () => {
         const { cartCheckoutAsync, itemList } = this.props;
 
-        cartCheckoutAsync(itemList);
+        cartCheckoutAsync();
     }
 
     onDeleteClick = async (deletedId) => {
@@ -67,16 +67,18 @@ class Cart extends Component {
                 { itemList.length &&
                     <Card.Content>
                         <Button
-                            primary
+                            color="teal"
                             content="Checkout"
                             floated="left"
                             onClick={this.onCheckoutClick}
+                            style={{ width: '100px' }}
                         />
                         <Button
                             negative
                             content="Clear"
                             floated="right"
                             onClick={this.onCancelClick}
+                            style={{ width: '100px' }}
                         />
                     </Card.Content>
                 }
@@ -91,7 +93,7 @@ class Cart extends Component {
             return (
                 <Header as='h3' icon textAlign="center" style={{ marginTop: '1em' }}>
                     <Icon name='list'/>
-                    Empty Cart
+                    Your cart is empty
                 </Header>
             )
         } else {

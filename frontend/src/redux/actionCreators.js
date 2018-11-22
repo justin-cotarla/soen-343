@@ -10,7 +10,7 @@ import {
     updateCart,
     getCart,
     getCatalogItem,
-} from '../util/__mocks__/ApiUtil';
+} from '../util/ApiUtil';
 
 export function cartSetCart(itemList) {
     return {
@@ -28,21 +28,31 @@ export function cartSetLoading(loading) {
 
 export function cartDeleteAsync() {
     return async dispatch => {
-        await deleteCart();
-        dispatch(cartSetCart([]));
+        try {
+            await deleteCart();
+            localStorage.setItem('cart', JSON.stringify([]));
+            dispatch(cartSetCart([]));
+        } catch (err) {
+            console.err(err);
+        }
     }
 } 
 
-export function cartCheckoutAsync(itemList) {
+export function cartCheckoutAsync() {
     return async dispatch => {
-        await checkout(itemList.map(({ catalogItemId }) => catalogItemId));
-        dispatch(cartSetCart([]));
+        try {
+            await checkout();
+            localStorage.setItem('cart', JSON.stringify([]));
+            dispatch(cartSetCart([]));
+        } catch (err) {
+            console.error(err);
+        }
     }
     
 }
 export function cartUpdateAsync(itemList) {
     return async dispatch => {
-        await updateCart(itemList.map(({ id }) => id));
+        await updateCart(itemList.map(({ catalogItemId }) => catalogItemId));
         localStorage.setItem('cart', JSON.stringify(itemList));
         dispatch(cartSetCart(itemList));
     }
@@ -52,7 +62,13 @@ export function cartGetAsync() {
     return async dispatch => {
         let itemList;
         if (!(itemList = JSON.parse(localStorage.getItem('cart')))) {
-            itemList = await Promise.all(((await getCart()).data).map(async id => ({
+            let cart;
+            try {
+                cart = (await getCart()).data;
+            } catch (err) {
+                cart = [];
+            }
+            itemList = await Promise.all(cart.map(async id => ({
                 id: uuidv4(),
                 catalogItemId: id,
                 title: (await getCatalogItem(id)).data.title,

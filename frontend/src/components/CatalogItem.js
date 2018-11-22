@@ -175,7 +175,11 @@ class CatalogItem extends Component {
         })
     }
 
-    handleAddInventoryItem = (id, title) => {
+    handleAddInventoryItem = () => {
+        this.handleInventoryAction('add');
+    }
+
+    handleAddToCart = (id, title) => {
         const {
             itemList,
             cartUpdateAsync,
@@ -454,7 +458,7 @@ class CatalogItem extends Component {
                                                 icon
                                                 labelPosition="left"
                                                 color="teal"
-                                                onClick={() => this.handleAddInventoryItem(id, title)}
+                                                onClick={() => this.handleAddToCart(id, title)}
                                                 disabled={inventory.total === 0 || inventory.available === 0 }>
                                                 <Icon name="cart"/>
                                                 Add to cart

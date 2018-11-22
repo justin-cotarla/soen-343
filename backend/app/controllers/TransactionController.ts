@@ -3,6 +3,14 @@ import { Administrator } from '../models';
 import { OperationType } from '../models/Transaction';
 import TransactionService from '../services/TransactionService';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: import('../models/User').User;
+        }
+    }
+}
+
 const transactionController = express.Router();
 
 // @requires(
@@ -13,7 +21,7 @@ transactionController.get('/', async (req: Request, res: Response) => {
         return res.status(401).end();
     }
 
-    if (req.user instanceof Administrator) {
+    if (!(req.user instanceof Administrator)) {
         return res.status(405).end();
     }
 
@@ -38,34 +46,6 @@ transactionController.get('/', async (req: Request, res: Response) => {
         console.log(err);
         return res.status(500).end();
     }
-});
-
-// @requires(
-//     req.user instanceof Client,
-//     req.user.id === req.params.id,
-//     TransactionService.carts.has(req.user.id) === true
-// )
-// @ensures(
-//     TransactionService.carts.has(req.user.id) === false,
-//     TransactionService.carts.size() === $old(TransactionService.carts.size()) - 1
-// )
-transactionController.delete('/:id', async (req: Request, res: Response) => {
-    if (!req.user) {
-        return res.status(401).end();
-    }
-
-    if (req.user instanceof Administrator) {
-        return res.status(405).end();
-    }
-
-    const userId = req.params.id;
-    const cancelled = await TransactionService.cancelTransaction(userId);
-
-    if (cancelled) {
-        return res.status(200).end();
-    }
-    return res.status(400).end();
-
 });
 
 // @requires({

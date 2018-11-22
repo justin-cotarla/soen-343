@@ -4,6 +4,14 @@ import UserService from '../services/UserService';
 import TransactionService from '../services/TransactionService';
 import { Administrator } from '../models';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: import('../models/User').User;
+        }
+    }
+}
+
 const userController = express.Router();
 
 userController.put('/', async (req: Request, res: Response) => {
