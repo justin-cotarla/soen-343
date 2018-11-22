@@ -28,6 +28,17 @@ class TransactionService {
         return cart.getItems();
     }
 
+    // @requires(
+    //     this.carts.has(userId) === true
+    // )
+    // @ensures(
+    //     this.carts.has(userId) === false,
+    //     this.carts.size() === $old(this.carts.size()) - 1
+    // )
+    async cancelTransaction(userId: string) : Promise<boolean> {
+        return this.carts.delete(userId);
+    }
+
     async viewLoans(userId: string) : Promise<InventoryItem[]> {
         return Catalog.viewInventoryItems(null, userId);
     }
@@ -51,13 +62,13 @@ class TransactionService {
     }
 
     async viewTransactions(
-        query: string,
-        order: string,
-        direction: string,
-        timestamp: string,
-        operation: string,
-    ) : Promise<Transaction[]> {
-        const convertedTimestamp = new Date(timestamp);
+            query: string,
+            order: string,
+            direction: string,
+            timestamp: string,
+            operation: string,
+        ) : Promise<Transaction[]> {
+        const convertedTimestamp = timestamp ? new Date(timestamp) : null;
         return await Ledger.viewTransactions(
             query,
             order,
@@ -65,12 +76,6 @@ class TransactionService {
             convertedTimestamp,
             operation,
         );
-    }
-
-    // @requires({ this.carts.get(userId) !== undefined })
-    // @ensures({ this.carts.get(userId) === undefined })
-    async cancelTransaction(userId: string) : Promise<boolean> {
-        return this.carts.delete(userId);
     }
 
     // @requires({

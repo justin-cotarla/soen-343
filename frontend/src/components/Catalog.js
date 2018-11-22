@@ -108,7 +108,6 @@ class Catalog extends React.Component {
             <div style={{
                 display: 'inline-block',
                 width: '100%',
-                marginTop: '4em',
                 padding: '1em 2em' }}>
                 <CatalogTypeFilter 
                     selectedTypeFilter={type} 

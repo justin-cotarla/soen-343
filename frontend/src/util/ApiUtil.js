@@ -130,8 +130,8 @@ export const getCatalog = async (type='', query='', order='', direction='') => {
     })
 }
 
-export const getCatalogItem = async (type, catalogItemId) => {
-    return await api.get(`/catalog/${type}/${catalogItemId}`, {
+export const getCatalogItem = async (catalogItemId) => {
+    return await api.get(`/catalog/${catalogItemId}`, {
         headers: { 
             "Access-Control-Allow-Origin": "*",
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}`,
@@ -176,6 +176,26 @@ export const deleteInventoryItem = async (catalogItemType, id) => {
     return await api({
         method: 'delete',
         url: `/catalog/${catalogItemType}/${id}/inventory`,
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const getTransactions = async (params) => {
+    const {
+        date,
+        query,
+        operation,
+    } = params;
+    return await api({
+        method: 'get',
+        url: `/transactions`,
+        params: {
+            timestamp: date,
+            query,
+            operation,
+        },
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },

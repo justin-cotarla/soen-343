@@ -1,6 +1,7 @@
 import { TableDataGateway } from './TableDataGateway';
 import { Transaction, Client, InventoryItem, Cart } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
+import { OperationType } from '../models/Transaction';
 
 class TransactionDAO implements TableDataGateway {
     async find(id: string): Promise<Transaction> {
@@ -64,10 +65,10 @@ class TransactionDAO implements TableDataGateway {
                 values.push(`%${query}%`, `%${query}%`, `%${query}%`);
             }
             if (timestamp) {
-                conditions.push('TIMESTAMPDIFF(DAY, TIMESTAMP, ?) = 0');
+                conditions.push('TIMESTAMPDIFF(DAY, TRANSACTION.TIMESTAMP, ?) = 0');
                 values.push(timestamp);
             }
-            if (operation) {
+            if (operation && Object.values(OperationType).includes(operation.toUpperCase())) {
                 conditions.push('OPERATION = ?');
                 values.push(operation);
             }

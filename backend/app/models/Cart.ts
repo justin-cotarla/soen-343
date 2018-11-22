@@ -8,6 +8,8 @@ class Cart {
 
     // @ensures({
     //    this.items !== null,
+    //    this.capacity === 5,
+    //    this.size >= 0
     // })
     constructor(cartItems: number[]) {
         this.items = cartItems;
@@ -29,7 +31,8 @@ class Cart {
     //     newItems.length <= 5,
     // })
     // @ensures({
-    //      this.items = newItems
+    //      this.items === newItems,
+    //      this.size === newItems.length
     // })
     public update(newItems: number[]) {
         if (newItems.length > this.capacity) {
