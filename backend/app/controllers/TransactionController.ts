@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import { Administrator } from '../models';
-import { OperationType, Transaction } from '../models/Transaction';
 import TransactionService from '../services/TransactionService';
 
 const transactionController = express.Router();
@@ -12,11 +11,13 @@ transactionController.get('/', async (req: Request, res: Response) => {
     if (!req.user || !(req.user instanceof Administrator)) {
         return res.status(403).end();
     }
-    const { query, order, direction, timestamp, operation } = req.query;
-
-    if (!Object.values(OperationType).includes(operation.toUpperCase())) {
-        return res.status(400).end();
-    }
+    const {
+        query,
+        order,
+        direction,
+        timestamp,
+        operation,
+    } = req.query;
 
     try {
         const transactions = await TransactionService.viewTransactions(
@@ -26,7 +27,7 @@ transactionController.get('/', async (req: Request, res: Response) => {
             timestamp,
             operation,
         );
-        return res.status(200).json({ transactions });
+        return res.status(200).json(transactions);
     } catch (err) {
         console.log(err);
         return res.status(500).end();
