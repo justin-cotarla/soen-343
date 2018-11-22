@@ -43,10 +43,10 @@ class TransactionService {
         return Catalog.viewInventoryItems(null, userId);
     }
 
+    // @ensures(
+    //     this.carts.get(userId).items === items
+    // )
     async updateCart(items: number[], userId: string) : Promise<Cart> {
-        // @ensures({
-        //      cart.updateCart === items
-        // })
         const result = this.carts.get(userId);
         let cart: Cart;
 

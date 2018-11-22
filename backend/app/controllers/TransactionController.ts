@@ -9,9 +9,14 @@ const transactionController = express.Router();
 //     req.user instanceof Administrator
 // )
 transactionController.get('/', async (req: Request, res: Response) => {
-    if (!req.user || !(req.user instanceof Administrator)) {
-        return res.status(403).end();
+    if (!req.user) {
+        return res.status(401).end();
     }
+
+    if (req.user instanceof Administrator) {
+        return res.status(405).end();
+    }
+
     const {
         query,
         order,
@@ -50,7 +55,7 @@ transactionController.delete('/:id', async (req: Request, res: Response) => {
     }
 
     if (req.user instanceof Administrator) {
-        return res.status(403).end();
+        return res.status(405).end();
     }
 
     const userId = req.params.id;
@@ -75,7 +80,7 @@ transactionController.put('/', async (req: Request, res: Response) => {
     }
 
     if (req.user instanceof Administrator) {
-        return res.status(403).end();
+        return res.status(405).end();
     }
 
     const {

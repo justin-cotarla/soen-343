@@ -1,5 +1,5 @@
 import { TableDataGateway } from './TableDataGateway';
-import { Transaction, Client, InventoryItem, Cart } from '../models';
+import { Transaction, Client, InventoryItem } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 import { OperationType } from '../models/Transaction';
 
