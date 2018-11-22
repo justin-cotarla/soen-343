@@ -3,6 +3,14 @@ import express, { Request, Response } from 'express';
 import { Administrator } from '../models';
 import Catalog, { CatalogItemType } from '../services/Catalog';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: import('../models/User').User;
+        }
+    }
+}
+
 const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {

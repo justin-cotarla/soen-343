@@ -114,6 +114,7 @@ class TransactionService {
         // get type of item to determine due date later
         let cartItems: any[] = cart.getItems();
         cartItems = cartItems.map(async (catalogItemId: any) => {
+            console.log(catalogItemId)
             const catalogItem = await Catalog.viewItem(catalogItemId);
             return {
                 catalogItemId,

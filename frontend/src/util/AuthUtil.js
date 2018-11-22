@@ -33,5 +33,6 @@ export const isAdmin = () => {
 
 export const invalidate = () => {
     localStorage.removeItem('Authorization');
+    localStorage.removeItem('cart');
     window.location.reload();
 }

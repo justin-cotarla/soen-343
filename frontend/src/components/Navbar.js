@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Header, Icon } from "semantic-ui-react"
 
+import Cart from '../components/Cart';
 import { logout } from '../util/ApiUtil';
 import { invalidate } from '../util/AuthUtil';
 
@@ -91,14 +92,15 @@ const Navbar = (props) => {
                     item
                     floating
                     fluid
-                    text={`${user.lastName}, ${user.firstName}`}>
-                        <Dropdown.Menu>
-                            <Dropdown.Item
-                                icon="log out"
-                                content="Log Out"
-                                onClick={handleLogout}/>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    text={`${user.lastName}, ${user.firstName}`}
+                >
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            icon="log out"
+                            content="Log Out"
+                            onClick={handleLogout}/>
+                    </Dropdown.Menu>
+                </Dropdown>
             }
             {
                 !user &&
@@ -110,6 +112,25 @@ const Navbar = (props) => {
                 </Menu.Item>
             }      
             </Menu.Menu>
+            { user && !isAdmin &&
+                <Menu.Menu>
+                   <Dropdown 
+                        item
+                        fluid
+                        simple
+                        icon="shopping cart"
+                    >
+                        <Dropdown.Menu style={{
+                            right: "0",
+                            left: "auto",
+                            width: "300px",
+                            border: "none",
+                        }}>
+                            <Cart/>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Menu.Menu>
+            }
         </Menu>    
     )
 }
