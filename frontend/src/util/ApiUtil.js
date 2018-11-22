@@ -181,3 +181,23 @@ export const deleteInventoryItem = async (catalogItemType, id) => {
         },
     })
 }
+
+export const getTransactions = async (params) => {
+    const {
+        date,
+        query,
+        operation,
+    } = params;
+    return await api({
+        method: 'get',
+        url: `/transactions`,
+        params: {
+            timestamp: date,
+            query,
+            operation,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}

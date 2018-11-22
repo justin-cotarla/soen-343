@@ -1,8 +1,6 @@
-import { Cart, InventoryItem, Transaction, Client } from '../models';
-import { TransactionTDG } from '../persistence';
+import { Cart, InventoryItem, Transaction } from '../models';
 import Ledger from './Ledger';
 import Catalog from './Catalog';
-
 
 class TransactionService {
     carts: Map<string, Cart>;
@@ -14,13 +12,13 @@ class TransactionService {
         this.carts = new Map<string, Cart>();
     }
 
+    // @requires({
+    //     this.carts.get(userId) !== null,
+    // })
+    // @ensures({
+    //     cart.getItems() === @pre cart.getItems()
+    // })
     async viewCart(userId: string) : Promise<InventoryItem[]> {
-        // @requires({
-        //     this.carts.get(userId) !== null,
-        // })
-        // @ensures({
-        //     cart.getItems() === @pre cart.getItems()
-        // })
         const cart = this.carts.get(userId);
         if (cart === undefined) {
             throw Error(`No cart matching user id: ${userId}`);
@@ -29,19 +27,25 @@ class TransactionService {
         return cart.getItems();
     }
 
+    // @requires(
+    //     this.carts.has(userId) === true
+    // )
+    // @ensures(
+    //     this.carts.has(userId) === false,
+    //     this.carts.size() === $old(this.carts.size()) - 1
+    // )
     async cancelTransaction(userId: string) : Promise<boolean> {
         return this.carts.delete(userId);
     }
 
-
     async viewLoans(userId: string) : Promise<InventoryItem[]> {
         return Catalog.viewInventoryItems(null, userId);
     }
-      
+
+    // @ensures(
+    //     this.carts.get(userId).items === items
+    // )
     async updateCart(items: string[], userId: string) : Promise<Cart> {
-        // @ensures({
-        //      cart.updateCart === items
-        // })
         const result = this.carts.get(userId);
         let cart: Cart;
 
@@ -63,7 +67,7 @@ class TransactionService {
             timestamp: string,
             operation: string,
         ) : Promise<Transaction[]> {
-        const convertedTimestamp = new Date(timestamp);
+        const convertedTimestamp = timestamp ? new Date(timestamp) : null;
         return await Ledger.viewTransactions(
             query,
             order,
