@@ -22,7 +22,7 @@ const Navbar = (props) => {
         isAdmin = token.isAdmin;
     }
     return (
-        <Menu vertical={vertical} fixed="top" fluid inverted>
+        <Menu vertical={vertical} attached="top" fluid inverted>
             <Menu.Item>
                 <Header as="h1">
                     <Link style={{ color: 'white' }} to="/search">
@@ -75,6 +75,14 @@ const Navbar = (props) => {
                                 content="View Active"/>
                         </Dropdown.Menu>
                 </Dropdown>
+            }
+            {
+                isAdmin && 
+                <Menu.Item
+                    as={NavLink}
+                    to="/transactions"
+                    content="Transactions"
+                />
             }
             <Menu.Menu position="right">
             {
