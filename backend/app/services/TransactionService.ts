@@ -1,6 +1,6 @@
 import Ledger from './Ledger';
 import Catalog from './Catalog';
-import TransactionTDG  from '../persistence/TransactionTDG';
+import TransactionDAO  from '../persistence/TransactionDAO';
 import { Cart, Transaction, InventoryItem } from '../models';
 
 class TransactionService {
@@ -124,7 +124,7 @@ class TransactionService {
         }
 
         try {
-            await TransactionTDG.processLoan(userId, cartItems);
+            await TransactionDAO.processLoan(userId, cartItems);
             this.carts.delete(userId.toString());
         } catch (error) {
             throw error;
@@ -134,7 +134,7 @@ class TransactionService {
 
     async returnItem(userId: string, inventoryItemId: number): Promise<void> {
         try {
-            await TransactionTDG.processReturn(userId, inventoryItemId);
+            await TransactionDAO.processReturn(userId, inventoryItemId);
         } catch (error) {
             throw error;
         }

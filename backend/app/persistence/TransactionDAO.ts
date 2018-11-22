@@ -2,7 +2,7 @@ import { TableDataGateway } from './TableDataGateway';
 import { Transaction, Client, InventoryItem, Cart } from '../models';
 import DatabaseUtil from '../utility/DatabaseUtil';
 
-class TransactionTDG implements TableDataGateway {
+class TransactionDAO implements TableDataGateway {
     async find(id: string): Promise<Transaction> {
         const query = `
         SELECT
@@ -282,4 +282,4 @@ class TransactionTDG implements TableDataGateway {
     }
 }
 
-export default new TransactionTDG();
+export default new TransactionDAO();
