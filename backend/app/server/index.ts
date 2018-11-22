@@ -1,4 +1,4 @@
-import express = require('express');
+import express, { Request } from 'express';
 
 import DatabaseUtil from '../utility/DatabaseUtil';
 import { router } from '../controllers';

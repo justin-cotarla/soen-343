@@ -2,7 +2,7 @@ import 'jest';
 import supertest from 'supertest';
 
 import server from '../server';
-import { Administrator, Client, InventoryItem, Cart } from '../models';
+import { Administrator, Client, Cart } from '../models';
 import { generateToken } from '../utility/AuthUtil';
 
 import TransactionService from '../services/TransactionService';
@@ -45,8 +45,7 @@ beforeEach(async () => {
 
 describe('CartController', () => {
     describe('GET /cart/:id', () => {
-
-        const cart = new Cart(['1']);
+        const cart = new Cart([1]);
 
         beforeAll(() => {
             TransactionService['carts'].set('2', cart);
@@ -54,28 +53,28 @@ describe('CartController', () => {
 
         it('Cannot be accessed by administrators', async () => {
             await supertest(server)
-                .get('/cart/1')
+                .get('/carts/1')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .expect(403);
         });
 
         it('Requires the :id param', async () => {
             await supertest(server)
-                .get('/cart')
+                .get('/carts')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(404);
         });
 
         it('Throws an error if a user attempts to access a cart other than their own', async () => {
             await supertest(server)
-                .get('/cart/3')
+                .get('/carts/3')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(403);
         });
 
         it('Returns a list of inventory items', async () => {
             const response = await supertest(server)
-                .get('/cart/2')
+                .get('/carts/2')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
@@ -84,11 +83,11 @@ describe('CartController', () => {
 
         it('Does not modify the contents of the requested cart', async () => {
             const response = await supertest(server)
-                .get('/cart/2')
+                .get('/carts/2')
                 .set('Authorization', `Bearer ${clientToken}`)
                 .expect(200);
 
-            expect(response.body.cart).toEqual(['1']);
+            expect(response.body.cart).toEqual([1]);
         });
     });
 });
