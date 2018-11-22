@@ -28,6 +28,7 @@ class MagazineTDG extends CatalogTDG {
                 magazine.ISBN_13,
                 magazine.PUBLISHER,
                 magazine.LANGUAGE,
+                magazine.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);
@@ -152,11 +153,12 @@ class MagazineTDG extends CatalogTDG {
                 SET
                 TITLE = ?,
                 DATE = ?,
+                TIMESTAMP = CURRENT_TIMESTAMP,
                 ISBN_10 = ?,
                 ISBN_13 = ?,
                 PUBLISHER = ?,
                 LANGUAGE = ?
-                WHERE ID = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -167,6 +169,7 @@ class MagazineTDG extends CatalogTDG {
                 item.publisher,
                 item.language,
                 item.id,
+                item.timestamp,
             ]);
         } catch (err) {
             console.log(err);

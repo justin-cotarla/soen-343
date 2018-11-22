@@ -19,6 +19,7 @@ class DatabaseUtil {
             user: 'user',
             password: process.env.DB_KEY,
             database: 'library_db',
+            dateStrings: true,
             multipleStatements: true,
         });
     }

@@ -30,6 +30,7 @@ class BookTDG extends CatalogTDG{
                 book.PUBLISHER,
                 book.FORMAT,
                 book.PAGES,
+                book.TIMESTAMP,
             );
         } catch (err) {
             console.log(err);
@@ -164,13 +165,14 @@ class BookTDG extends CatalogTDG{
                 SET
                 TITLE = ?,
                 DATE = ?,
+                TIMESTAMP = CURRENT_TIMESTAMP,
                 ISBN_10 = ?,
                 ISBN_13 = ?,
                 AUTHOR = ?,
                 PUBLISHER = ?,
                 FORMAT = ?,
                 PAGES = ?
-                WHERE ID = ?
+                WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
 
             await DatabaseUtil.sendQuery(query, [
@@ -183,6 +185,7 @@ class BookTDG extends CatalogTDG{
                 item.format.toString(),
                 item.pages.toString(),
                 item.id,
+                item.timestamp,
             ]);
         } catch (err) {
             console.log(err);
