@@ -23,7 +23,7 @@ class Cart extends Component {
     }
 
     onCheckoutClick = () => {
-        const { cartCheckoutAsync, itemList } = this.props;
+        const { cartCheckoutAsync } = this.props;
 
         cartCheckoutAsync();
     }

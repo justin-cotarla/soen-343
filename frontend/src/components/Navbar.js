@@ -92,15 +92,22 @@ const Navbar = (props) => {
                     item
                     floating
                     fluid
-                    text={`${user.lastName}, ${user.firstName}`}
-                >
-                    <Dropdown.Menu>
-                        <Dropdown.Item
-                            icon="log out"
-                            content="Log Out"
-                            onClick={handleLogout}/>
-                    </Dropdown.Menu>
-                </Dropdown>
+                    text={`${user.lastName}, ${user.firstName}`}>
+                        <Dropdown.Menu>
+                            {
+                                !isAdmin && 
+                                <Dropdown.Item
+                                    as={NavLink}
+                                    to="/loans"
+                                    icon="list"
+                                    content="My Loans"/>
+                            }
+                            <Dropdown.Item
+                                icon="log out"
+                                content="Log Out"
+                                onClick={handleLogout}/>
+                        </Dropdown.Menu>
+                    </Dropdown>
             }
             {
                 !user &&
