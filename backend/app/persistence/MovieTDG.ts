@@ -179,7 +179,7 @@ class MovieTDG extends CatalogTDG{
                 RUNTIME = ?
                 WHERE ID = ? AND TIMESTAMP LIKE ?
             `;
-            //'yyyy-MM-ddTHH:mm:ss.sssZ'
+
             await DatabaseUtil.sendQuery(query, [
                 item.title,
                 item.date,

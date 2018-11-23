@@ -1,22 +1,42 @@
 import React from 'react'
 import { Grid, List } from 'semantic-ui-react'
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
+
 
 import CatalogTypeFilter from '../components/CatalogTypeFilter';
 import CatalogItem from '../components/CatalogItem';
-import CatalogItemPreview from "../components/CatalogItemPreview";
+import CatalogItemPreview from '../components/CatalogItemPreview';
+import SearchBar from '../components/SearchBar';
 
-import { getCatalog } from "../util/ApiUtil";
+import { getCatalog } from '../util/ApiUtil';
 
 import '../styles/Catalog.css';
 
-class Catalog extends React.Component {
-    state = { 
-        catalog: null,
-        type: '',
-        query: '',
-        order: '',
-        direction: '',
+class CatalogPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { 
+            catalog: null,
+            type: '',
+            query: '',
+            order: '',
+            direction: '',
+        };
+    }
+
+    onSubmit = async (query, type, order) => {
+        const { direction } = this.state;
+        try {
+            const { data } = await getCatalog(type, query, order, direction);
+            this.setState({ 
+                catalog: data,
+                type,
+                query,
+                order,
+            });
+        } catch (error) {
+
+        }
     };
 
     componentDidMount = async () => {
@@ -103,12 +123,13 @@ class Catalog extends React.Component {
     
     render() {
         const { match, location } = this.props;
-        const { catalog, type } = this.state;
+        const { catalog, type, form } = this.state;
         return (
             <div style={{
                 display: 'inline-block',
                 width: '100%',
-                padding: '1em 2em' }}>
+                padding: '2em 2em' }}>
+                <SearchBar onSubmit={this.onSubmit}/>
                 <CatalogTypeFilter 
                     selectedTypeFilter={type} 
                     handleTypeFilterClick={this.handleTypeFilterClick}
@@ -137,4 +158,4 @@ class Catalog extends React.Component {
     }
 }
 
-export default Catalog;
+export default CatalogPage;

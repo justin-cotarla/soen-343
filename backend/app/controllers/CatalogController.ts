@@ -129,7 +129,7 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
     if (
         !(title && date) || // Common
         (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-        !(asin && publisher && language) && // Magazine
+        !(isbn10 && isbn13 && publisher && language) && // Magazine
         !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
         !(type && artist && label && asin)) // Music
     ) {
@@ -239,7 +239,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
         !(title && date && timestamp) || // Common
         (
             !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-            !(asin && publisher && language) && // Magazine
+            !(isbn10 && isbn13 && publisher && language) && // Magazine
             !(director && producers && actors && language && runtime) && // Movie
             !(type && artist && label && asin)
         ) // Music
