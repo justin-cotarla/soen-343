@@ -11,6 +11,7 @@ class Music extends CatalogItem {
     public artist: string;
     public label: string;
     public asin: string;
+    public timestamp: Date;
 
     constructor (
         id: string,
@@ -19,12 +20,14 @@ class Music extends CatalogItem {
         type: MusicType,
         artist: string,
         label: string,
-        asin: string) {
+        asin: string,
+        timestamp?: Date) {
         super(id, title, date);
         this.type = type;
         this.artist = artist;
         this.label = label;
         this.asin = asin;
+        this.timestamp = timestamp;
     }
 }
 export { Music };

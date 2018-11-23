@@ -8,6 +8,7 @@ class Movie extends CatalogItem {
     public subtitles: string;
     public dubbed: string;
     public runtime: number;
+    public timestamp: Date;
 
     constructor (
         id: string,
@@ -19,7 +20,8 @@ class Movie extends CatalogItem {
         language: string,
         subtitles: string,
         dubbed: string,
-        runtime: number) {
+        runtime: number,
+        timestamp?: Date) {
         super(id, title, date);
         this.director = director;
         this.producers = producers;
@@ -28,6 +30,7 @@ class Movie extends CatalogItem {
         this.subtitles = subtitles;
         this.dubbed = dubbed;
         this.runtime = runtime;
+        this.timestamp = timestamp;
     }
 }
 export { Movie };

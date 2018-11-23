@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Menu, Dropdown, Header, Icon } from "semantic-ui-react"
 
+import Cart from '../components/Cart';
 import { logout } from '../util/ApiUtil';
 import { invalidate } from '../util/AuthUtil';
 
@@ -22,7 +23,7 @@ const Navbar = (props) => {
         isAdmin = token.isAdmin;
     }
     return (
-        <Menu vertical={vertical} fixed="top" fluid inverted>
+        <Menu vertical={vertical} attached="top" fluid inverted>
             <Menu.Item>
                 <Header as="h1">
                     <Link style={{ color: 'white' }} to="/search">
@@ -76,6 +77,14 @@ const Navbar = (props) => {
                         </Dropdown.Menu>
                 </Dropdown>
             }
+            {
+                isAdmin && 
+                <Menu.Item
+                    as={NavLink}
+                    to="/transactions"
+                    content="Transactions"
+                />
+            }
             <Menu.Menu position="right">
             {
                 user &&
@@ -85,6 +94,14 @@ const Navbar = (props) => {
                     fluid
                     text={`${user.lastName}, ${user.firstName}`}>
                         <Dropdown.Menu>
+                            {
+                                !isAdmin && 
+                                <Dropdown.Item
+                                    as={NavLink}
+                                    to="/loans"
+                                    icon="list"
+                                    content="My Loans"/>
+                            }
                             <Dropdown.Item
                                 icon="log out"
                                 content="Log Out"
@@ -102,6 +119,25 @@ const Navbar = (props) => {
                 </Menu.Item>
             }      
             </Menu.Menu>
+            { user && !isAdmin &&
+                <Menu.Menu>
+                   <Dropdown 
+                        item
+                        fluid
+                        simple
+                        icon="shopping cart"
+                    >
+                        <Dropdown.Menu style={{
+                            right: "0",
+                            left: "auto",
+                            width: "300px",
+                            border: "none",
+                        }}>
+                            <Cart/>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Menu.Menu>
+            }
         </Menu>    
     )
 }

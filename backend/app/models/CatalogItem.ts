@@ -2,6 +2,7 @@ class CatalogItem {
     public id: string;
     public title: string;
     public date: string;
+    public timestamp: Date;
 
     constructor (
         id: string,

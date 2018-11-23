@@ -4,7 +4,7 @@ import InventoryTDG from './InventoryTDG';
 import MagazineTDG from './MagazineTDG';
 import MovieTDG from './MovieTDG';
 import MusicTDG from './MusicTDG';
-import TransactionTDG from './TransactionTDG';
+import TransactionDAO from './TransactionDAO';
 import UserTDG from './UserTDG';
 
 export {
@@ -14,6 +14,6 @@ export {
     MagazineTDG,
     MovieTDG,
     MusicTDG,
-    TransactionTDG,
+    TransactionDAO,
     UserTDG,
 };

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { 
     Card, 
     Grid,
@@ -12,6 +13,9 @@ import {
     Header
 } from 'semantic-ui-react';
 import { withToastManager } from 'react-toast-notifications';
+import uuidv4 from 'uuid/v4';
+
+import { cartUpdateAsync } from '../redux/actionCreators'; 
 import { 
     getCatalogItem,
     editCatalogItem,
@@ -53,7 +57,9 @@ class CatalogItem extends Component {
 
     getCatalogItem = async (type, id) => {
         try {
-            const { data: { catalogItem, inventory } } = await getCatalogItem(type, id);
+            const { data } = await getCatalogItem(id);
+            const { inventory, ...catalogItem } = data;
+
             this.setState({
                 originalItem: { 
                     ...catalogItem, 
@@ -71,6 +77,7 @@ class CatalogItem extends Component {
                 loading: false,
             });
         } catch (error) {
+            console.log(error)
             if (error.response.status === 404) {
                 this.setState({
                     loading: false,
@@ -172,6 +179,22 @@ class CatalogItem extends Component {
         this.handleInventoryAction('add');
     }
 
+    handleAddToCart = (id, title) => {
+        const {
+            itemList,
+            cartUpdateAsync,
+        } = this.props;
+
+        cartUpdateAsync([
+            ...itemList,
+            {
+                id: uuidv4(),
+                catalogItemId: id,
+                title,
+            }
+        ]);
+    }
+
     handleDeleteInventoryItem = () => {
         this.handleInventoryAction('delete');
     }
@@ -191,7 +214,7 @@ class CatalogItem extends Component {
                 default:
                 }
 
-                const { data: { inventory } } = await getCatalogItem(type, id);
+                const { data: { inventory } } = await getCatalogItem(id);
                 this.setState({
                     updating: false,
                     inventory: {
@@ -435,6 +458,7 @@ class CatalogItem extends Component {
                                                 icon
                                                 labelPosition="left"
                                                 color="teal"
+                                                onClick={() => this.handleAddToCart(id, title)}
                                                 disabled={inventory.total === 0 || inventory.available === 0 }>
                                                 <Icon name="cart"/>
                                                 Add to cart
@@ -452,7 +476,14 @@ class CatalogItem extends Component {
     }
 }
 
-export default withToastManager(CatalogItem);
+const mapStateToProps = ({ cart }) => {
+    const { itemList } = cart;
+    return {
+        itemList,
+    };
+  };
+
+export default connect(mapStateToProps, { cartUpdateAsync } )(withToastManager(CatalogItem));
 
 const DeleteModal = (props) => {
     return (

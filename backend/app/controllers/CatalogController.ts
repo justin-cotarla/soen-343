@@ -3,6 +3,14 @@ import express, { Request, Response } from 'express';
 import { Administrator } from '../models';
 import Catalog, { CatalogItemType } from '../services/Catalog';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: import('../models/User').User;
+        }
+    }
+}
+
 const catalogController = express.Router();
 
 catalogController.get('/', async (req: Request, res: Response) => {
@@ -121,7 +129,7 @@ catalogController.put('/:type', async (req: Request, res: Response) => {
     if (
         !(title && date) || // Common
         (!(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-        !(isbn10 && isbn13 && publisher && language) && // Magazine
+        !(asin && publisher && language) && // Magazine
         !(director && producers && actors && language && subtitles && dubbed && runtime) && // Movie
         !(type && artist && label && asin)) // Music
     ) {
@@ -206,6 +214,7 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
     const {
         title,
         date,
+        timestamp,
         isbn10,
         isbn13,
         author,
@@ -227,10 +236,10 @@ catalogController.post('/:type/:id', async (req: Request, res: Response) => {
 
     // Must have proper (non-nullable) attributes
     if (
-        !(title && date) || // Common
+        !(title && date && timestamp) || // Common
         (
             !(isbn10 && isbn13 && author && publisher && format && pages) && // Book
-            !(isbn10 && isbn13 && publisher && language) && // Magazine
+            !(asin && publisher && language) && // Magazine
             !(director && producers && actors && language && runtime) && // Movie
             !(type && artist && label && asin)
         ) // Music

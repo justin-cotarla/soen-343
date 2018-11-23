@@ -20,7 +20,7 @@ class ViewActiveUsers extends Component {
     render() {
         return (
             <div style={{ display: 'inline-block', margin: 'auto' }}>
-                <Grid textAlign='center' style={{ margin: '3em 1em' }} >
+                <Grid textAlign='center' style={{ margin: '0 1em' }} >
                     <Grid.Column>
                         <Header as='h1' color='teal' textAlign='left' style={{ margin: '1em 0' }}>
                             Active Users
