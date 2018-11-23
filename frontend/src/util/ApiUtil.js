@@ -252,3 +252,27 @@ export const checkout = async () => {
         },
     })
 }
+
+export const getLoans = async (userId) => {
+    return await api({
+        method: 'get',
+        url: `/users/${userId}/loans`,
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const returnItem = async (inventoryItemId) => {
+    return await api({
+        method: 'put',
+        url: '/transactions',
+        data: {
+            inventoryItemId,
+            operation: 'return',
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
