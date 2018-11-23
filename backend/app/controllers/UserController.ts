@@ -4,6 +4,14 @@ import UserService from '../services/UserService';
 import TransactionService from '../services/TransactionService';
 import { Administrator } from '../models';
 
+declare global {
+    namespace Express {
+        export interface Request {
+            user?: import('../models/User').User;
+        }
+    }
+}
+
 const userController = express.Router();
 
 userController.put('/', async (req: Request, res: Response) => {
@@ -91,12 +99,14 @@ userController.get('/:id/loans', async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).end();
     }
-    if (!(req.user instanceof Administrator)) {
-        return res.status(403).end();
+
+    if (req.user instanceof Administrator) {
+        return res.status(405).end();
     }
 
     const { id } = req.params;
-    if (req.user.id !== id) {
+    // tslint:disable-next-line:triple-equals
+    if (req.user.id != id) {
         return res.status(403).end();
     }
 

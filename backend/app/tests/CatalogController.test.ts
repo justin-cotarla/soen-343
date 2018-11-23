@@ -162,7 +162,7 @@ describe('CatalogController', () => {
 
             Catalog.addItem = jest.fn().mockReturnValueOnce({
                 catalogItem: insertedItem,
-                inventory: [new InventoryItem('1', insertedItem.id, true)],
+                inventory: [new InventoryItem('1', insertedItem.id, null, null)],
             });
 
             const response = await supertest(server)
@@ -202,9 +202,9 @@ describe('CatalogController', () => {
             Catalog.addItem = jest.fn().mockReturnValueOnce({
                 catalogItem: insertedItem,
                 inventory: [
-                    new InventoryItem('1', insertedItem.id, true),
-                    new InventoryItem('2', insertedItem.id, true),
-                    new InventoryItem('3', insertedItem.id, true),
+                    new InventoryItem('1', insertedItem.id, null, null),
+                    new InventoryItem('2', insertedItem.id, null, null),
+                    new InventoryItem('3', insertedItem.id, null, null),
                 ],
             });
 

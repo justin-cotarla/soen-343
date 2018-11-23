@@ -10,7 +10,7 @@ import {
 import DatePicker from 'react-datepicker';
 
 import CalendarButton from '../components/CalendarButton';
-import { getTransactions } from '../util/__mocks__/ApiUtils';
+import { getTransactions } from '../util/ApiUtil';
 
 const options = [
     { key: 'Any', text: 'Any', value: 'ANY' },
@@ -54,12 +54,14 @@ class TransactionPage extends React.Component {
             query,
             operation,
         } = this.state;
+        const { data: transactionList } = await getTransactions({
+            date,
+            query,
+            operation,
+        });
+
         this.setState({
-            transactionList: await getTransactions({
-                date,
-                query,
-                operation,
-            }),
+            transactionList,
         });
     }
 
@@ -70,15 +72,15 @@ class TransactionPage extends React.Component {
             timestamp,
             operation,
             user: { firstName, lastName},
-            inventoryItem: { title },
+            inventoryItem: { id: inventoryItemId },
         } = transaction;
 
         return (
             <Table.Row>
                 <Table.Cell>{id}</Table.Cell>
-                <Table.Cell>{timestamp}</Table.Cell>
+                <Table.Cell>{new Date(timestamp).toLocaleString()}</Table.Cell>
                 <Table.Cell>{operation}</Table.Cell>
-                <Table.Cell>{title}</Table.Cell>
+                <Table.Cell>{inventoryItemId}</Table.Cell>
                 <Table.Cell>{`${firstName} ${lastName}`}</Table.Cell>
             </Table.Row>
         )
@@ -90,9 +92,9 @@ class TransactionPage extends React.Component {
                 <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell>ID</Table.HeaderCell>
-                        <Table.HeaderCell>Time</Table.HeaderCell>
+                        <Table.HeaderCell>Date</Table.HeaderCell>
                         <Table.HeaderCell>Operation</Table.HeaderCell>
-                        <Table.HeaderCell>Item</Table.HeaderCell>
+                        <Table.HeaderCell>Inventory ID</Table.HeaderCell>
                         <Table.HeaderCell>Client</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>

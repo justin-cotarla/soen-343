@@ -1,4 +1,6 @@
 import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+
 import { invalidate } from './AuthUtil';
 
 const api = axios.create({
@@ -176,6 +178,99 @@ export const deleteInventoryItem = async (catalogItemType, id) => {
     return await api({
         method: 'delete',
         url: `/catalog/${catalogItemType}/${id}/inventory`,
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const getTransactions = async (params) => {
+    const {
+        date,
+        query,
+        operation,
+    } = params;
+    return await api({
+        method: 'get',
+        url: `/transactions`,
+        params: {
+            timestamp: date,
+            query,
+            operation,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const getCart = async () => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'get',
+        url: `/carts/${jwtDecode(token).user.id}`,
+        headers: {
+            'Authorization': `Bearer ${token}` 
+        },
+    })
+}
+
+export const updateCart = async (items) => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'post',
+        url: `/carts/${jwtDecode(token).user.id}`,
+        data: {
+            items,
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const deleteCart = async () => {
+    const token = localStorage.getItem('Authorization');
+    return await api({
+        method: 'delete',
+        url: `/carts/${jwtDecode(token).user.id}`,
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const checkout = async () => {
+    return await api({
+        method: 'put',
+        url: `/transactions`,
+        data: {
+            operation: 'loan',
+        },
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const getLoans = async (userId) => {
+    return await api({
+        method: 'get',
+        url: `/users/${userId}/loans`,
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
+        },
+    })
+}
+
+export const returnItem = async (inventoryItemId) => {
+    return await api({
+        method: 'put',
+        url: '/transactions',
+        data: {
+            inventoryItemId,
+            operation: 'return',
+        },
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('Authorization')}` 
         },
