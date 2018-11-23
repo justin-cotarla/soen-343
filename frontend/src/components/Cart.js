@@ -7,7 +7,6 @@ import {
     Placeholder,
     Header,
 } from 'semantic-ui-react';
-import { withToastManager } from 'react-toast-notifications';
 import { connect } from 'react-redux';
 
 import {
@@ -128,15 +127,11 @@ class Cart extends Component {
     }
 }
 
-//[{"id": 1, "title": "Edge of Tomorrow"}, {"id": 2, "title": "Brave New World"}]
-
-const mapStateToProps = ({ cart, toasts }) => {
+const mapStateToProps = ({ cart }) => {
     const { itemList, loading } = cart;
-    const { toastManager } = toasts;
     return {
         itemList,
         loading,
-        toastManager,
     };
   };
 
