@@ -330,7 +330,7 @@ class CatalogItem extends Component {
             return <Header style={{ marginTop: '1em' }}>{fetchErrorMsg}</Header>
         }
 
-        const { id, title } = item;
+        const { id, title, catalogItemType } = item;
         return (
             <React.Fragment>
                 <DeleteModal 
@@ -379,7 +379,11 @@ class CatalogItem extends Component {
                             {
                                 Object
                                 .keys(item)
-                                .filter(key => key !== 'title' && key !== 'id' && key !== 'catalogItemType')
+                                .filter(key => key !== 'title' 
+                                    && key !== 'id' 
+                                    && key !== 'catalogItemType' 
+                                    && key !== 'timestamp'
+                                )
                                 .map((key) => {
                                     return (
                                         <Grid.Row key={`item-${id}-${key}`} style={{ padding: '0.5rem 0'}}>
@@ -453,7 +457,7 @@ class CatalogItem extends Component {
                                             </Button.Group>
                                         ) : ( 
                                             (inventory.total !== 0 || inventory.available !== 0) &&                                       
-                                            <Button
+                                            catalogItemType !== 'magazine' && <Button
                                                 fluid
                                                 icon
                                                 labelPosition="left"
