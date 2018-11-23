@@ -140,4 +140,4 @@ export default connect(mapStateToProps, {
     cartDeleteAsync,
     cartGetAsync,
     cartUpdateAsync,
-})(withToastManager(Cart));
+})(Cart);
