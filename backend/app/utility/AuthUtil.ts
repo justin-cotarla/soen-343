@@ -68,7 +68,8 @@ const authenticate = async (email: string, password: string): Promise<User> => {
         UPDATE
         USER
         SET
-        SESSION_ID=?
+        SESSION_ID=?,
+        LAST_LOGIN=CURRENT_TIMESTAMP
         WHERE ID=?;
     `;
     await DatabaseUtil.sendQuery(setLoggedInQuery, [sessionId, user.ID]);

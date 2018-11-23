@@ -9,8 +9,18 @@ class Client extends User {
         email: string,
         address: string,
         sessionId: string,
+        lastLogin?: Date,
     ) {
-        super(id, firstName, lastName, phone, email, address, sessionId);
+        super(
+            id,
+            firstName,
+            lastName,
+            phone,
+            email,
+            address,
+            sessionId,
+            lastLogin,
+        );
     }
 }
 

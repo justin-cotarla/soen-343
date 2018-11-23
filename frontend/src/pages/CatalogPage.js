@@ -1,6 +1,6 @@
 import React from 'react'
 import { Grid, List } from 'semantic-ui-react'
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 
 import CatalogTypeFilter from '../components/CatalogTypeFilter';
@@ -123,7 +123,7 @@ class CatalogPage extends React.Component {
     
     render() {
         const { match, location } = this.props;
-        const { catalog, type, form } = this.state;
+        const { catalog, type } = this.state;
         return (
             <div style={{
                 display: 'inline-block',
