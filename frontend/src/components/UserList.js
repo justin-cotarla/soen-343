@@ -12,6 +12,7 @@ class UserList extends Component {
                 lastName={user.lastName}
                 email={user.email}
                 address={user.address}
+                lastLogin={user.lastLogin}
             />
         );
         return (

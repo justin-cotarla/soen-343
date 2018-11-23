@@ -72,6 +72,7 @@ class UserTDG implements TableDataGateway {
                         user.EMAIL,
                         user.ADDRESS,
                         user.SESSION_ID,
+                        user.LAST_LOGIN,
                     );
                 }
                 return new User(
@@ -82,6 +83,7 @@ class UserTDG implements TableDataGateway {
                     user.EMAIL,
                     user.ADDRESS,
                     user.SESSION_ID,
+                    user.LAST_LOGIN,
                 );
             });
         } catch (err) {

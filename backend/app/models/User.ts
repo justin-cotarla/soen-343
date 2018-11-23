@@ -6,6 +6,7 @@ class User {
     public email: string;
     public address: string;
     public sessionId: string;
+    public lastLogin?: Date;
 
     constructor(
         id: string,
@@ -15,6 +16,7 @@ class User {
         email: string,
         address: string,
         sessionId: string,
+        lastLogin?: Date,
     ) {
         this.id = id;
         this.firstName = firstName;
@@ -23,6 +25,7 @@ class User {
         this.email = email;
         this.address = address;
         this.sessionId = sessionId;
+        this.lastLogin = lastLogin;
     }
 }
 export { User };

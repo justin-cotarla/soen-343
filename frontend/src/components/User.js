@@ -4,12 +4,20 @@ import '../styles/User.css';
 
 class User extends Component {
     render() {
+        const {
+            firstName,
+            lastName,
+            email,
+            address,
+            lastLogin,
+        } = this.props;
         return (
             <Card>
                 <Card.Content>
-                    <Card.Header>{this.props.firstName + ' ' + this.props.lastName}</Card.Header>
-                    <Card.Meta>{this.props.email}</Card.Meta>
-                    <Card.Description>{this.props.address}</Card.Description>
+                    <Card.Header>{firstName + ' ' + lastName}</Card.Header>
+                    <Card.Meta>{email}</Card.Meta>
+                    <Card.Description>{address}</Card.Description>
+                    <Card.Description>{`Last Login: ${lastLogin}`}</Card.Description>
                 </Card.Content>
             </Card>
         );
