@@ -6,6 +6,7 @@ import ClientRoute from './components/ClientRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 
+import ToastLoader from './components/ToastLoader';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import TransactionPage from './pages/TransactionPage';
@@ -26,6 +27,7 @@ class App extends Component {
             <ToastProvider placement="bottom-right" autoDismissTimeout={3000}>
                 <BrowserRouter>
                     <div style={{ height: '100%' }}>
+                        <ToastLoader />
                         <Navbar vertical={false} token={token}/>   
                         <Switch>
                             <Route path="/login" component={LoginPage}/>
