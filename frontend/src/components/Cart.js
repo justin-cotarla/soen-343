@@ -130,11 +130,13 @@ class Cart extends Component {
 
 //[{"id": 1, "title": "Edge of Tomorrow"}, {"id": 2, "title": "Brave New World"}]
 
-const mapStateToProps = ({ cart }) => {
+const mapStateToProps = ({ cart, toasts }) => {
     const { itemList, loading } = cart;
+    const { toastManager } = toasts;
     return {
         itemList,
         loading,
+        toastManager,
     };
   };
 

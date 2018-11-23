@@ -3,6 +3,8 @@ import uuidv4 from 'uuid/v4';
 import {
     CART_SET,
     CART_SET_LOADING,
+    TOASTS_SETUP,
+    TOASTS_NOTIFY,
 } from './actions';
 import {
     deleteCart,
@@ -19,6 +21,21 @@ export function cartSetCart(itemList) {
     };
 }
 
+export function toastsSetup(toastManager) {
+    return {
+        type: TOASTS_SETUP,
+        toastManager,
+    };
+}
+
+export function toastsNotify(message, appearance) {
+    return {
+        type: TOASTS_NOTIFY,
+        message,
+        appearance,
+    };
+}
+
 export function cartSetLoading(loading) {
     return {
         type: CART_SET_LOADING,
@@ -32,8 +49,10 @@ export function cartDeleteAsync() {
             await deleteCart();
             localStorage.setItem('cart', JSON.stringify([]));
             dispatch(cartSetCart([]));
+            dispatch(toastsNotify('Cart cleared', 'success'));
         } catch (err) {
-            console.err(err);
+            console.error(err);
+            dispatch(toastsNotify('Could not clear cart', 'error'));
         }
     }
 } 
@@ -44,17 +63,26 @@ export function cartCheckoutAsync() {
             await checkout();
             localStorage.setItem('cart', JSON.stringify([]));
             dispatch(cartSetCart([]));
+            dispatch(toastsNotify('Checked out', 'success'));
+            window.location.reload();
         } catch (err) {
             console.error(err);
+            dispatch(toastsNotify('Could not clear cart', 'error'));
         }
     }
     
 }
 export function cartUpdateAsync(itemList) {
     return async dispatch => {
-        await updateCart(itemList.map(({ catalogItemId }) => catalogItemId));
-        localStorage.setItem('cart', JSON.stringify(itemList));
-        dispatch(cartSetCart(itemList));
+        try {
+            await updateCart(itemList.map(({ catalogItemId }) => catalogItemId));
+            localStorage.setItem('cart', JSON.stringify(itemList));
+            dispatch(cartSetCart(itemList));
+            dispatch(toastsNotify('Cart modified', 'success'));
+        } catch (err) {
+            console.error(err);
+            dispatch(toastsNotify('Could not modify cart', 'error'));
+        }
     }
 } 
 
